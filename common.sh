@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ~/tmux/common.sh - 공통 함수
+# ~/tmux/common.sh - batipanel 공통 함수
 
 set -euo pipefail
 
@@ -42,7 +42,7 @@ list_projects() {
     local name
     name=$(basename "$f" .sh)
     case "$name" in
-      common|start|layout_*) continue ;;
+      common|start|layout_*|example) continue ;;
     esac
     echo "  - $name"
   done
@@ -65,8 +65,8 @@ list_layouts() {
     fi
   done
   echo ""
-  echo -e "${YELLOW}기본값 변경: t config layout <이름>${NC}"
-  echo -e "${YELLOW}임시 변경:   t <프로젝트> --layout <이름>${NC}"
+  echo -e "${YELLOW}기본값 변경: b config layout <이름>${NC}"
+  echo -e "${YELLOW}임시 변경:   b <프로젝트> --layout <이름>${NC}"
 }
 
 # 레이아웃 로드
@@ -169,10 +169,10 @@ tmux_config() {
       echo -e "${GREEN}기본 레이아웃 변경: $value${NC}"
       ;;
     "")
-      echo "사용법: t config <key> [value]"
+      echo "사용법: b config <key> [value]"
       echo ""
-      echo "  t config layout          현재 기본 레이아웃 확인"
-      echo "  t config layout 7panel   기본 레이아웃 변경"
+      echo "  b config layout          현재 기본 레이아웃 확인"
+      echo "  b config layout 7panel   기본 레이아웃 변경"
       ;;
     *)
       echo -e "${RED}알 수 없는 설정: $key${NC}"
@@ -185,7 +185,7 @@ tmux_new() {
   local PROJECT_PATH="${2:-$(pwd)}"
 
   if [ -z "$SESSION" ]; then
-    echo "사용법: t new <세션명> [프로젝트경로]"
+    echo "사용법: b new <세션명> [프로젝트경로]"
     exit 1
   fi
 
@@ -218,5 +218,5 @@ TMUXEOF
   chmod +x ~/tmux/"${SESSION}.sh"
 
   echo -e "${GREEN}~/tmux/${SESSION}.sh 생성됨${NC}"
-  echo -e "${YELLOW}바로 시작: t ${SESSION}${NC}"
+  echo -e "${YELLOW}바로 시작: b ${SESSION}${NC}"
 }
