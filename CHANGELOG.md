@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (Unreleased)
+## 0.3.0 (2026-03-08)
 
 ### Added
 - First-run setup wizard — interactive 2-step guide on first launch
