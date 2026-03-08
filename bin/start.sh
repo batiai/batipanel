@@ -1,22 +1,34 @@
 #!/usr/bin/env bash
-# batipanel - 메인 진입점
-# alias b='bash ~/.batipanel/bin/start.sh' 로 등록해서 사용
+# batipanel - main entry point
+# alias b='bash ~/.batipanel/bin/start.sh'
+
+set -euo pipefail
 
 BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 source "$BATIPANEL_HOME/lib/common.sh"
 
 show_help() {
+  local ver
+  ver=$(cat "$BATIPANEL_HOME/VERSION" 2>/dev/null || echo "unknown")
   echo ""
-  echo "  batipanel - AI workspace manager"
+  echo "  batipanel v${ver} - AI workspace manager"
   echo ""
-  echo "  b <project>                   Start or resume"
-  echo "  b <project> --layout <name>  Start with specific layout"
-  echo "  b new <name> [path]           Register a new project"
-  echo "  b reload <project> [--layout] Restart with new layout"
-  echo "  b stop <project>              Stop a session"
-  echo "  b ls                          List sessions & projects"
-  echo "  b layouts                     Show available layouts"
-  echo "  b config layout [name]        Set default layout"
+  echo "  b <project>                          Start or resume"
+  echo "  b <project> --layout <name>          Start with specific layout"
+  echo "  b new <name> [path]                  Register a new project"
+  echo "  b reload <project> [--layout <name>] Restart with new layout"
+  echo "  b stop <project>                     Stop a session (confirm)"
+  echo "  b stop <project> -f                  Stop without confirmation"
+  echo "  b ls                                 List sessions & projects"
+  echo "  b layouts                            Show available layouts"
+  echo "  b config layout [name]               Set default layout"
+  echo "  b doctor                             Check system health"
+  echo "  b help                               Show this help"
+  echo ""
+  echo "Options:"
+  echo "  --layout, -l <name>   Use a specific layout"
+  echo "  --version, -v         Show version"
+  echo "  --debug               Enable debug logging"
   echo ""
   echo "Examples:"
   echo "  b myproject"
@@ -27,18 +39,30 @@ show_help() {
   tmux_list
 }
 
-# --layout 파싱
+# parse arguments
 LAYOUT_ARG=""
+FORCE_FLAG=""
 ARGS=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --layout|-l)
-      LAYOUT_ARG="${2:-}"
-      shift 2 || { echo -e "${RED}--layout requires a layout name${NC}"; exit 1; }
+      if [[ $# -lt 2 ]]; then
+        echo -e "${RED}--layout requires a layout name${NC}"; exit 1
+      fi
+      LAYOUT_ARG="$2"
+      shift 2
       ;;
     --version|-v)
       echo "batipanel $(cat "$BATIPANEL_HOME/VERSION" 2>/dev/null || echo 'unknown')"
       exit 0
+      ;;
+    --debug)
+      export BATIPANEL_DEBUG=1
+      shift
+      ;;
+    -f)
+      FORCE_FLAG="-f"
+      shift
       ;;
     *)
       ARGS+=("$1")
@@ -52,12 +76,12 @@ case "${ARGS[0]:-}" in
     tmux_new "${ARGS[1]:-}" "${ARGS[2]:-}"
     ;;
   reload)
-    tmux_stop "${ARGS[1]:-}"
+    tmux_stop "${ARGS[1]:-}" "-f"
     sleep 0.3
     tmux_start "${ARGS[1]:-}" "$LAYOUT_ARG"
     ;;
   stop)
-    tmux_stop "${ARGS[1]:-}"
+    tmux_stop "${ARGS[1]:-}" "$FORCE_FLAG"
     ;;
   ls|list)
     tmux_list
@@ -68,8 +92,18 @@ case "${ARGS[0]:-}" in
   config)
     tmux_config "${ARGS[1]:-}" "${ARGS[2]:-}"
     ;;
-  help|"")
+  doctor)
+    tmux_doctor
+    ;;
+  help)
     show_help
+    ;;
+  "")
+    if is_first_run; then
+      run_wizard || show_help
+    else
+      show_help
+    fi
     ;;
   *)
     if [ -f "$BATIPANEL_HOME/projects/${ARGS[0]}.sh" ]; then
