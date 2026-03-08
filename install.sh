@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh - batipanel 설치 스크립트 (macOS / Linux)
+# install.sh - batipanel installer (macOS / Linux)
 
 set -euo pipefail
 
@@ -7,7 +7,7 @@ BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 
 echo "batipanel - Setting up AI development workspace..."
 
-# OS 감지
+# detect OS
 OS="$(uname -s)"
 
 # portable sed -i (macOS vs GNU)
@@ -19,7 +19,7 @@ sed_i() {
   fi
 }
 
-# === 1. 패키지 매니저 감지 및 도구 설치 ===
+# === 1. detect package manager and install tools ===
 echo ""
 echo "Checking tools..."
 
@@ -42,7 +42,7 @@ install_packages() {
   fi
 }
 
-# 필수: tmux
+# required: tmux
 if ! command -v tmux &>/dev/null; then
   echo "Installing tmux..."
   install_packages tmux || {
@@ -65,11 +65,11 @@ if ! command -v tmux &>/dev/null; then
   exit 1
 fi
 
-# 선택: lazygit, eza, btop (없어도 동작함)
+# optional: lazygit, eza, btop (works without them)
 echo ""
 echo "Installing optional tools (will work without them)..."
 
-# lazygit — 패키지 매니저마다 이름이 다를 수 있음
+# lazygit
 if ! command -v lazygit &>/dev/null; then
   install_packages lazygit 2>/dev/null || true
 fi
@@ -79,25 +79,25 @@ if ! command -v btop &>/dev/null; then
   install_packages btop 2>/dev/null || true
 fi
 
-# yazi — TUI 파일 매니저 (파일 탐색/미리보기)
+# yazi
 if ! command -v yazi &>/dev/null; then
   install_packages yazi 2>/dev/null || true
 fi
 
-# eza — 일부 배포판에서는 아직 패키지가 없음
+# eza
 if ! command -v eza &>/dev/null; then
   install_packages eza 2>/dev/null || true
 fi
 
-# === 2. 디렉토리 구조 생성 ===
-mkdir -p "$BATIPANEL_HOME"/{bin,lib,layouts,projects}
+# === 2. create directory structure ===
+mkdir -p "$BATIPANEL_HOME"/{bin,lib,layouts,projects,config}
 
-# === 3. 기존 ~/tmux/ 마이그레이션 ===
+# === 3. migrate existing ~/tmux/ ===
 if [ -d "$HOME/tmux" ] && [ ! -f "$BATIPANEL_HOME/.migrated" ]; then
   echo ""
   echo "Migrating existing ~/tmux/ configuration..."
 
-  # 프로젝트 파일 이동 (코어/레이아웃/예제 제외)
+  # move project files (skip core/layout/example)
   for f in "$HOME"/tmux/*.sh; do
     [ -f "$f" ] || continue
     name=$(basename "$f" .sh)
@@ -110,14 +110,14 @@ if [ -d "$HOME/tmux" ] && [ ! -f "$BATIPANEL_HOME/.migrated" ]; then
     fi
   done
 
-  # 마이그레이션된 프로젝트 파일 내 경로 업데이트
+  # update paths in migrated project files
   for f in "$BATIPANEL_HOME"/projects/*.sh; do
     [ -f "$f" ] || continue
     # shellcheck disable=SC2016
     sed_i 's|source ~/tmux/common.sh|BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"\nsource "$BATIPANEL_HOME/lib/common.sh"|g' "$f"
   done
 
-  # 기존 config.sh 보존
+  # preserve existing config.sh
   if [ -f "$HOME/tmux/config.sh" ] && [ ! -f "$BATIPANEL_HOME/config.sh" ]; then
     cp "$HOME/tmux/config.sh" "$BATIPANEL_HOME/config.sh"
     echo "  Preserved config: config.sh"
@@ -127,7 +127,7 @@ if [ -d "$HOME/tmux" ] && [ ! -f "$BATIPANEL_HOME/.migrated" ]; then
   echo "  Migration complete"
 fi
 
-# === 4. 스크립트 복사 ===
+# === 4. copy scripts ===
 echo ""
 echo "Installing scripts..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -135,6 +135,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cp "$SCRIPT_DIR/bin/start.sh" "$BATIPANEL_HOME/bin/"
 cp "$SCRIPT_DIR/lib/common.sh" "$BATIPANEL_HOME/lib/"
 cp "$SCRIPT_DIR/VERSION" "$BATIPANEL_HOME/VERSION" 2>/dev/null || true
+cp "$SCRIPT_DIR/uninstall.sh" "$BATIPANEL_HOME/" 2>/dev/null || true
 
 for layout in 4panel 5panel 6panel 7panel 7panel_log 8panel dual-claude devops; do
   cp "$SCRIPT_DIR/layouts/${layout}.sh" "$BATIPANEL_HOME/layouts/"
@@ -142,16 +143,25 @@ done
 
 chmod +x "$BATIPANEL_HOME"/bin/*.sh "$BATIPANEL_HOME"/lib/*.sh "$BATIPANEL_HOME"/layouts/*.sh
 
-# === 5. tmux.conf 설치 ===
+# === 5. install completions ===
+if [ -d "$SCRIPT_DIR/completions" ]; then
+  mkdir -p "$BATIPANEL_HOME/completions"
+  cp "$SCRIPT_DIR/completions/batipanel.bash" "$BATIPANEL_HOME/completions/" 2>/dev/null || true
+  cp "$SCRIPT_DIR/completions/_batipanel.zsh" "$BATIPANEL_HOME/completions/" 2>/dev/null || true
+fi
+
+# === 6. install tmux.conf ===
 mkdir -p "$BATIPANEL_HOME/config"
 cp "$SCRIPT_DIR/config/tmux.conf" "$BATIPANEL_HOME/config/tmux.conf"
 
 BATIPANEL_SOURCE_LINE="source-file $BATIPANEL_HOME/config/tmux.conf"
 if [ -f ~/.tmux.conf ]; then
   if ! grep -qF "$BATIPANEL_SOURCE_LINE" ~/.tmux.conf 2>/dev/null; then
-    echo "" >> ~/.tmux.conf
-    echo "# batipanel" >> ~/.tmux.conf
-    echo "$BATIPANEL_SOURCE_LINE" >> ~/.tmux.conf
+    {
+      echo ""
+      echo "# batipanel"
+      echo "$BATIPANEL_SOURCE_LINE"
+    } >> ~/.tmux.conf
     echo "  Added batipanel source line to ~/.tmux.conf"
   else
     echo "  ~/.tmux.conf already configured"
@@ -162,14 +172,22 @@ else
   echo "  Created ~/.tmux.conf with batipanel source"
 fi
 
-# === 6. alias 등록 ===
-# 셸 RC 파일 감지
-if [ -n "${ZSH_VERSION:-}" ] || [ -f "$HOME/.zshrc" ]; then
+# === 7. register aliases ===
+# detect shell RC file (check running shell first, then fall back to file detection)
+if [ -n "${ZSH_VERSION:-}" ]; then
+  SHELL_RC="$HOME/.zshrc"
+elif [ -n "${BASH_VERSION:-}" ]; then
+  if [ -f "$HOME/.bashrc" ]; then
+    SHELL_RC="$HOME/.bashrc"
+  elif [ -f "$HOME/.bash_profile" ]; then
+    SHELL_RC="$HOME/.bash_profile"
+  else
+    SHELL_RC="$HOME/.profile"
+  fi
+elif [ -f "$HOME/.zshrc" ]; then
   SHELL_RC="$HOME/.zshrc"
 elif [ -f "$HOME/.bashrc" ]; then
   SHELL_RC="$HOME/.bashrc"
-elif [ -f "$HOME/.bash_profile" ]; then
-  SHELL_RC="$HOME/.bash_profile"
 else
   SHELL_RC="$HOME/.profile"
 fi
@@ -203,7 +221,32 @@ else
   echo "  Added alias: b ($SHELL_RC)"
 fi
 
-# === 완료 ===
+# === 8. register tab completion ===
+# bash completion via sourcing; zsh via fpath
+COMP_SOURCE="source $BATIPANEL_HOME/completions/batipanel.bash"
+if [ -f "$BATIPANEL_HOME/completions/batipanel.bash" ]; then
+  if ! grep -qF "completions/batipanel" "$SHELL_RC" 2>/dev/null; then
+    echo "$COMP_SOURCE" >> "$SHELL_RC"
+    echo "  Added tab completion ($SHELL_RC)"
+  fi
+  # zsh: also install to fpath if zsh is the shell
+  if [ -n "${ZSH_VERSION:-}" ] || [[ "$SHELL_RC" == *zshrc* ]]; then
+    local_zsh_comp="${ZDOTDIR:-$HOME}/.zfunc"
+    mkdir -p "$local_zsh_comp"
+    if [ -f "$BATIPANEL_HOME/completions/_batipanel.zsh" ]; then
+      cp "$BATIPANEL_HOME/completions/_batipanel.zsh" "$local_zsh_comp/_batipanel"
+      if ! grep -qF 'fpath+=' "$SHELL_RC" 2>/dev/null || ! grep -qF '.zfunc' "$SHELL_RC" 2>/dev/null; then
+        # add fpath before compinit if not already there
+        if ! grep -qF "$local_zsh_comp" "$SHELL_RC" 2>/dev/null; then
+          echo "fpath+=($local_zsh_comp)" >> "$SHELL_RC"
+        fi
+      fi
+      echo "  Added zsh completion"
+    fi
+  fi
+fi
+
+# === done ===
 echo ""
 echo "batipanel installed successfully!"
 echo "  Location: $BATIPANEL_HOME"
@@ -220,6 +263,14 @@ if [ ${#MISSING[@]} -gt 0 ]; then
   for m in "${MISSING[@]}"; do
     echo "  - $m"
   done
+  # show install links for tools not in default repos
+  if [[ "$(uname -s)" == "Linux" ]] && command -v apt-get &>/dev/null; then
+    echo ""
+    echo "  On Ubuntu/Debian, some tools need manual installation:"
+    echo "    lazygit: https://github.com/jesseduffield/lazygit#installation"
+    echo "    yazi:    https://github.com/sxyazi/yazi#installation"
+    echo "    eza:     https://github.com/eza-community/eza#installation"
+  fi
   echo ""
 fi
 
