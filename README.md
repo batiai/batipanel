@@ -27,8 +27,9 @@ Modern AI-assisted development needs more than just a terminal. You need Claude 
 ```
 ┌───────────────────────┬──────────┬────────────┐
 │  claude (main)        │ lazygit  │ btop       │
-├──────────┬────────────┼──────────┼────────────┤
-│ remote   │ terminal   │ file tree│            │
+├──────────┬────────────┤          │            │
+│ remote   │ terminal   ├──────────┤            │
+│          │            │ file tree│            │
 ├──────────┴────────────┴──────────┴────────────┤
 │  logs — full width (tail -f / npm run dev)    │
 └───────────────────────────────────────────────┘
@@ -44,15 +45,89 @@ Modern AI-assisted development needs more than just a terminal. You need Claude 
 └──────────────┴───────────────┴────────────────┘
 ```
 
+### 5panel — Balanced workspace
+
+```
+┌──────────────────────────────┬──────────────┐
+│                              │              │
+│  claude (main)               │  lazygit     │
+│                              │              │
+├──────────────┬───────────────┼──────────────┤
+│ remote-ctrl  │  terminal     │  file tree   │
+└──────────────┴───────────────┴──────────────┘
+```
+
+### 4panel — Minimal workspace
+
+```
+┌────────────────────────┬──────────────────┐
+│                        │                  │
+│  claude (main)         │  btop            │
+│                        │                  │
+├────────────────────────┼──────────────────┤
+│  lazygit               │  terminal        │
+└────────────────────────┴──────────────────┘
+```
+
+### 8panel — Dual Claude + monitor
+
+```
+┌──────────────┬──────────────┬──────────────┐
+│              │              │              │
+│  claude #1   │  claude #2   │  btop        │
+│  (main)      │  (secondary) │              │
+│              │              ├──────────────┤
+│              │              │  logs        │
+├──────────────┴──────────────┼──────────────┤
+│  lazygit                    │  file mgr    │
+└─────────────────────────────┴──────────────┘
+```
+
+### dual-claude — Multi-agent workspace
+
+```
+┌──────────────────┬──────────────────┐
+│                  │                  │
+│  claude #1       │  claude #2       │
+│  (main)          │  (secondary)     │
+│                  │                  │
+├──────────┬───────┴──────┬───────────┤
+│ lazygit  │  terminal    │ file mgr  │
+└──────────┴──────────────┴───────────┘
+```
+
+### devops — Infrastructure monitoring
+
+```
+┌──────────────────┬──────────────────┐
+│                  │                  │
+│  claude          │  btop            │
+│                  │                  │
+├──────────────────┼──────────────────┤
+│  lazydocker      │  terminal        │
+├──────────────────┴──────────────────┤
+│  logs — full width (docker logs)    │
+└─────────────────────────────────────┘
+```
+
+## Requirements
+
+- **tmux** (required — the only hard dependency)
+- **Claude Code** CLI — `npm i -g @anthropic-ai/claude-code`
+- lazygit, btop, yazi, eza (optional — auto-installed if possible, graceful fallback if missing)
+
+All optional tools degrade gracefully: btop → htop → top, yazi → eza → tree → find, lazygit → git status.
+
 ## Installation
 
-### Quick install (macOS)
+### macOS
 
 ```bash
+# Quick install (Homebrew auto-detected)
 curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/install.sh | bash
 ```
 
-### Manual install
+Or manually:
 
 ```bash
 git clone https://github.com/batiai/batipanel.git
@@ -60,11 +135,66 @@ cd batipanel
 bash install.sh
 ```
 
-## Requirements
+### Linux (Ubuntu/Debian, Fedora, Arch)
 
-- **tmux** (required)
-- **Claude Code** CLI — `npm i -g @anthropic-ai/claude-code`
-- lazygit, btop, eza (auto-installed via Homebrew)
+```bash
+git clone https://github.com/batiai/batipanel.git
+cd batipanel
+bash install.sh
+```
+
+The installer auto-detects your package manager (apt, dnf, pacman) and installs tmux + optional tools.
+
+### Manual tmux install (if the installer can't find a package manager)
+
+```bash
+# Ubuntu/Debian
+sudo apt install tmux
+
+# Fedora
+sudo dnf install tmux
+
+# Arch
+sudo pacman -S tmux
+
+# macOS
+brew install tmux
+```
+
+Then re-run `bash install.sh`.
+
+## Project structure
+
+```
+batipanel/              # source repo
+├── bin/
+│   └── start.sh        # entry point
+├── lib/
+│   └── common.sh       # core functions & layout helpers
+├── layouts/
+│   ├── 4panel.sh
+│   ├── 5panel.sh
+│   ├── 6panel.sh
+│   ├── 7panel.sh       # default
+│   ├── 7panel_log.sh
+│   ├── 8panel.sh
+│   ├── dual-claude.sh
+│   └── devops.sh
+├── config/
+│   └── tmux.conf
+├── examples/
+│   └── project.sh
+└── install.sh
+
+~/.batipanel/           # installed location
+├── bin/
+├── lib/
+├── layouts/
+├── config/
+│   └── tmux.conf       # batipanel tmux config
+├── projects/           # your project configs (created with `b new`)
+└── config.sh           # runtime settings
+```
 
 ## Usage
 
@@ -77,6 +207,9 @@ b myproject --layout 7panel_log
 
 # Register a new project
 b new myproject ~/path/to/project
+
+# Restart with a different layout
+b reload myproject --layout 6panel
 
 # Stop a session
 b stop myproject
@@ -99,6 +232,14 @@ b config layout 7panel_log
 4. Each panel auto-launches its assigned tool (Claude, lazygit, btop, etc.)
 5. Missing tools gracefully fall back to alternatives (btop → htop → top)
 
+## Terminal compatibility
+
+batipanel works with any terminal that supports tmux:
+
+- **macOS**: Terminal.app, iTerm2, Alacritty, Kitty, WezTerm, Warp
+- **Linux**: GNOME Terminal, Konsole, Alacritty, Kitty, WezTerm, xterm, st
+- **iTerm2**: Auto-detected — uses native tmux integration (`tmux -CC`) for seamless tabs and panes
+
 ## Customization
 
 ### Add a new project
@@ -107,15 +248,7 @@ b config layout 7panel_log
 b new myproject ~/code/myproject
 ```
 
-This creates `~/tmux/myproject.sh`. Edit it to customize the layout:
-
-```bash
-#!/usr/bin/env bash
-SESSION="${1:-myproject}"
-PROJECT=~/code/myproject
-source ~/tmux/common.sh
-load_layout "$SESSION" "$PROJECT" "${LAYOUT:-}"
-```
+This creates `~/.batipanel/projects/myproject.sh`.
 
 ### Change default layout
 
@@ -125,17 +258,13 @@ b config layout 7panel_log
 
 ### Create a custom layout
 
-Copy an existing layout file and modify it:
+Copy an existing layout and modify it:
 
 ```bash
-cp ~/tmux/layout_7panel.sh ~/tmux/layout_custom.sh
-# Edit layout_custom.sh to your needs
+cp ~/.batipanel/layouts/7panel.sh ~/.batipanel/layouts/custom.sh
+# Edit custom.sh to your needs
 b myproject --layout custom
 ```
-
-## iTerm2 Support
-
-batipanel auto-detects iTerm2 and uses native tmux integration (`tmux -CC`) for a seamless experience with native tabs and split panes.
 
 ## License
 
