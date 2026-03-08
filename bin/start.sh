@@ -29,6 +29,7 @@ show_help() {
   echo "  --layout, -l <name>   Use a specific layout"
   echo "  --version, -v         Show version"
   echo "  --debug               Enable debug logging"
+  echo "  --no-color            Disable colored output"
   echo ""
   echo "Examples:"
   echo "  b myproject"
@@ -58,6 +59,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --debug)
       export BATIPANEL_DEBUG=1
+      shift
+      ;;
+    --no-color)
+      export BATIPANEL_NO_COLOR=1
+      RED='' GREEN='' YELLOW='' BLUE='' NC=''
       shift
       ;;
     -f)
