@@ -16,7 +16,7 @@ class Batipanel < Formula
   def install
     # install source files to share/batipanel/
     pkgshare.install "bin/start.sh"
-    pkgshare.install "lib/common.sh"
+    (pkgshare/"lib").install Dir["lib/*.sh"]
     pkgshare.install "VERSION"
     (pkgshare/"layouts").install Dir["layouts/*.sh"]
     (pkgshare/"config").install "config/tmux.conf"
@@ -37,7 +37,7 @@ class Batipanel < Formula
       if [ "$BREW_VER" != "$LOCAL_VER" ]; then
         mkdir -p "$BATIPANEL_HOME"/{bin,lib,layouts,projects,config}
         cp "$BATIPANEL_SRC/start.sh"       "$BATIPANEL_HOME/bin/"
-        cp "$BATIPANEL_SRC/common.sh"      "$BATIPANEL_HOME/lib/"
+        cp "$BATIPANEL_SRC/lib/"*.sh       "$BATIPANEL_HOME/lib/"
         cp "$BATIPANEL_SRC/VERSION"        "$BATIPANEL_HOME/"
         cp "$BATIPANEL_SRC/layouts/"*.sh   "$BATIPANEL_HOME/layouts/"
         # completions

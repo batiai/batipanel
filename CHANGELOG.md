@@ -29,7 +29,12 @@
 - Empty project list now shows helpful guidance instead of blank output
 
 ### Changed
+- **Modularized lib/common.sh** into 7 focused modules (core, validate, layout, session, project, doctor, wizard)
 - All code comments translated to English for open-source readiness
+- `NO_COLOR` / `--no-color` environment variable and flag support (https://no-color.org)
+- Config file validated with `bash -n` before sourcing (prevents code injection)
+- `init_layout()` uses `return 1` instead of `exit 1` (safe for sourced files)
+- Race condition fix in concurrent session creation
 - `install.sh` now creates `config/` directory during setup
 - Platform-aware install/upgrade messages (no more "brew install" on Linux)
 - `eza --icons` only enabled in Nerd Font-capable terminals
