@@ -145,6 +145,12 @@ done
 
 chmod +x "$BATIPANEL_HOME"/bin/*.sh "$BATIPANEL_HOME"/lib/*.sh "$BATIPANEL_HOME"/layouts/*.sh
 
+# copy examples
+if [ -d "$SCRIPT_DIR/examples" ]; then
+  mkdir -p "$BATIPANEL_HOME/examples"
+  cp "$SCRIPT_DIR/examples/"*.sh "$BATIPANEL_HOME/examples/" 2>/dev/null || true
+fi
+
 # === 5. install completions ===
 if [ -d "$SCRIPT_DIR/completions" ]; then
   mkdir -p "$BATIPANEL_HOME/completions"
