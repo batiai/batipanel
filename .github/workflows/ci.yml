@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    name: ShellCheck + Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: ShellCheck
+        run: |
+          shellcheck -s bash bin/start.sh lib/common.sh install.sh uninstall.sh
+          shellcheck -s bash layouts/*.sh
+          shellcheck -s bash completions/batipanel.bash
+
+      - name: Bash syntax check
+        run: |
+          for f in bin/start.sh lib/common.sh install.sh uninstall.sh layouts/*.sh completions/batipanel.bash; do
+            bash -n "$f" || exit 1
+            echo "$f: OK"
+          done
+
+  test:
+    name: Install test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tmux
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update && sudo apt-get install -y tmux
+          else
+            brew install tmux
+          fi
+
+      - name: Run installer
+        run: bash install.sh
+
+      - name: Verify installation
+        run: |
+          test -f "$HOME/.batipanel/lib/common.sh"
+          test -f "$HOME/.batipanel/bin/start.sh"
+          test -d "$HOME/.batipanel/layouts"
+          test -d "$HOME/.batipanel/completions"
+          bash "$HOME/.batipanel/bin/start.sh" --version
+
+      - name: Run uninstaller
+        run: bash uninstall.sh
