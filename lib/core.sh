@@ -32,16 +32,30 @@ debug_log() {
   return 0
 }
 
-# load config (validate before sourcing)
+# load config (safe key-value parser — never sources the file)
 TMUX_CONFIG="$BATIPANEL_HOME/config.sh"
 # shellcheck disable=SC2034  # used by layout/session modules
 DEFAULT_LAYOUT="7panel"
 if [ -f "$TMUX_CONFIG" ]; then
-  # safety: only source if file contains valid bash and only variable assignments
-  if bash -n "$TMUX_CONFIG" 2>/dev/null; then
-    # shellcheck source=/dev/null
-    source "$TMUX_CONFIG"
-  else
-    echo -e "${YELLOW}Warning: config.sh has syntax errors, using defaults${NC}" >&2
-  fi
+  while IFS='=' read -r _cfg_key _cfg_val; do
+    # strip whitespace and quotes
+    _cfg_key="${_cfg_key//[[:space:]]/}"
+    _cfg_val="${_cfg_val%\"}" ; _cfg_val="${_cfg_val#\"}"
+    _cfg_val="${_cfg_val%\'}" ; _cfg_val="${_cfg_val#\'}"
+    # only accept known keys with safe values
+    case "$_cfg_key" in
+      DEFAULT_LAYOUT)
+        if [[ "$_cfg_val" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+          # shellcheck disable=SC2034
+          DEFAULT_LAYOUT="$_cfg_val"
+        fi
+        ;;
+      BATIPANEL_ICONS)
+        if [[ "$_cfg_val" =~ ^[01]$ ]]; then
+          # shellcheck disable=SC2034  # used by layout.sh run_filetree
+          BATIPANEL_ICONS="$_cfg_val"
+        fi
+        ;;
+    esac
+  done < "$TMUX_CONFIG"
 fi
