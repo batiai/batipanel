@@ -194,8 +194,8 @@ else
   SHELL_RC="$HOME/.profile"
 fi
 
-BATIPANEL_ALIAS="alias batipanel='bash $BATIPANEL_HOME/bin/start.sh'"
-SHORT_ALIAS="alias b='bash $BATIPANEL_HOME/bin/start.sh'"
+BATIPANEL_ALIAS="alias batipanel='bash \"$BATIPANEL_HOME/bin/start.sh\"'"
+SHORT_ALIAS="alias b='bash \"$BATIPANEL_HOME/bin/start.sh\"'"
 
 # Always register 'batipanel' alias
 if grep -q "alias batipanel=" "$SHELL_RC" 2>/dev/null; then
@@ -225,7 +225,7 @@ fi
 
 # === 8. register tab completion ===
 # bash completion via sourcing; zsh via fpath
-COMP_SOURCE="source $BATIPANEL_HOME/completions/batipanel.bash"
+COMP_SOURCE="source \"$BATIPANEL_HOME/completions/batipanel.bash\""
 if [ -f "$BATIPANEL_HOME/completions/batipanel.bash" ]; then
   if ! grep -qF "completions/batipanel" "$SHELL_RC" 2>/dev/null; then
     echo "$COMP_SOURCE" >> "$SHELL_RC"
