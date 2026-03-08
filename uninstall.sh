@@ -48,16 +48,24 @@ if [ -f "$HOME/.tmux.conf" ]; then
   fi
 fi
 
-# 3. remove shell aliases
+# 3. remove shell aliases and completion source lines
 for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
   [ -f "$rc" ] || continue
   if grep -q "batipanel" "$rc" 2>/dev/null; then
     _sed_i '/# batipanel/d' "$rc"
     _sed_i '/alias batipanel=/d' "$rc"
     _sed_i '/alias b=.*batipanel/d' "$rc"
-    echo "  Cleaned aliases from $(basename "$rc")"
+    _sed_i '/completions\/batipanel/d' "$rc"
+    echo "  Cleaned aliases and completions from $(basename "$rc")"
   fi
 done
+
+# remove zsh completion from fpath
+local_zsh_comp="${ZDOTDIR:-$HOME}/.zfunc"
+if [ -f "$local_zsh_comp/_batipanel" ]; then
+  rm -f "$local_zsh_comp/_batipanel"
+  echo "  Removed zsh completion"
+fi
 
 # 4. remove ~/.batipanel/ (preserve projects if user wants)
 if [ -d "$BATIPANEL_HOME" ]; then
