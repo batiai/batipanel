@@ -1,7 +1,7 @@
-# batipanel
+# batipanel-cli
 
-[![CI](https://github.com/batiai/batipanel/actions/workflows/ci.yml/badge.svg)](https://github.com/batiai/batipanel/actions)
-[![Latest Release](https://img.shields.io/github/v/release/batiai/batipanel)](https://github.com/batiai/batipanel/releases)
+[![CI](https://github.com/batiai/batipanel-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/batiai/batipanel-cli/actions)
+[![Latest Release](https://img.shields.io/github/v/release/batiai/batipanel-cli)](https://github.com/batiai/batipanel-cli/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey)]()
 
@@ -26,7 +26,7 @@ AI-powered terminal workspace manager. One command to launch a fully configured 
 # 1. Install
 brew install batiai/tap/batipanel   # macOS
 # or
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/install.sh | bash   # Linux/WSL
+curl -fsSL https://raw.githubusercontent.com/batiai/batipanel-cli/master/install.sh | bash   # Linux/WSL
 
 # 2. Run — the setup wizard guides you through everything
 batipanel
@@ -52,7 +52,7 @@ All dependencies (tmux, lazygit, btop, yazi, eza) are installed automatically.
 **Option B: Manual**
 
 ```bash
-git clone https://github.com/batiai/batipanel.git
+git clone https://github.com/batiai/batipanel-cli.git
 cd batipanel
 make install
 ```
@@ -66,7 +66,7 @@ echo "alias b='batipanel'" >> ~/.zshrc && source ~/.zshrc
 ### Linux (Ubuntu, Fedora, Arch)
 
 ```bash
-git clone https://github.com/batiai/batipanel.git
+git clone https://github.com/batiai/batipanel-cli.git
 cd batipanel
 make install
 ```
@@ -74,7 +74,7 @@ make install
 Or as a one-liner:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/batiai/batipanel-cli/master/install.sh | bash
 ```
 
 The installer auto-detects your package manager (apt, dnf, pacman) and installs everything.
@@ -98,7 +98,7 @@ Restart your computer. Ubuntu will open automatically — create a username and 
 Open **Windows Terminal** → **Ubuntu** tab and run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/batiai/batipanel-cli/master/install.sh | bash
 ```
 
 **Step 3: Start**
