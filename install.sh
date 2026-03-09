@@ -297,4 +297,19 @@ echo "  b ls                         # List sessions & projects"
 echo "  b layouts                    # Show available layouts"
 echo "  b config layout 7panel       # Change default layout"
 echo ""
-echo "Open a new terminal or run: source $SHELL_RC"
+# auto-apply: start a fresh shell so aliases are immediately available
+if [ -t 0 ]; then
+  printf "Start a new shell to apply changes? [Y/n] "
+  read -r yn
+  case "${yn:-Y}" in
+    [Yy]*|"")
+      echo "Starting $USER_SHELL..."
+      exec "$SHELL" -l
+      ;;
+    *)
+      echo "Run this to apply: source $SHELL_RC"
+      ;;
+  esac
+else
+  echo "Open a new terminal or run: source $SHELL_RC"
+fi
