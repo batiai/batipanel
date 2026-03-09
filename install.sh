@@ -76,10 +76,17 @@ if has_cmd git; then
     echo ""
     echo "Git $GIT_VER is too old (lazygit needs 2.32+). Upgrading..."
     if command -v apt-get &>/dev/null; then
+      # add-apt-repository needs software-properties-common
+      if ! has_cmd add-apt-repository; then
+        sudo apt-get install -y -qq software-properties-common 2>/dev/null || true
+      fi
       sudo add-apt-repository -y ppa:git-core/ppa 2>/dev/null || true
       sudo apt-get update -qq 2>/dev/null
       sudo apt-get install -y -qq git 2>/dev/null || true
-      echo "  Git upgraded to $(git --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
+      NEW_GIT_VER=$(git --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+      echo "  Git upgraded to $NEW_GIT_VER"
+    elif command -v dnf &>/dev/null; then
+      sudo dnf install -y git 2>/dev/null || true
     else
       echo "  Please upgrade git manually to 2.32+"
     fi
@@ -167,11 +174,20 @@ if ! has_cmd btop; then
   install_packages btop 2>/dev/null || true
 fi
 
-# lazygit
-if ! has_cmd lazygit; then
+# lazygit — verify it actually works (old binary may fail with git version error)
+LAZYGIT_OK=0
+if has_cmd lazygit; then
+  if lazygit --version &>/dev/null; then
+    LAZYGIT_OK=1
+  else
+    echo "  Existing lazygit is broken, reinstalling..."
+    sudo rm -f /usr/local/bin/lazygit 2>/dev/null; rm -f "$HOME/.local/bin/lazygit" 2>/dev/null
+  fi
+fi
+if [ "$LAZYGIT_OK" = "0" ]; then
   install_packages lazygit 2>/dev/null || true
 fi
-if ! has_cmd lazygit; then
+if [ "$LAZYGIT_OK" = "0" ] && ! has_cmd lazygit; then
   tag=$(latest_github_tag "jesseduffield/lazygit")
   ver="${tag#v}"
   if [ -n "$ver" ]; then
@@ -192,11 +208,20 @@ if ! has_cmd eza && [ "$OS_LOWER" = "linux" ]; then
   fi
 fi
 
-# yazi
-if ! has_cmd yazi; then
+# yazi — verify it actually works (glibc mismatch may cause failure)
+YAZI_OK=0
+if has_cmd yazi; then
+  if yazi --version &>/dev/null; then
+    YAZI_OK=1
+  else
+    echo "  Existing yazi is broken (likely glibc mismatch), reinstalling..."
+    sudo rm -f /usr/local/bin/yazi 2>/dev/null; rm -f "$HOME/.local/bin/yazi" 2>/dev/null
+  fi
+fi
+if [ "$YAZI_OK" = "0" ]; then
   install_packages yazi 2>/dev/null || true
 fi
-if ! has_cmd yazi; then
+if [ "$YAZI_OK" = "0" ] && ! has_cmd yazi; then
   tag=$(latest_github_tag "sxyazi/yazi")
   if [ -n "$tag" ]; then
     if [ "$OS_LOWER" = "darwin" ]; then
