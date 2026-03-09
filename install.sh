@@ -19,6 +19,8 @@ sed_i() {
   fi
 }
 
+has_cmd() { command -v "$1" &>/dev/null; }
+
 # === 1. detect package manager and install tools ===
 echo ""
 echo "Checking tools..."
@@ -65,28 +67,99 @@ if ! command -v tmux &>/dev/null; then
   exit 1
 fi
 
-# optional: lazygit, eza, btop (works without them)
+# optional tools: install via package manager first, fallback to GitHub releases
 echo ""
-echo "Installing optional tools (will work without them)..."
+echo "Installing optional tools..."
 
-# lazygit
-if ! command -v lazygit &>/dev/null; then
-  install_packages lazygit 2>/dev/null || true
-fi
+ARCH="$(uname -m)"
+case "$ARCH" in
+  x86_64)  ARCH_GO="x86_64" ; ARCH_ALT="amd64" ; ARCH_YAZI="x86_64" ;;
+  aarch64|arm64) ARCH_GO="arm64" ; ARCH_ALT="arm64" ; ARCH_YAZI="aarch64" ;;
+  *) ARCH_GO="$ARCH" ; ARCH_ALT="$ARCH" ; ARCH_YAZI="$ARCH" ;;
+esac
+OS_LOWER="$(uname -s | tr '[:upper:]' '[:lower:]')"
+OS_CAPITAL="$(uname -s)"
+
+install_from_github() {
+  local name="$1" url="$2" tmpdir
+  tmpdir=$(mktemp -d)
+  echo "  Downloading $name..."
+  if curl -fsSL "$url" -o "$tmpdir/archive"; then
+    case "$url" in
+      *.tar.gz|*.tgz)
+        tar xzf "$tmpdir/archive" -C "$tmpdir" 2>/dev/null
+        local bin
+        bin=$(find "$tmpdir" -name "$name" -type f 2>/dev/null | head -1)
+        if [ -n "$bin" ]; then
+          sudo install "$bin" /usr/local/bin/ 2>/dev/null || install "$bin" "$HOME/.local/bin/" 2>/dev/null
+        fi
+        ;;
+      *.zip)
+        unzip -qo "$tmpdir/archive" -d "$tmpdir" 2>/dev/null
+        local bin
+        bin=$(find "$tmpdir" -name "$name" -type f 2>/dev/null | head -1)
+        if [ -n "$bin" ]; then
+          chmod +x "$bin"
+          sudo install "$bin" /usr/local/bin/ 2>/dev/null || install "$bin" "$HOME/.local/bin/" 2>/dev/null
+        fi
+        ;;
+    esac
+  fi
+  rm -rf "$tmpdir"
+}
+
+latest_github_tag() {
+  curl -fsSL "https://api.github.com/repos/$1/releases/latest" 2>/dev/null \
+    | grep -o '"tag_name": "[^"]*"' | head -1 | sed 's/.*: "//;s/"//' || echo ""
+}
+
+# ensure ~/.local/bin exists and is in PATH
+mkdir -p "$HOME/.local/bin"
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
 
 # btop
-if ! command -v btop &>/dev/null; then
+if ! has_cmd btop; then
   install_packages btop 2>/dev/null || true
 fi
 
-# yazi
-if ! command -v yazi &>/dev/null; then
-  install_packages yazi 2>/dev/null || true
+# lazygit
+if ! has_cmd lazygit; then
+  install_packages lazygit 2>/dev/null || true
+fi
+if ! has_cmd lazygit; then
+  tag=$(latest_github_tag "jesseduffield/lazygit")
+  ver="${tag#v}"
+  if [ -n "$ver" ]; then
+    install_from_github lazygit \
+      "https://github.com/jesseduffield/lazygit/releases/download/${tag}/lazygit_${ver}_${OS_LOWER}_${ARCH_GO}.tar.gz"
+  fi
 fi
 
 # eza
-if ! command -v eza &>/dev/null; then
+if ! has_cmd eza; then
   install_packages eza 2>/dev/null || true
+fi
+if ! has_cmd eza && [ "$OS_LOWER" = "linux" ]; then
+  tag=$(latest_github_tag "eza-community/eza")
+  if [ -n "$tag" ]; then
+    install_from_github eza \
+      "https://github.com/eza-community/eza/releases/download/${tag}/eza_${ARCH_YAZI}-unknown-linux-gnu.tar.gz"
+  fi
+fi
+
+# yazi
+if ! has_cmd yazi; then
+  install_packages yazi 2>/dev/null || true
+fi
+if ! has_cmd yazi; then
+  tag=$(latest_github_tag "sxyazi/yazi")
+  if [ -n "$tag" ]; then
+    install_from_github yazi \
+      "https://github.com/sxyazi/yazi/releases/download/${tag}/yazi-${ARCH_YAZI}-unknown-${OS_LOWER}-gnu.zip"
+  fi
 fi
 
 # === 2. create directory structure ===
