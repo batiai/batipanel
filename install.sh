@@ -181,24 +181,32 @@ else
 fi
 
 # === 7. register aliases ===
-# detect shell RC file (check running shell first, then fall back to file detection)
-if [ -n "${ZSH_VERSION:-}" ]; then
-  SHELL_RC="$HOME/.zshrc"
-elif [ -n "${BASH_VERSION:-}" ]; then
-  if [ -f "$HOME/.bashrc" ]; then
-    SHELL_RC="$HOME/.bashrc"
-  elif [ -f "$HOME/.bash_profile" ]; then
-    SHELL_RC="$HOME/.bash_profile"
-  else
-    SHELL_RC="$HOME/.profile"
-  fi
-elif [ -f "$HOME/.zshrc" ]; then
-  SHELL_RC="$HOME/.zshrc"
-elif [ -f "$HOME/.bashrc" ]; then
-  SHELL_RC="$HOME/.bashrc"
-else
-  SHELL_RC="$HOME/.profile"
-fi
+# detect user's login shell via $SHELL (not $BASH_VERSION which reflects the script interpreter)
+USER_SHELL="$(basename "${SHELL:-/bin/bash}")"
+case "$USER_SHELL" in
+  zsh)
+    SHELL_RC="$HOME/.zshrc"
+    ;;
+  bash)
+    if [ -f "$HOME/.bashrc" ]; then
+      SHELL_RC="$HOME/.bashrc"
+    elif [ -f "$HOME/.bash_profile" ]; then
+      SHELL_RC="$HOME/.bash_profile"
+    else
+      SHELL_RC="$HOME/.profile"
+    fi
+    ;;
+  *)
+    # fallback: check which RC files exist
+    if [ -f "$HOME/.zshrc" ]; then
+      SHELL_RC="$HOME/.zshrc"
+    elif [ -f "$HOME/.bashrc" ]; then
+      SHELL_RC="$HOME/.bashrc"
+    else
+      SHELL_RC="$HOME/.profile"
+    fi
+    ;;
+esac
 
 BATIPANEL_ALIAS="alias batipanel='bash \"$BATIPANEL_HOME/bin/start.sh\"'"
 SHORT_ALIAS="alias b='bash \"$BATIPANEL_HOME/bin/start.sh\"'"
@@ -230,26 +238,24 @@ else
 fi
 
 # === 8. register tab completion ===
-# bash completion via sourcing; zsh via fpath
-COMP_SOURCE="source \"$BATIPANEL_HOME/completions/batipanel.bash\""
-if [ -f "$BATIPANEL_HOME/completions/batipanel.bash" ]; then
-  if ! grep -qF "completions/batipanel" "$SHELL_RC" 2>/dev/null; then
-    echo "$COMP_SOURCE" >> "$SHELL_RC"
-    echo "  Added tab completion ($SHELL_RC)"
+if [ "$USER_SHELL" = "zsh" ]; then
+  # zsh: install via fpath (not bash source)
+  local_zsh_comp="${ZDOTDIR:-$HOME}/.zfunc"
+  mkdir -p "$local_zsh_comp"
+  if [ -f "$BATIPANEL_HOME/completions/_batipanel.zsh" ]; then
+    cp "$BATIPANEL_HOME/completions/_batipanel.zsh" "$local_zsh_comp/_batipanel"
+    if ! grep -qF "$local_zsh_comp" "$SHELL_RC" 2>/dev/null; then
+      echo "fpath+=($local_zsh_comp)" >> "$SHELL_RC"
+    fi
+    echo "  Added zsh completion"
   fi
-  # zsh: also install to fpath if zsh is the shell
-  if [ -n "${ZSH_VERSION:-}" ] || [[ "$SHELL_RC" == *zshrc* ]]; then
-    local_zsh_comp="${ZDOTDIR:-$HOME}/.zfunc"
-    mkdir -p "$local_zsh_comp"
-    if [ -f "$BATIPANEL_HOME/completions/_batipanel.zsh" ]; then
-      cp "$BATIPANEL_HOME/completions/_batipanel.zsh" "$local_zsh_comp/_batipanel"
-      if ! grep -qF 'fpath+=' "$SHELL_RC" 2>/dev/null || ! grep -qF '.zfunc' "$SHELL_RC" 2>/dev/null; then
-        # add fpath before compinit if not already there
-        if ! grep -qF "$local_zsh_comp" "$SHELL_RC" 2>/dev/null; then
-          echo "fpath+=($local_zsh_comp)" >> "$SHELL_RC"
-        fi
-      fi
-      echo "  Added zsh completion"
+else
+  # bash: source completion script
+  COMP_SOURCE="source \"$BATIPANEL_HOME/completions/batipanel.bash\""
+  if [ -f "$BATIPANEL_HOME/completions/batipanel.bash" ]; then
+    if ! grep -qF "completions/batipanel" "$SHELL_RC" 2>/dev/null; then
+      echo "$COMP_SOURCE" >> "$SHELL_RC"
+      echo "  Added tab completion ($SHELL_RC)"
     fi
   fi
 fi
