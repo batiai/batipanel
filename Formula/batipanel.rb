@@ -80,8 +80,8 @@ class Batipanel < Formula
         batipanel help         # show all commands
 
       Add the short alias 'b':
-        echo "alias b='batipanel'" >> #{shell_profile}
-        source #{shell_profile}
+        echo "alias b='batipanel'" >> ~/.zshrc   # or ~/.bashrc
+        source ~/.zshrc
 
       Uninstall:
         brew uninstall batipanel
