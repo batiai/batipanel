@@ -67,6 +67,25 @@ if ! command -v tmux &>/dev/null; then
   exit 1
 fi
 
+# ensure git >= 2.32 (required by lazygit)
+if has_cmd git; then
+  GIT_VER=$(git --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
+  GIT_MAJOR="${GIT_VER%%.*}"
+  GIT_MINOR="${GIT_VER#*.}"
+  if (( GIT_MAJOR < 2 || (GIT_MAJOR == 2 && GIT_MINOR < 32) )); then
+    echo ""
+    echo "Git $GIT_VER is too old (lazygit needs 2.32+). Upgrading..."
+    if command -v apt-get &>/dev/null; then
+      sudo add-apt-repository -y ppa:git-core/ppa 2>/dev/null || true
+      sudo apt-get update -qq 2>/dev/null
+      sudo apt-get install -y -qq git 2>/dev/null || true
+      echo "  Git upgraded to $(git --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
+    else
+      echo "  Please upgrade git manually to 2.32+"
+    fi
+  fi
+fi
+
 # optional tools: install via package manager first, fallback to GitHub releases
 echo ""
 echo "Installing optional tools..."
@@ -184,8 +203,9 @@ if ! has_cmd yazi; then
       install_from_github yazi \
         "https://github.com/sxyazi/yazi/releases/download/${tag}/yazi-${ARCH_YAZI}-apple-darwin.zip"
     else
+      # use musl build (statically linked, no glibc version dependency)
       install_from_github yazi \
-        "https://github.com/sxyazi/yazi/releases/download/${tag}/yazi-${ARCH_YAZI}-unknown-linux-gnu.zip"
+        "https://github.com/sxyazi/yazi/releases/download/${tag}/yazi-${ARCH_YAZI}-unknown-linux-musl.zip"
     fi
   fi
 fi
