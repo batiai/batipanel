@@ -83,27 +83,49 @@ OS_CAPITAL="$(uname -s)"
 install_from_github() {
   local name="$1" url="$2" tmpdir
   tmpdir=$(mktemp -d)
-  echo "  Downloading $name..."
-  if curl -fsSL "$url" -o "$tmpdir/archive"; then
-    case "$url" in
-      *.tar.gz|*.tgz)
-        tar xzf "$tmpdir/archive" -C "$tmpdir" 2>/dev/null
-        local bin
-        bin=$(find "$tmpdir" -name "$name" -type f 2>/dev/null | head -1)
-        if [ -n "$bin" ]; then
-          sudo install "$bin" /usr/local/bin/ 2>/dev/null || install "$bin" "$HOME/.local/bin/" 2>/dev/null
-        fi
-        ;;
-      *.zip)
-        unzip -qo "$tmpdir/archive" -d "$tmpdir" 2>/dev/null
-        local bin
-        bin=$(find "$tmpdir" -name "$name" -type f 2>/dev/null | head -1)
-        if [ -n "$bin" ]; then
-          chmod +x "$bin"
-          sudo install "$bin" /usr/local/bin/ 2>/dev/null || install "$bin" "$HOME/.local/bin/" 2>/dev/null
-        fi
-        ;;
-    esac
+  echo "  Downloading $name from GitHub..."
+  if ! curl -fsSL "$url" -o "$tmpdir/archive"; then
+    echo "  Failed to download $name"
+    rm -rf "$tmpdir"
+    return 1
+  fi
+  case "$url" in
+    *.tar.gz|*.tgz)
+      if ! tar xzf "$tmpdir/archive" -C "$tmpdir"; then
+        echo "  Failed to extract $name"
+        rm -rf "$tmpdir"
+        return 1
+      fi
+      ;;
+    *.zip)
+      if ! has_cmd unzip; then
+        echo "  Installing unzip..."
+        install_packages unzip 2>/dev/null || true
+      fi
+      if ! unzip -qo "$tmpdir/archive" -d "$tmpdir"; then
+        echo "  Failed to extract $name (is unzip installed?)"
+        rm -rf "$tmpdir"
+        return 1
+      fi
+      ;;
+  esac
+  local bin
+  bin=$(find "$tmpdir" -name "$name" -type f 2>/dev/null | head -1)
+  if [ -z "$bin" ]; then
+    echo "  Binary '$name' not found in archive"
+    rm -rf "$tmpdir"
+    return 1
+  fi
+  chmod +x "$bin"
+  if sudo install "$bin" /usr/local/bin/ 2>/dev/null; then
+    echo "  Installed $name to /usr/local/bin/"
+  elif install "$bin" "$HOME/.local/bin/" 2>/dev/null; then
+    echo "  Installed $name to ~/.local/bin/"
+    NEED_LOCAL_BIN_PATH=1
+  else
+    echo "  Failed to install $name"
+    rm -rf "$tmpdir"
+    return 1
   fi
   rm -rf "$tmpdir"
 }
@@ -113,7 +135,8 @@ latest_github_tag() {
     | grep -o '"tag_name": "[^"]*"' | head -1 | sed 's/.*: "//;s/"//' || echo ""
 }
 
-# ensure ~/.local/bin exists and is in PATH
+# ensure ~/.local/bin exists and is in PATH for this script
+NEED_LOCAL_BIN_PATH=0
 mkdir -p "$HOME/.local/bin"
 case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
@@ -157,8 +180,13 @@ fi
 if ! has_cmd yazi; then
   tag=$(latest_github_tag "sxyazi/yazi")
   if [ -n "$tag" ]; then
-    install_from_github yazi \
-      "https://github.com/sxyazi/yazi/releases/download/${tag}/yazi-${ARCH_YAZI}-unknown-${OS_LOWER}-gnu.zip"
+    if [ "$OS_LOWER" = "darwin" ]; then
+      install_from_github yazi \
+        "https://github.com/sxyazi/yazi/releases/download/${tag}/yazi-${ARCH_YAZI}-apple-darwin.zip"
+    else
+      install_from_github yazi \
+        "https://github.com/sxyazi/yazi/releases/download/${tag}/yazi-${ARCH_YAZI}-unknown-linux-gnu.zip"
+    fi
   fi
 fi
 
@@ -310,7 +338,15 @@ else
   echo "  Added alias: b ($SHELL_RC)"
 fi
 
-# === 8. register tab completion ===
+# === 8. persist ~/.local/bin in PATH (for GitHub-installed tools) ===
+if [ "$NEED_LOCAL_BIN_PATH" = "1" ]; then
+  if ! grep -qF '.local/bin' "$SHELL_RC" 2>/dev/null; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$SHELL_RC"
+    echo "  Added ~/.local/bin to PATH ($SHELL_RC)"
+  fi
+fi
+
+# === 9. register tab completion ===
 if [ "$USER_SHELL" = "zsh" ]; then
   # zsh: install via fpath (not bash source)
   local_zsh_comp="${ZDOTDIR:-$HOME}/.zfunc"

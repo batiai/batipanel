@@ -33,6 +33,10 @@ tmux_doctor() {
     local cmd="${entry%%:*}" name="${entry#*:}"
     if command -v "$cmd" &>/dev/null; then
       echo -e "  [$ok]  $name"
+    elif [ -x "$HOME/.local/bin/$cmd" ]; then
+      echo -e "  [$warn]  $name found at ~/.local/bin/$cmd but NOT in PATH"
+      echo "          Fix: add 'export PATH=\"\$HOME/.local/bin:\$PATH\"' to your shell config"
+      issues=$((issues + 1))
     else
       echo -e "  [$warn]  $name not installed (optional)"
     fi
