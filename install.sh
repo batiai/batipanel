@@ -161,12 +161,16 @@ latest_github_tag() {
     | grep -o '"tag_name": "[^"]*"' | head -1 | sed 's/.*: "//;s/"//' || echo ""
 }
 
-# ensure ~/.local/bin exists and is in PATH for this script
+# ensure tool directories are in PATH for this script
 NEED_LOCAL_BIN_PATH=0
 mkdir -p "$HOME/.local/bin"
 case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
   *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+case ":$PATH:" in
+  *":$HOME/.claude/bin:"*) ;;
+  *) export PATH="$HOME/.claude/bin:$PATH" ;;
 esac
 
 # claude code (official standalone installer — no Node.js required)
@@ -220,8 +224,11 @@ fi
 if ! has_cmd eza && [ "$OS_LOWER" = "linux" ]; then
   tag=$(latest_github_tag "eza-community/eza")
   if [ -n "$tag" ]; then
+    # try gnu first, fall back to musl (statically linked)
     install_from_github eza \
-      "https://github.com/eza-community/eza/releases/download/${tag}/eza_${ARCH_YAZI}-unknown-linux-gnu.tar.gz"
+      "https://github.com/eza-community/eza/releases/download/${tag}/eza_${ARCH_YAZI}-unknown-linux-gnu.tar.gz" \
+      || install_from_github eza \
+        "https://github.com/eza-community/eza/releases/download/${tag}/eza_${ARCH_YAZI}-unknown-linux-musl.tar.gz"
   fi
 fi
 

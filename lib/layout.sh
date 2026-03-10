@@ -69,7 +69,7 @@ run_lazygit() {
   if has_cmd lazygit; then
     tmux send-keys -t "$pane" "lazygit" Enter
   else
-    tmux send-keys -t "$pane" "echo 'lazygit not installed — see https://github.com/jesseduffield/lazygit#installation'; git status" Enter
+    tmux send-keys -t "$pane" "echo 'lazygit not installed - see https://github.com/jesseduffield/lazygit#installation'; git status" Enter
   fi
 }
 
@@ -98,7 +98,7 @@ run_lazydocker() {
   if has_cmd lazydocker; then
     tmux send-keys -t "$pane" "lazydocker" Enter
   elif has_cmd docker; then
-    tmux send-keys -t "$pane" "docker ps; echo ''; echo 'lazydocker not installed — see https://github.com/jesseduffield/lazydocker#installation'" Enter
+    tmux send-keys -t "$pane" "docker ps; echo ''; echo 'lazydocker not installed - see https://github.com/jesseduffield/lazydocker#installation'" Enter
   else
     tmux send-keys -t "$pane" "echo 'docker / lazydocker not installed'" Enter
   fi

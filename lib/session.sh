@@ -74,6 +74,6 @@ list_projects() {
     found=1
   done
   if (( found == 0 )); then
-    echo "  (none — run 'b new <name> <path>' to register a project)"
+    echo "  (none - run 'b new <name> <path>' to register a project)"
   fi
 }
