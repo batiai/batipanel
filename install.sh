@@ -303,7 +303,7 @@ echo "Installing scripts..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cp "$SCRIPT_DIR/bin/start.sh" "$BATIPANEL_HOME/bin/"
-for mod in common.sh core.sh validate.sh layout.sh session.sh project.sh doctor.sh wizard.sh; do
+for mod in common.sh core.sh validate.sh layout.sh session.sh project.sh doctor.sh wizard.sh shell-setup.sh; do
   cp "$SCRIPT_DIR/lib/$mod" "$BATIPANEL_HOME/lib/"
 done
 cp "$SCRIPT_DIR/VERSION" "$BATIPANEL_HOME/VERSION" 2>/dev/null || true
@@ -446,6 +446,22 @@ else
     fi
   fi
 fi
+
+# === 10. setup shell environment (powerline fonts, prompt theme) ===
+# portable sed -i is needed by shell-setup.sh
+_sed_i() {
+  if [ "$OS" = "Darwin" ]; then
+    sed -i '' "$@"
+  else
+    sed -i "$@"
+  fi
+}
+export -f _sed_i 2>/dev/null || true
+
+# source shell-setup and run
+# shellcheck source=lib/shell-setup.sh
+source "$BATIPANEL_HOME/lib/shell-setup.sh"
+setup_shell_environment "$USER_SHELL" "$SHELL_RC"
 
 # === done ===
 echo ""
