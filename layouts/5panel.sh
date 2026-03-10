@@ -18,14 +18,14 @@ init_layout "$SESSION" "$PROJECT"
 CLAUDE=$(tmux list-panes -t "$SESSION" -F '#{pane_id}' | head -1)
 
 # Top(65%) | Bottom(35%)
-REMOTE=$(tmux split-window -v -t "$CLAUDE" -c "$PROJECT" -p 35 -PF '#{pane_id}')
+REMOTE=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 35 -PF '#{pane_id}')
 
 # Top: left(60%) | right(40%)
-LAZYGIT=$(tmux split-window -h -t "$CLAUDE" -c "$PROJECT" -p 40 -PF '#{pane_id}')
+LAZYGIT=$(_split -h -t "$CLAUDE" -c "$PROJECT" -p 40 -PF '#{pane_id}')
 
 # Bottom: 3 columns
-ZSH=$(tmux split-window -h -t "$REMOTE" -c "$PROJECT" -p 67 -PF '#{pane_id}')
-EZA=$(tmux split-window -h -t "$ZSH" -c "$PROJECT" -p 50 -PF '#{pane_id}')
+ZSH=$(_split -h -t "$REMOTE" -c "$PROJECT" -p 67 -PF '#{pane_id}')
+EZA=$(_split -h -t "$ZSH" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 wait_for_panes
 

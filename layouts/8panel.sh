@@ -19,17 +19,17 @@ init_layout "$SESSION" "$PROJECT"
 CLAUDE1=$(tmux list-panes -t "$SESSION" -F '#{pane_id}' | head -1)
 
 # Top(65%) | Bottom(35%)
-LAZYGIT=$(tmux split-window -v -t "$CLAUDE1" -c "$PROJECT" -p 35 -PF '#{pane_id}')
+LAZYGIT=$(_split -v -t "$CLAUDE1" -c "$PROJECT" -p 35 -PF '#{pane_id}')
 
 # Top: 3 columns — left(37%) | center(37%) | right(26%)
-CLAUDE2=$(tmux split-window -h -t "$CLAUDE1" -c "$PROJECT" -p 63 -PF '#{pane_id}')
-BTOP=$(tmux split-window -h -t "$CLAUDE2" -c "$PROJECT" -p 42 -PF '#{pane_id}')
+CLAUDE2=$(_split -h -t "$CLAUDE1" -c "$PROJECT" -p 63 -PF '#{pane_id}')
+BTOP=$(_split -h -t "$CLAUDE2" -c "$PROJECT" -p 42 -PF '#{pane_id}')
 
 # Right column: btop(50%) | logs(50%)
-LOGS=$(tmux split-window -v -t "$BTOP" -c "$PROJECT" -p 50 -PF '#{pane_id}')
+LOGS=$(_split -v -t "$BTOP" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 # Bottom: left(65%) | right(35%)
-FILEMGR=$(tmux split-window -h -t "$LAZYGIT" -c "$PROJECT" -p 35 -PF '#{pane_id}')
+FILEMGR=$(_split -h -t "$LAZYGIT" -c "$PROJECT" -p 35 -PF '#{pane_id}')
 
 wait_for_panes
 

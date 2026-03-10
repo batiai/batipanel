@@ -18,18 +18,18 @@ init_layout "$SESSION" "$PROJECT"
 CLAUDE=$(tmux list-panes -t "$SESSION" -F '#{pane_id}' | head -1)
 
 # Bottom log bar (25%)
-LOGS=$(tmux split-window -v -t "$CLAUDE" -c "$PROJECT" -p 25 -PF '#{pane_id}')
+LOGS=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 25 -PF '#{pane_id}')
 
 # Top: 3 columns (claude 45% | lazygit 28% | btop 27%)
-LAZYGIT=$(tmux split-window -h -t "$CLAUDE" -c "$PROJECT" -p 55 -PF '#{pane_id}')
-BTOP=$(tmux split-window -h -t "$LAZYGIT" -c "$PROJECT" -p 50 -PF '#{pane_id}')
+LAZYGIT=$(_split -h -t "$CLAUDE" -c "$PROJECT" -p 55 -PF '#{pane_id}')
+BTOP=$(_split -h -t "$LAZYGIT" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 # Left column: split bottom → remote + terminal
-REMOTE=$(tmux split-window -v -t "$CLAUDE" -c "$PROJECT" -p 40 -PF '#{pane_id}')
-ZSH=$(tmux split-window -h -t "$REMOTE" -c "$PROJECT" -p 50 -PF '#{pane_id}')
+REMOTE=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 40 -PF '#{pane_id}')
+ZSH=$(_split -h -t "$REMOTE" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 # Center column: split bottom → file tree
-EZA=$(tmux split-window -v -t "$LAZYGIT" -c "$PROJECT" -p 40 -PF '#{pane_id}')
+EZA=$(_split -v -t "$LAZYGIT" -c "$PROJECT" -p 40 -PF '#{pane_id}')
 
 wait_for_panes
 

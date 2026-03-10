@@ -33,6 +33,20 @@ init_layout() {
 # Wait for shell init after pane splits
 wait_for_panes() { sleep 0.5; }
 
+# Compatible split-window: try with -p (percentage), fallback without it
+# Usage: same as tmux split-window (drop-in replacement)
+_split() {
+  tmux split-window "$@" 2>/dev/null && return 0
+  # strip -p <N> and retry (tmux versions where -p fails)
+  local args=() skip=0
+  for a in "$@"; do
+    if (( skip )); then skip=0; continue; fi
+    if [[ "$a" == "-p" ]]; then skip=1; continue; fi
+    args+=("$a")
+  done
+  tmux split-window "${args[@]}"
+}
+
 # Launch claude in a pane
 run_claude() {
   local pane="$1"

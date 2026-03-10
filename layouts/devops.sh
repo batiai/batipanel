@@ -22,16 +22,16 @@ init_layout "$SESSION" "$PROJECT"
 CLAUDE=$(tmux list-panes -t "$SESSION" -F '#{pane_id}' | head -1)
 
 # Bottom log bar (25%)
-LOGS=$(tmux split-window -v -t "$CLAUDE" -c "$PROJECT" -p 25 -PF '#{pane_id}')
+LOGS=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 25 -PF '#{pane_id}')
 
 # Upper area: top(60%) | middle(40%)
-DOCKER=$(tmux split-window -v -t "$CLAUDE" -c "$PROJECT" -p 40 -PF '#{pane_id}')
+DOCKER=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 40 -PF '#{pane_id}')
 
 # Top: left(50%) | right(50%)
-BTOP=$(tmux split-window -h -t "$CLAUDE" -c "$PROJECT" -p 50 -PF '#{pane_id}')
+BTOP=$(_split -h -t "$CLAUDE" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 # Middle: left(50%) | right(50%)
-ZSH=$(tmux split-window -h -t "$DOCKER" -c "$PROJECT" -p 50 -PF '#{pane_id}')
+ZSH=$(_split -h -t "$DOCKER" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 wait_for_panes
 
