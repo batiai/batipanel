@@ -14,14 +14,11 @@ init_layout() {
 
   check_tmux_version || return 1
 
-  # detect terminal size for detached session (default 80x24 is too small)
-  local cols lines
-  cols=$(tput cols 2>/dev/null || echo 200)
-  lines=$(tput lines 2>/dev/null || echo 50)
-
-  debug_log "init_layout: session=$session project=$project size=${cols}x${lines}"
+  # Use large fixed size for detached session so all splits succeed.
+  # tmux auto-resizes to actual terminal dimensions on attach.
+  debug_log "init_layout: session=$session project=$project"
   tmux kill-session -t "$session" 2>/dev/null || true
-  if ! tmux new-session -d -s "$session" -c "$project" -x "$cols" -y "$lines"; then
+  if ! tmux new-session -d -s "$session" -c "$project" -x 220 -y 60; then
     # check if session was created by a concurrent invocation
     if tmux has-session -t "$session" 2>/dev/null; then
       debug_log "init_layout: session already exists (concurrent creation)"
