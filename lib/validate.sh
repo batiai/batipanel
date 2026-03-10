@@ -52,36 +52,6 @@ check_tmux_version() {
   debug_log "tmux version $ver OK"
 }
 
-# terminal size check (warning only, never blocks)
-check_terminal_size() {
-  local layout="${1:-$DEFAULT_LAYOUT}"
-  local cols lines
-  cols=$(tput cols 2>/dev/null || echo 0)
-  lines=$(tput lines 2>/dev/null || echo 0)
-
-  debug_log "Terminal size: ${cols}x${lines}, layout: $layout"
-
-  if (( cols == 0 || lines == 0 )); then
-    return 0
-  fi
-
-  local min_cols=120 min_lines=30
-  case "$layout" in
-    4panel|5panel)  min_cols=100; min_lines=24 ;;
-    6panel)         min_cols=140; min_lines=35 ;;
-    7panel*|8panel) min_cols=160; min_lines=40 ;;
-    dual-claude)    min_cols=200; min_lines=40 ;;
-    devops)         min_cols=140; min_lines=35 ;;
-  esac
-
-  if (( cols < min_cols || lines < min_lines )); then
-    echo -e "${YELLOW}Warning: Terminal ${cols}x${lines} may be small for '$layout' (recommend ${min_cols}x${min_lines})${NC}"
-    if [[ "$layout" != "4panel" ]]; then
-      echo -e "${YELLOW}  Tip: try 'b <project> --layout 4panel' for smaller terminals${NC}"
-    fi
-  fi
-}
-
 # session name validation
 validate_session_name() {
   local name="$1"
