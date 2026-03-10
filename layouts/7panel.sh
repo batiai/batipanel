@@ -39,7 +39,9 @@ run_monitor "$BTOP"
 run_filetree "$EZA"
 run_remote "$REMOTE"
 run_lazygit "$LAZYGIT"
+label_pane "$ZSH" "Shell"
 tmux send-keys -t "$ZSH" "" ""
+label_pane "$LOGS" "Logs"
 tmux send-keys -t "$LOGS" "echo 'Logs — tail -f, npm run dev, etc.'" Enter
 
 tmux select-pane -t "$CLAUDE"

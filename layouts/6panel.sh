@@ -31,6 +31,7 @@ run_remote "$P0"
 run_claude "$P1"
 run_monitor "$P2"
 run_lazygit "$P3"
+label_pane "$P4" "Shell"
 tmux send-keys -t "$P4" "" ""
 run_filetree "$P5"
 

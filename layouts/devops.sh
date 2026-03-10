@@ -38,7 +38,9 @@ wait_for_panes
 run_claude "$CLAUDE"
 run_monitor "$BTOP"
 run_lazydocker "$DOCKER"
+label_pane "$ZSH" "Shell"
 tmux send-keys -t "$ZSH" "" ""
+label_pane "$LOGS" "Logs"
 tmux send-keys -t "$LOGS" "echo 'Logs — docker compose logs -f, tail -f, stern, etc.'" Enter
 
 tmux select-pane -t "$CLAUDE"

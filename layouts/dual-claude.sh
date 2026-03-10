@@ -32,9 +32,12 @@ FILEMGR=$(_split -h -t "$ZSH" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 wait_for_panes
 
+label_pane "$CLAUDE1" "Claude #1"
 run_claude "$CLAUDE1"
+label_pane "$CLAUDE2" "Claude #2"
 run_claude "$CLAUDE2"
 run_lazygit "$LAZYGIT"
+label_pane "$ZSH" "Shell"
 tmux send-keys -t "$ZSH" "" ""
 run_filetree "$FILEMGR"
 

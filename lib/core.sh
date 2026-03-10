@@ -4,6 +4,9 @@
 BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 BATIPANEL_DEBUG="${BATIPANEL_DEBUG:-0}"
 
+# check if command exists
+has_cmd() { command -v "$1" &>/dev/null; }
+
 # portable sed -i (macOS vs GNU)
 _sed_i() {
   if [ "$(uname -s)" = "Darwin" ]; then
