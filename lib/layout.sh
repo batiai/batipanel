@@ -14,9 +14,14 @@ init_layout() {
 
   check_tmux_version || return 1
 
-  debug_log "init_layout: session=$session project=$project"
+  # detect terminal size for detached session (default 80x24 is too small)
+  local cols lines
+  cols=$(tput cols 2>/dev/null || echo 200)
+  lines=$(tput lines 2>/dev/null || echo 50)
+
+  debug_log "init_layout: session=$session project=$project size=${cols}x${lines}"
   tmux kill-session -t "$session" 2>/dev/null || true
-  if ! tmux new-session -d -s "$session" -c "$project"; then
+  if ! tmux new-session -d -s "$session" -c "$project" -x "$cols" -y "$lines"; then
     # check if session was created by a concurrent invocation
     if tmux has-session -t "$session" 2>/dev/null; then
       debug_log "init_layout: session already exists (concurrent creation)"
@@ -104,11 +109,53 @@ run_lazydocker() {
   fi
 }
 
+# Auto-downgrade layout if terminal is too small
+auto_fit_layout() {
+  local layout="$1"
+  local cols lines
+  cols=$(tput cols 2>/dev/null || echo 0)
+  lines=$(tput lines 2>/dev/null || echo 0)
+
+  # can't detect size - keep as-is
+  if (( cols == 0 || lines == 0 )); then
+    echo "$layout"
+    return
+  fi
+
+  # layout minimum requirements (cols x lines)
+  local original="$layout"
+  case "$layout" in
+    dual-claude|8panel)
+      if (( cols < 160 || lines < 40 )); then layout="6panel"; fi
+      ;;
+    7panel|7panel_log)
+      if (( cols < 160 || lines < 40 )); then layout="5panel"; fi
+      ;;
+    6panel|devops)
+      if (( cols < 140 || lines < 35 )); then layout="5panel"; fi
+      ;;
+  esac
+  # second pass: downgraded layout may still be too large
+  case "$layout" in
+    5panel|6panel)
+      if (( cols < 100 || lines < 24 )); then layout="4panel"; fi
+      ;;
+  esac
+
+  if [ "$layout" != "$original" ]; then
+    echo -e "${YELLOW}Terminal ${cols}x${lines} too small for '$original', using '$layout'${NC}" >&2
+  fi
+  echo "$layout"
+}
+
 # Load and execute a layout
 load_layout() {
   local session="$1"
   local project="$2"
   local layout="${3:-$DEFAULT_LAYOUT}"
+
+  # auto-downgrade if terminal too small
+  layout=$(auto_fit_layout "$layout")
 
   local layout_file="$BATIPANEL_HOME/layouts/${layout}.sh"
   if [ ! -f "$layout_file" ]; then
@@ -119,7 +166,7 @@ load_layout() {
   fi
 
   check_terminal_size "$layout"
-  debug_log "load_layout: $layout_file"
+  debug_log "load_layout: $layout_file (${layout})"
 
   # shellcheck source=/dev/null
   source "$layout_file" "$session" "$project"
