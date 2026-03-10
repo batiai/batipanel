@@ -169,6 +169,23 @@ case ":$PATH:" in
   *) export PATH="$HOME/.local/bin:$PATH" ;;
 esac
 
+# claude code (official standalone installer — no Node.js required)
+if ! has_cmd claude; then
+  echo "  Installing Claude Code..."
+  if curl -fsSL https://claude.ai/install.sh | bash 2>/dev/null; then
+    # installer adds to PATH but current shell may not have it yet
+    export PATH="$HOME/.claude/bin:$PATH"
+    if has_cmd claude; then
+      echo "  Claude Code installed"
+    else
+      echo "  Claude Code installer ran but 'claude' not found in PATH"
+    fi
+  else
+    echo "  Claude Code auto-install failed"
+    echo "  Install manually: curl -fsSL https://claude.ai/install.sh | bash"
+  fi
+fi
+
 # btop
 if ! has_cmd btop; then
   install_packages btop 2>/dev/null || true
@@ -383,7 +400,16 @@ else
   echo "  Added alias: b ($SHELL_RC)"
 fi
 
-# === 8. persist ~/.local/bin in PATH (for GitHub-installed tools) ===
+# === 8. persist tool paths in shell RC ===
+# ~/.claude/bin (Claude Code native installer location)
+if [ -d "$HOME/.claude/bin" ]; then
+  if ! grep -qF '.claude/bin' "$SHELL_RC" 2>/dev/null; then
+    echo 'export PATH="$HOME/.claude/bin:$PATH"' >> "$SHELL_RC"
+    echo "  Added ~/.claude/bin to PATH ($SHELL_RC)"
+  fi
+fi
+
+# ~/.local/bin (GitHub-installed tools)
 if [ "$NEED_LOCAL_BIN_PATH" = "1" ]; then
   if ! grep -qF '.local/bin' "$SHELL_RC" 2>/dev/null; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$SHELL_RC"
@@ -420,7 +446,13 @@ echo "batipanel installed successfully!"
 echo "  Location: $BATIPANEL_HOME"
 echo ""
 
-# Report missing optional tools
+# Report missing tools
+if ! command -v claude &>/dev/null; then
+  echo "WARNING: Claude Code is not installed (core dependency)"
+  echo "  Install: curl -fsSL https://claude.ai/install.sh | bash"
+  echo ""
+fi
+
 MISSING=()
 command -v lazygit &>/dev/null || MISSING+=("lazygit")
 command -v btop &>/dev/null   || MISSING+=("btop")
@@ -431,7 +463,6 @@ if [ ${#MISSING[@]} -gt 0 ]; then
   for m in "${MISSING[@]}"; do
     echo "  - $m"
   done
-  # show install links for tools not in default repos
   if [[ "$(uname -s)" == "Linux" ]] && command -v apt-get &>/dev/null; then
     echo ""
     echo "  On Ubuntu/Debian, some tools need manual installation:"

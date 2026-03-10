@@ -37,7 +37,7 @@ run_claude() {
   if has_cmd claude; then
     tmux send-keys -t "$pane" "claude" Enter
   else
-    tmux send-keys -t "$pane" "echo 'claude CLI not installed - npm i -g @anthropic-ai/claude-code'" Enter
+    tmux send-keys -t "$pane" "echo 'claude CLI not installed - run: curl -fsSL https://claude.ai/install.sh | bash'" Enter
   fi
 }
 
@@ -47,7 +47,7 @@ run_remote() {
   if has_cmd claude; then
     tmux send-keys -t "$pane" "claude remote-control" Enter
   else
-    tmux send-keys -t "$pane" "echo 'claude CLI not installed'" Enter
+    tmux send-keys -t "$pane" "echo 'claude CLI not installed - run: curl -fsSL https://claude.ai/install.sh | bash'" Enter
   fi
 }
 
