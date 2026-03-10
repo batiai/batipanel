@@ -1,11 +1,11 @@
-# Contributing to batipanel-cli
+# Contributing to batipanel
 
 Thanks for your interest! Here's how to contribute.
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/batiai/batipanel-cli.git
+git clone https://github.com/batiai/batipanel.git
 cd batipanel
 bash install.sh
 ```
@@ -47,7 +47,7 @@ bash install.sh
 
 ## Reporting Issues
 
-Open an issue at [github.com/batiai/batipanel-cli/issues](https://github.com/batiai/batipanel-cli/issues) with:
+Open an issue at [github.com/batiai/batipanel/issues](https://github.com/batiai/batipanel/issues) with:
 
 - Your OS and terminal emulator
 - `b doctor` output

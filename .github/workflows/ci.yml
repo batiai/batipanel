@@ -18,13 +18,13 @@ jobs:
 
       - name: ShellCheck
         run: |
-          shellcheck -s bash bin/start.sh lib/*.sh install.sh uninstall.sh
+          shellcheck -s bash bin/start.sh bin/cli.sh lib/*.sh install.sh uninstall.sh
           shellcheck -s bash layouts/*.sh
           shellcheck -s bash completions/batipanel.bash
 
       - name: Bash syntax check
         run: |
-          for f in bin/start.sh lib/*.sh install.sh uninstall.sh layouts/*.sh completions/batipanel.bash; do
+          for f in bin/start.sh bin/cli.sh lib/*.sh install.sh uninstall.sh layouts/*.sh completions/batipanel.bash; do
             bash -n "$f" || exit 1
             echo "$f: OK"
           done

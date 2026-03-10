@@ -1,7 +1,8 @@
-# batipanel-cli
+# batipanel
 
-[![CI](https://github.com/batiai/batipanel-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/batiai/batipanel-cli/actions)
-[![Latest Release](https://img.shields.io/github/v/release/batiai/batipanel-cli)](https://github.com/batiai/batipanel-cli/releases)
+[![CI](https://github.com/batiai/batipanel/actions/workflows/ci.yml/badge.svg)](https://github.com/batiai/batipanel/actions)
+[![npm](https://img.shields.io/npm/v/batipanel)](https://www.npmjs.com/package/batipanel)
+[![Latest Release](https://img.shields.io/github/v/release/batiai/batipanel)](https://github.com/batiai/batipanel/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey)]()
 
@@ -20,15 +21,17 @@ AI-powered terminal workspace manager. One command to launch a fully configured 
 └───────────┴────────────────────┴──────────────┘
 ```
 
+> **Looking for a GUI?** [batipanel Desktop](https://batipanel.com/download) is available for macOS and Windows — same multi-panel workspace with a native app experience.
+
 ## Quick Start
 
 ```bash
-# 1. Install
-brew install batiai/tap/batipanel   # macOS
-# or
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel-cli/master/install.sh | bash   # Linux/WSL
+# Install (pick one)
+npx batipanel                                      # npm/npx
+brew install batiai/tap/batipanel                   # Homebrew
+curl -fsSL https://batipanel.com/install.sh | bash  # Shell script
 
-# 2. Run — the setup wizard guides you through everything
+# Run — the setup wizard guides you through everything
 batipanel
 ```
 
@@ -38,9 +41,17 @@ That's it. The wizard asks 2 questions (screen size + workflow) and sets up your
 
 ## Installation
 
-### macOS
+### npm / npx
 
-**Option A: Homebrew (recommended)**
+```bash
+# One-time run (no install needed)
+npx batipanel
+
+# Or install globally
+npm install -g batipanel
+```
+
+### Homebrew (macOS / Linux)
 
 ```bash
 brew tap batiai/tap
@@ -49,35 +60,21 @@ brew install batipanel
 
 All dependencies (tmux, lazygit, btop, yazi, eza) are installed automatically.
 
-**Option B: Manual**
+### Shell script (Linux / WSL / macOS)
 
 ```bash
-git clone https://github.com/batiai/batipanel-cli.git
+curl -fsSL https://batipanel.com/install.sh | bash
+```
+
+Or clone and install manually:
+
+```bash
+git clone https://github.com/batiai/batipanel.git
 cd batipanel
-make install
+bash install.sh
 ```
 
-After installing, add the short alias `b` for convenience:
-
-```bash
-echo "alias b='batipanel'" >> ~/.zshrc && source ~/.zshrc
-```
-
-### Linux (Ubuntu, Fedora, Arch)
-
-```bash
-git clone https://github.com/batiai/batipanel-cli.git
-cd batipanel
-make install
-```
-
-Or as a one-liner:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel-cli/master/install.sh | bash
-```
-
-The installer auto-detects your package manager (apt, dnf, pacman) and installs everything.
+The installer auto-detects your package manager (apt, dnf, pacman, brew) and installs everything.
 
 ### Windows (WSL)
 
@@ -98,7 +95,7 @@ Restart your computer. Ubuntu will open automatically — create a username and 
 Open **Windows Terminal** → **Ubuntu** tab and run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel-cli/master/install.sh | bash
+curl -fsSL https://batipanel.com/install.sh | bash
 ```
 
 **Step 3: Start**
@@ -112,11 +109,14 @@ b
 ### Upgrading
 
 ```bash
+# npm
+npm update -g batipanel
+
 # Homebrew
 brew upgrade batipanel
 
 # Manual install — just re-run the installer
-cd batipanel && git pull && make install
+cd batipanel && git pull && bash install.sh
 ```
 
 Your projects and settings are always preserved.
@@ -124,11 +124,14 @@ Your projects and settings are always preserved.
 ### Uninstalling
 
 ```bash
+# npm
+npm uninstall -g batipanel
+
 # Homebrew
 brew uninstall batipanel
 
 # Manual
-make uninstall          # or: bash uninstall.sh
+bash uninstall.sh
 ```
 
 ---
@@ -155,6 +158,7 @@ b stop myproject                   # Stop a session
 b ls                               # List sessions & projects
 b layouts                          # Show available layouts
 b config layout 7panel_log         # Change default layout
+b doctor                           # Check system health
 b help                             # Show all commands
 ```
 
@@ -291,6 +295,19 @@ Best for: Docker/Kubernetes workflows
 
 ---
 
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| **Alt + h/j/k/l** | Switch panels (vim-style) |
+| **Alt + Arrow Keys** | Switch panels |
+| **Prefix + Arrow Keys** | Resize panels (prefix = Ctrl+B) |
+| **Mouse click** | Select a panel |
+| **Mouse scroll** | Scroll panel history |
+| **Prefix + r** | Reload tmux config |
+
+---
+
 ## Terminal Compatibility
 
 batipanel works with any terminal that supports tmux:
@@ -311,7 +328,7 @@ batipanel works with any terminal that supports tmux:
 | Tool | Required? | Notes |
 |---|---|---|
 | **tmux** | Yes | Auto-installed by the installer |
-| **Claude Code** | Recommended | `npm i -g @anthropic-ai/claude-code` — the AI panel |
+| **Claude Code** | Recommended | Auto-installed via `curl -fsSL https://claude.ai/install.sh \| bash` |
 | lazygit | Optional | Git UI — falls back to `git status` |
 | btop | Optional | System monitor — falls back to htop or top |
 | yazi | Optional | File manager — falls back to eza, tree, or find |
@@ -377,10 +394,10 @@ Or maximize your terminal window / go fullscreen.
 Install Claude Code:
 
 ```bash
-npm i -g @anthropic-ai/claude-code
+curl -fsSL https://claude.ai/install.sh | bash
 ```
 
-You need [Node.js](https://nodejs.org/) first. The panel will show a reminder if Claude Code is missing — everything else still works.
+The panel will show a reminder if Claude Code is missing — everything else still works.
 
 ### WSL: clipboard not working
 
@@ -392,16 +409,29 @@ sudo apt install xclip
 
 ### How do I navigate between panels?
 
-- **Alt + Arrow Keys** — switch between panels
+- **Alt + h/j/k/l** — switch panels (vim-style)
+- **Alt + Arrow Keys** — switch panels
 - **Prefix + Arrow Keys** — resize panels (prefix = Ctrl+B by default)
 - **Mouse** — click to select a panel, scroll to view history
 
 ---
 
+## Contributing
+
+Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
 ## License
 
-MIT
+[MIT](LICENSE) — Copyright (c) 2026 [bati.ai](https://bati.ai)
 
 ## Author
 
-Made by [bati.ai](https://github.com/batiai)
+Made by [bati.ai](https://bati.ai)

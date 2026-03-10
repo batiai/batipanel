@@ -1,0 +1,48 @@
+{
+  "name": "batipanel",
+  "version": "0.3.0",
+  "description": "AI-powered terminal workspace manager — multi-panel tmux layouts with Claude Code, git, monitoring, and more",
+  "bin": {
+    "batipanel": "./bin/cli.sh"
+  },
+  "scripts": {
+    "postinstall": "bash install.sh"
+  },
+  "keywords": [
+    "tmux",
+    "claude",
+    "ai",
+    "terminal",
+    "workspace",
+    "multi-panel",
+    "developer-tools",
+    "cli"
+  ],
+  "author": "bati.ai (https://bati.ai)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/batiai/batipanel.git"
+  },
+  "homepage": "https://github.com/batiai/batipanel",
+  "bugs": {
+    "url": "https://github.com/batiai/batipanel/issues"
+  },
+  "os": ["darwin", "linux"],
+  "engines": {
+    "node": ">=16"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "layouts/",
+    "config/",
+    "completions/",
+    "examples/",
+    "install.sh",
+    "uninstall.sh",
+    "VERSION",
+    "LICENSE",
+    "README.md"
+  ]
+}

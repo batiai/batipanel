@@ -1,0 +1,7 @@
+.github/
+Formula/
+Makefile
+CONTRIBUTING.md
+.gitignore
+*.md
+!README.md
