@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in batipanel, please report it responsibly.
 
-**Email:** [security@bati.ai](mailto:security@bati.ai)
+**Email:** [support@bati.ai](mailto:support@bati.ai)
 
 Please include:
 - Description of the vulnerability
