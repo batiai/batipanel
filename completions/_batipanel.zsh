@@ -27,6 +27,7 @@ _batipanel() {
     'list:List sessions and projects'
     'layouts:Show available layouts'
     'config:Change settings'
+    'theme:Change color theme'
     'help:Show help'
     'doctor:Check system health'
   )
@@ -58,11 +59,18 @@ _batipanel() {
         reload|stop)
           _batipanel_projects
           ;;
+        theme)
+          if (( CURRENT == 3 )); then
+            compadd default dracula nord gruvbox tokyo-night list
+          fi
+          ;;
         config)
           if (( CURRENT == 3 )); then
-            compadd layout
+            compadd layout theme
           elif (( CURRENT == 4 )) && [[ ${words[3]} == layout ]]; then
             _batipanel_layouts
+          elif (( CURRENT == 4 )) && [[ ${words[3]} == theme ]]; then
+            compadd default dracula nord gruvbox tokyo-night
           fi
           ;;
         *)

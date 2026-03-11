@@ -133,61 +133,42 @@ setup_zsh_theme() {
   echo "    Set agnoster theme with hostname hidden"
 }
 
-# === 3. Setup bash powerline prompt ===
-setup_bash_prompt() {
-  local shell_rc="$1"
-
-  echo "  Configuring bash prompt..."
-
-  # create powerline-style prompt script
+# fallback prompt generator (when themes.sh is not loaded)
+_setup_default_bash_prompt() {
   local prompt_file="$BATIPANEL_HOME/config/bash-prompt.sh"
-  cat > "$prompt_file" << 'PROMPT_EOF'
+  mkdir -p "$BATIPANEL_HOME/config"
+  cat > "$prompt_file" << 'FALLBACK_EOF'
 #!/usr/bin/env bash
-# batipanel bash prompt - powerline style (no hostname)
-
+# batipanel bash prompt - default theme (fallback)
 __batipanel_prompt() {
   local exit_code=$?
-
-  # powerline arrow symbols (U+E0B0, U+E0B1)
   local sep=$'\uE0B0'
-  local sep_thin=$'\uE0B1'
-
-  # colors
-  local bg_user="\[\e[44m\]"      # blue bg
-  local fg_user="\[\e[97m\]"      # white fg
-  local bg_dir="\[\e[48;5;240m\]" # dark gray bg
-  local fg_dir="\[\e[97m\]"       # white fg
-  local bg_git="\[\e[42m\]"       # green bg
-  local fg_git="\[\e[30m\]"       # black fg
-  local bg_err="\[\e[41m\]"       # red bg
-  local fg_err="\[\e[97m\]"       # white fg
+  local bg_user="\[\e[44m\]"
+  local fg_user="\[\e[97m\]"
+  local bg_dir="\[\e[48;5;240m\]"
+  local fg_dir="\[\e[97m\]"
+  local bg_git="\[\e[42m\]"
+  local fg_git="\[\e[30m\]"
+  local bg_err="\[\e[41m\]"
+  local fg_err="\[\e[97m\]"
   local reset="\[\e[0m\]"
-
-  # transition colors
-  local t_user_dir="\[\e[34;48;5;240m\]"   # blue fg on gray bg
-  local t_dir_git="\[\e[38;5;240;42m\]"    # gray fg on green bg
-  local t_dir_end="\[\e[38;5;240m\]"       # gray fg on default bg
-  local t_git_end="\[\e[32m\]"             # green fg on default bg
-  local t_err_dir="\[\e[31;48;5;240m\]"    # red fg on gray bg
-
-  # segment 1: username (no hostname)
+  local t_user_dir="\[\e[34;48;5;240m\]"
+  local t_dir_git="\[\e[38;5;240;42m\]"
+  local t_dir_end="\[\e[38;5;240m\]"
+  local t_git_end="\[\e[32m\]"
+  local t_err_dir="\[\e[31;48;5;240m\]"
   local ps=""
   if [ "$exit_code" -ne 0 ]; then
     ps+="${bg_err}${fg_err} ✘ ${exit_code} "
     ps+="${t_err_dir}${sep}"
   fi
   ps+="${bg_user}${fg_user} \\u "
-
-  # segment 2: working directory
   ps+="${t_user_dir}${sep}"
   ps+="${bg_dir}${fg_dir} \\w "
-
-  # segment 3: git branch (if in a repo)
   local git_branch=""
   if command -v git &>/dev/null; then
     git_branch="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)"
   fi
-
   if [ -n "$git_branch" ]; then
     ps+="${t_dir_git}${sep}"
     local git_icon=$'\uE0A0'
@@ -196,14 +177,29 @@ __batipanel_prompt() {
   else
     ps+="${reset}${t_dir_end}${sep}${reset} "
   fi
-
   PS1="$ps"
 }
-
 PROMPT_COMMAND="__batipanel_prompt"
-PROMPT_EOF
+FALLBACK_EOF
+}
+
+# === 3. Setup bash powerline prompt ===
+setup_bash_prompt() {
+  local shell_rc="$1"
+
+  echo "  Configuring bash prompt..."
+
+  # generate prompt with current theme (uses _generate_themed_prompt from themes.sh)
+  local current_theme="${BATIPANEL_THEME:-default}"
+  if declare -f _generate_themed_prompt &>/dev/null; then
+    _generate_themed_prompt "$current_theme"
+  else
+    # fallback: generate default prompt directly (standalone install without themes.sh)
+    _setup_default_bash_prompt
+  fi
 
   # source prompt from shell RC
+  local prompt_file="$BATIPANEL_HOME/config/bash-prompt.sh"
   local source_line="source \"$prompt_file\""
   _add_line_if_missing "$shell_rc" "bash-prompt.sh" "$source_line"
 

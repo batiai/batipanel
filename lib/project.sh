@@ -80,11 +80,16 @@ tmux_config() {
       fi
       echo -e "${GREEN}Default layout changed: $value${NC}"
       ;;
+    theme)
+      tmux_theme "$value"
+      ;;
     "")
       echo "Usage: b config <key> [value]"
       echo ""
       echo "  b config layout          Show current default layout"
       echo "  b config layout 7panel   Change default layout"
+      echo "  b config theme           Show current theme"
+      echo "  b config theme dracula   Change color theme"
       ;;
     *)
       echo -e "${RED}Unknown config key: $key${NC}"

@@ -28,3 +28,5 @@ source "$_BATIPANEL_LIB/server-docker.sh"
 source "$_BATIPANEL_LIB/server.sh"
 # shellcheck source=lib/server-init.sh
 source "$_BATIPANEL_LIB/server-init.sh"
+# shellcheck source=lib/themes.sh
+source "$_BATIPANEL_LIB/themes.sh"

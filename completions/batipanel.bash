@@ -6,7 +6,7 @@ _batipanel() {
   local home="${BATIPANEL_HOME:-$HOME/.batipanel}"
 
   # subcommands
-  local commands="new reload stop ls list layouts config help doctor"
+  local commands="new reload stop ls list layouts config theme help doctor"
 
   # first argument: subcommand or project name
   if [[ $cword -eq 1 ]]; then
@@ -35,9 +35,16 @@ _batipanel() {
         mapfile -t COMPREPLY < <(compgen -W "$projects" -- "$cur")
       fi
       ;;
+    theme)
+      if [[ $cword -eq 2 ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "default dracula nord gruvbox tokyo-night list" -- "$cur")
+      fi
+      ;;
     config)
       if [[ $cword -eq 2 ]]; then
-        mapfile -t COMPREPLY < <(compgen -W "layout" -- "$cur")
+        mapfile -t COMPREPLY < <(compgen -W "layout theme" -- "$cur")
+      elif [[ $cword -eq 3 && "${words[2]}" == "theme" ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "default dracula nord gruvbox tokyo-night" -- "$cur")
       elif [[ $cword -eq 3 && "${words[2]}" == "layout" ]]; then
         local layouts=""
         if [[ -d "$home/layouts" ]]; then

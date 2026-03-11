@@ -39,6 +39,7 @@ debug_log() {
 TMUX_CONFIG="$BATIPANEL_HOME/config.sh"
 # shellcheck disable=SC2034  # used by layout/session modules
 DEFAULT_LAYOUT="7panel"
+BATIPANEL_THEME="default"
 if [ -f "$TMUX_CONFIG" ]; then
   while IFS='=' read -r _cfg_key _cfg_val; do
     # strip whitespace and quotes
@@ -57,6 +58,12 @@ if [ -f "$TMUX_CONFIG" ]; then
         if [[ "$_cfg_val" =~ ^[01]$ ]]; then
           # shellcheck disable=SC2034  # used by layout.sh run_filetree
           BATIPANEL_ICONS="$_cfg_val"
+        fi
+        ;;
+      BATIPANEL_THEME)
+        if [[ "$_cfg_val" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+          # shellcheck disable=SC2034  # used by themes.sh
+          BATIPANEL_THEME="$_cfg_val"
         fi
         ;;
     esac
