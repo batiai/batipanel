@@ -303,7 +303,7 @@ echo "Installing scripts..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cp "$SCRIPT_DIR/bin/start.sh" "$BATIPANEL_HOME/bin/"
-for mod in common.sh core.sh validate.sh layout.sh session.sh project.sh doctor.sh wizard.sh shell-setup.sh server.sh server-init.sh; do
+for mod in common.sh core.sh validate.sh layout.sh session.sh project.sh doctor.sh wizard.sh shell-setup.sh server-docker.sh server.sh server-init.sh; do
   cp "$SCRIPT_DIR/lib/$mod" "$BATIPANEL_HOME/lib/"
 done
 cp "$SCRIPT_DIR/VERSION" "$BATIPANEL_HOME/VERSION" 2>/dev/null || true

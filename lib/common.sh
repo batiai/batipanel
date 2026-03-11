@@ -22,6 +22,8 @@ source "$_BATIPANEL_LIB/project.sh"
 source "$_BATIPANEL_LIB/doctor.sh"
 # shellcheck source=lib/wizard.sh
 source "$_BATIPANEL_LIB/wizard.sh"
+# shellcheck source=lib/server-docker.sh
+source "$_BATIPANEL_LIB/server-docker.sh"
 # shellcheck source=lib/server.sh
 source "$_BATIPANEL_LIB/server.sh"
 # shellcheck source=lib/server-init.sh

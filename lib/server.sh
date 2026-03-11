@@ -5,34 +5,8 @@
 BATIPANEL_SERVER_DIR="${BATIPANEL_SERVER_DIR:-$BATIPANEL_HOME/server}"
 BATIPANEL_DOCKER_DIR="$BATIPANEL_HOME/docker"
 
-# === Docker check ===
-_require_docker() {
-  if ! has_cmd docker; then
-    echo -e "${RED}Docker is not installed.${NC}"
-    echo ""
-    echo "Install Docker:"
-    case "$(uname -s)" in
-      Darwin) echo "  brew install --cask docker" ;;
-      *)
-        echo "  curl -fsSL https://get.docker.com | sh"
-        echo "  sudo usermod -aG docker \$USER"
-        ;;
-    esac
-    return 1
-  fi
-
-  if ! docker info &>/dev/null; then
-    echo -e "${RED}Docker is not running.${NC}"
-    echo "  Start Docker and try again."
-    return 1
-  fi
-
-  if ! has_cmd docker-compose && ! docker compose version &>/dev/null; then
-    echo -e "${RED}Docker Compose is not available.${NC}"
-    echo "  Install: https://docs.docker.com/compose/install/"
-    return 1
-  fi
-}
+# Docker dependency management is in server-docker.sh
+# _require_docker(), _install_docker(), _install_compose_plugin()
 
 # docker compose command (v2 plugin or standalone)
 _compose() {
