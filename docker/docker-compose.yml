@@ -1,0 +1,39 @@
+version: "3.8"
+
+# batipanel server - OpenClaw AI gateway (pre-configured)
+# Managed by: b server init / b server start
+
+services:
+  openclaw:
+    image: ${BATIPANEL_OPENCLAW_IMAGE:-ghcr.io/openclaw/openclaw:latest}
+    container_name: batipanel-server
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # security defaults (hardened)
+      OPENCLAW_GATEWAY_BIND: "loopback"
+      OPENCLAW_SANDBOX: "${BATIPANEL_SANDBOX:-1}"
+    volumes:
+      - ${BATIPANEL_SERVER_DIR:-~/.batipanel/server}/config:/home/node/.openclaw
+      - ${BATIPANEL_SERVER_DIR:-~/.batipanel/server}/workspace:/home/node/workspace
+    ports:
+      - "${BATIPANEL_GATEWAY_PORT:-18789}:18789"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:18789/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - batipanel-net
+
+networks:
+  batipanel-net:
+    driver: bridge

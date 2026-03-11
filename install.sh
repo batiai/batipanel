@@ -303,7 +303,7 @@ echo "Installing scripts..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cp "$SCRIPT_DIR/bin/start.sh" "$BATIPANEL_HOME/bin/"
-for mod in common.sh core.sh validate.sh layout.sh session.sh project.sh doctor.sh wizard.sh shell-setup.sh; do
+for mod in common.sh core.sh validate.sh layout.sh session.sh project.sh doctor.sh wizard.sh shell-setup.sh server.sh server-init.sh; do
   cp "$SCRIPT_DIR/lib/$mod" "$BATIPANEL_HOME/lib/"
 done
 cp "$SCRIPT_DIR/VERSION" "$BATIPANEL_HOME/VERSION" 2>/dev/null || true
@@ -314,6 +314,15 @@ for layout in 4panel 5panel 6panel 7panel 7panel_log 8panel dual-claude devops; 
 done
 
 chmod +x "$BATIPANEL_HOME"/bin/*.sh "$BATIPANEL_HOME"/lib/*.sh "$BATIPANEL_HOME"/layouts/*.sh
+
+# copy docker templates
+if [ -d "$SCRIPT_DIR/docker" ]; then
+  mkdir -p "$BATIPANEL_HOME/docker"/{templates,scripts}
+  cp "$SCRIPT_DIR/docker/docker-compose.yml" "$BATIPANEL_HOME/docker/" 2>/dev/null || true
+  cp "$SCRIPT_DIR/docker/templates/"* "$BATIPANEL_HOME/docker/templates/" 2>/dev/null || true
+  cp "$SCRIPT_DIR/docker/scripts/"* "$BATIPANEL_HOME/docker/scripts/" 2>/dev/null || true
+  chmod +x "$BATIPANEL_HOME/docker/scripts/"*.sh 2>/dev/null || true
+fi
 
 # copy examples
 if [ -d "$SCRIPT_DIR/examples" ]; then

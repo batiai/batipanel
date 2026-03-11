@@ -23,6 +23,7 @@ show_help() {
   echo "  b layouts                            Show available layouts"
   echo "  b config layout [name]               Set default layout"
   echo "  b doctor                             Check system health"
+  echo "  b server [init|start|stop|status]    AI server (Telegram bot)"
   echo "  b help                               Show this help"
   echo ""
   echo "Options:"
@@ -100,6 +101,9 @@ case "${ARGS[0]:-}" in
     ;;
   doctor)
     tmux_doctor
+    ;;
+  server)
+    server_cmd "${ARGS[1]:-}" "${ARGS[2]:-}" "${ARGS[3]:-}"
     ;;
   help)
     show_help

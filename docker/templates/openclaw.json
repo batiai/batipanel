@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openclaw.dev/schema/config.json",
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "allowlist",
+      "allowFrom": [__TELEGRAM_USER_ID__],
+      "groups": {}
+    }
+  },
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "non-main",
+        "scope": "agent",
+        "workspaceAccess": "none"
+      }
+    }
+  }
+}
