@@ -61,7 +61,7 @@ git push origin master --force
 
 # 방법 2: 새 저장소 생성
 mkdir batipanel-public
-cp -r batipanel-cli/* batipanel-public/
+cp -r batipanel/* batipanel-public/
 cd batipanel-public
 git init
 git add -A
@@ -86,7 +86,7 @@ git push -u origin master
 Settings → General → Repository name → "batipanel" → Rename
 ```
 
-GitHub가 `batipanel-cli` → `batipanel` 자동 리다이렉트 설정.
+GitHub가 이전 이름에서 `batipanel`으로 자동 리다이렉트 설정.
 
 ### 로컬 remote 업데이트
 
