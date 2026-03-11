@@ -32,6 +32,7 @@ wait_for_panes
 run_claude "$CLAUDE"
 run_lazygit "$LAZYGIT"
 run_remote "$REMOTE"
+label_pane "$ZSH" "Shell"
 tmux send-keys -t "$ZSH" "" ""
 run_filetree "$EZA"
 

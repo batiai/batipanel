@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # batipanel layout - framework, tool launchers, layout listing
 
-has_cmd() { command -v "$1" &>/dev/null; }
-
 # Initialize a layout session: validate dir, kill existing, create new
 init_layout() {
   local session="$1"
@@ -47,9 +45,16 @@ _split() {
   tmux split-window "${args[@]}"
 }
 
+# Set pane title (visible in border when pane-border-status is on)
+label_pane() {
+  local pane="$1" title="$2"
+  tmux select-pane -t "$pane" -T "$title"
+}
+
 # Launch claude in a pane
 run_claude() {
   local pane="$1"
+  label_pane "$pane" "Claude"
   if has_cmd claude; then
     tmux send-keys -t "$pane" "claude" Enter
   else
@@ -60,6 +65,7 @@ run_claude() {
 # Launch claude remote-control in a pane
 run_remote() {
   local pane="$1"
+  label_pane "$pane" "Remote"
   if has_cmd claude; then
     tmux send-keys -t "$pane" "claude remote-control" Enter
   else
@@ -68,9 +74,14 @@ run_remote() {
 }
 
 # Launch system monitor: btop → htop → top
+# btop needs ~80x24 minimum; auto-fallback to htop/top for small panes
 run_monitor() {
   local pane="$1"
-  if has_cmd btop; then
+  label_pane "$pane" "Monitor"
+  local pw ph
+  pw=$(tmux display-message -t "$pane" -p '#{pane_width}' 2>/dev/null || echo 0)
+  ph=$(tmux display-message -t "$pane" -p '#{pane_height}' 2>/dev/null || echo 0)
+  if has_cmd btop && (( pw >= 80 && ph >= 24 )); then
     tmux send-keys -t "$pane" "btop" Enter
   elif has_cmd htop; then
     tmux send-keys -t "$pane" "htop" Enter
@@ -82,6 +93,7 @@ run_monitor() {
 # Launch lazygit or fallback
 run_lazygit() {
   local pane="$1"
+  label_pane "$pane" "Git"
   if has_cmd lazygit; then
     tmux send-keys -t "$pane" "lazygit" Enter
   else
@@ -92,6 +104,7 @@ run_lazygit() {
 # Launch file tree: yazi → eza → tree → find
 run_filetree() {
   local pane="$1"
+  label_pane "$pane" "Files"
   if has_cmd yazi; then
     tmux send-keys -t "$pane" "yazi" Enter
   elif has_cmd eza; then
@@ -111,6 +124,7 @@ run_filetree() {
 # Launch lazydocker or fallback
 run_lazydocker() {
   local pane="$1"
+  label_pane "$pane" "Docker"
   if has_cmd lazydocker; then
     tmux send-keys -t "$pane" "lazydocker" Enter
   elif has_cmd docker; then

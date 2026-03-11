@@ -33,9 +33,12 @@ FILEMGR=$(_split -h -t "$LAZYGIT" -c "$PROJECT" -p 35 -PF '#{pane_id}')
 
 wait_for_panes
 
+label_pane "$CLAUDE1" "Claude #1"
 run_claude "$CLAUDE1"
+label_pane "$CLAUDE2" "Claude #2"
 run_claude "$CLAUDE2"
 run_monitor "$BTOP"
+label_pane "$LOGS" "Logs"
 tmux send-keys -t "$LOGS" "echo 'Logs — tail -f, npm run dev, docker logs, etc.'" Enter
 run_lazygit "$LAZYGIT"
 run_filetree "$FILEMGR"

@@ -36,8 +36,10 @@ wait_for_panes
 run_claude "$CLAUDE"
 run_lazygit "$LAZYGIT"
 run_monitor "$BTOP"
+label_pane "$LOGS" "Logs"
 tmux send-keys -t "$LOGS" "echo 'Logs — tail -f, docker logs, npm run dev, etc.'" Enter
 run_remote "$REMOTE"
+label_pane "$ZSH" "Shell"
 tmux send-keys -t "$ZSH" "" ""
 run_filetree "$EZA"
 

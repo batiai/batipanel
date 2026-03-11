@@ -31,6 +31,7 @@ wait_for_panes
 run_claude "$CLAUDE"
 run_monitor "$BTOP"
 run_lazygit "$LAZYGIT"
+label_pane "$ZSH" "Shell"
 tmux send-keys -t "$ZSH" "" ""
 
 tmux select-pane -t "$CLAUDE"

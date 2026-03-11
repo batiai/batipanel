@@ -67,7 +67,20 @@ if [ -f "$local_zsh_comp/_batipanel" ]; then
   echo "  Removed zsh completion"
 fi
 
-# 4. remove ~/.batipanel/ (preserve projects if user wants)
+# 4. stop server containers (if running)
+if [ -f "$BATIPANEL_HOME/server/docker-compose.yml" ]; then
+  if command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
+    echo "  Stopping server containers..."
+    if docker compose version &>/dev/null 2>&1; then
+      docker compose -f "$BATIPANEL_HOME/server/docker-compose.yml" down 2>/dev/null || true
+    elif command -v docker-compose &>/dev/null; then
+      docker-compose -f "$BATIPANEL_HOME/server/docker-compose.yml" down 2>/dev/null || true
+    fi
+    echo "  Server containers stopped"
+  fi
+fi
+
+# 5. remove ~/.batipanel/ (preserve projects if user wants)
 if [ -d "$BATIPANEL_HOME" ]; then
   project_count=0
   for f in "$BATIPANEL_HOME"/projects/*.sh; do

@@ -92,7 +92,7 @@ Restart your computer. Ubuntu will open automatically — create a username and 
 
 **Step 2: Install batipanel**
 
-Open **Windows Terminal** → **Ubuntu** tab and run:
+Open **Windows Terminal** > **Ubuntu** tab and run:
 
 ```bash
 curl -fsSL https://batipanel.com/install.sh | bash
@@ -165,10 +165,112 @@ b help                             # Show all commands
 ### How It Works
 
 1. `b myproject` checks if a session already exists
-2. If yes → reattaches (your work is exactly where you left it)
-3. If no → creates a new multi-panel session with your chosen layout
+2. If yes -> reattaches (your work is exactly where you left it)
+3. If no -> creates a new multi-panel session with your chosen layout
 4. Each panel auto-launches its assigned tool
-5. Missing tools gracefully fall back to alternatives (e.g., btop → htop → top)
+5. Missing tools gracefully fall back to alternatives (e.g., btop -> htop -> top)
+
+---
+
+## Batipanel Server — AI Telegram Bot
+
+Run your own AI assistant on Telegram, powered by Claude. Docker-isolated, secure, no coding required.
+
+```
+You (Telegram)  -->  Batipanel Server (Docker)  -->  Claude AI
+     chat               OpenClaw gateway              Opus 4.6
+```
+
+### Why?
+
+- **5-minute setup** — just 3 questions (bot token, AI model, your Telegram ID)
+- **No API costs** — uses Claude Max subscription ($200/mo unlimited)
+- **Secure by default** — Docker isolation, sandbox, allowlist access
+- **Full AI capabilities** — web search, PDF analysis, code execution, reports
+
+### Quick Start
+
+```bash
+# 1. Setup (interactive, 3 steps)
+b server init
+
+# 2. Start
+b server start
+
+# 3. Chat with your bot on Telegram!
+```
+
+### Setup Walkthrough
+
+```
+$ b server init
+
+=== Batipanel Server Setup ===
+
+Step 1/3: Telegram Bot
+  Create a bot via @BotFather on Telegram.
+  Bot Token: 7234567890:AAF_xxxxx
+  ✓ Token format valid
+
+Step 2/3: AI Model
+  Use Claude Max subscription (no API cost)? [Y/n]: Y
+  ✓ Claude Max session detected (no API cost)
+
+Step 3/3: Security
+  Telegram User ID: 123456789
+  ✓ Only user 123456789 can access the bot
+
+=== Setup Complete ===
+  Start the server: b server start
+```
+
+### Server Commands
+
+```bash
+b server init              # Interactive setup wizard
+b server start             # Start the Docker server
+b server stop              # Stop the server
+b server status            # Show status + security report
+b server logs [-f]         # View logs (follow with -f)
+b server update            # Pull latest image & restart
+b server config            # View configuration (secrets masked)
+```
+
+### Security
+
+Batipanel Server runs with hardened defaults:
+
+| Layer | Protection |
+|-------|-----------|
+| **Container** | Read-only filesystem, dropped Linux capabilities |
+| **Sandbox** | Tool execution in separate containers |
+| **Network** | Loopback binding only (not exposed to LAN) |
+| **Access** | Telegram allowlist (only your user ID) |
+| **Credentials** | File permissions 600, gateway token auto-generated |
+
+### AI Model Options
+
+| Option | Cost | Setup |
+|--------|------|-------|
+| **Claude Max** | $0 extra (included in $200/mo subscription) | Auto-detected from Claude CLI |
+| **API Key** | Usage-based (~$15-75/M tokens) | Enter `sk-ant-...` key |
+
+### What Can It Do?
+
+Chat with your Telegram bot just like ChatGPT, but with full agent capabilities:
+
+- **Web search** — "Find the latest AI news"
+- **URL analysis** — "Summarize this article: https://..."
+- **PDF analysis** — Send a PDF file for analysis
+- **Code execution** — "Write a Python script that..."
+- **Reports** — "Create a weekly report on..."
+- **Q&A** — General knowledge, coding help, writing
+
+### Requirements
+
+- Docker & Docker Compose
+- Telegram account
+- Claude Max subscription (recommended) or Anthropic API key
 
 ---
 
@@ -297,14 +399,71 @@ Best for: Docker/Kubernetes workflows
 
 ## Keyboard Shortcuts
 
+### Panel Navigation
+
 | Shortcut | Action |
-|---|---|
-| **Alt + h/j/k/l** | Switch panels (vim-style) |
-| **Alt + Arrow Keys** | Switch panels |
-| **Prefix + Arrow Keys** | Resize panels (prefix = Ctrl+B) |
-| **Mouse click** | Select a panel |
-| **Mouse scroll** | Scroll panel history |
+|----------|--------|
+| **Alt + h/j/k/l** | Move between panels (vim-style) |
+| **Alt + Arrow Keys** | Move between panels |
+| **Alt + Space** | Toggle last panel |
+| **Alt + f** | Zoom/focus current panel (toggle) |
+| **Alt + 1-9** | Switch to window by number |
+| **Alt + [ / ]** | Previous / next window |
+
+### Panel Management
+
+| Shortcut | Action |
+|----------|--------|
+| **Alt + \\** | Split vertically (new pane right) |
+| **Alt + -** | Split horizontally (new pane below) |
+| **Alt + x** | Close current panel (with confirmation) |
+| **Alt + n** | New window |
+
+### Panel Resizing
+
+| Shortcut | Action |
+|----------|--------|
+| **Alt + Shift + Arrow** | Fine resize (1 unit) |
+| **Prefix + Arrow** | Resize (5 units, prefix = Ctrl+B) |
+| **Prefix + =** | Equalize all panel sizes |
+| **Mouse drag** | Drag panel borders to resize |
+
+### Panel Swapping
+
+| Shortcut | Action |
+|----------|--------|
+| **Alt + Shift + h/j/k/l** | Swap panel in direction |
+
+### Copy Mode (vi-style)
+
+| Shortcut | Action |
+|----------|--------|
+| **Prefix + [** | Enter copy mode |
+| **v** | Begin selection |
+| **Ctrl + v** | Toggle rectangle selection |
+| **y** | Copy to system clipboard |
+| **Escape** | Exit copy mode |
+
+### Session Management
+
+| Shortcut | Action |
+|----------|--------|
+| **Prefix + s** | List sessions |
+| **Prefix + S** | New session |
 | **Prefix + r** | Reload tmux config |
+
+---
+
+## Shell Theme
+
+The installer sets up a Powerline-style shell prompt:
+
+- **Zsh**: Oh My Zsh + agnoster theme (hostname hidden)
+- **Bash**: Powerline-style PS1 with git branch (hostname hidden)
+- **Fonts**: Powerline fonts auto-installed (apt/brew/git fallback)
+- **tmux**: Powerline status bar with arrow separators
+
+Each panel shows its tool name in the border (Claude, Git, Shell, Monitor, etc.).
 
 ---
 
@@ -313,26 +472,28 @@ Best for: Docker/Kubernetes workflows
 batipanel works with any terminal that supports tmux:
 
 | Platform | Supported Terminals |
-|---|---|
+|----------|---------------------|
 | **macOS** | Terminal.app, iTerm2, Alacritty, Kitty, WezTerm, Warp |
 | **Linux** | GNOME Terminal, Konsole, Alacritty, Kitty, WezTerm, xterm |
 | **Windows** | Windows Terminal + WSL2 |
 
 - **iTerm2**: Auto-detected — uses native tmux integration for seamless tabs
 - **Clipboard**: Copy from tmux works automatically on all platforms (macOS, Linux X11, WSL)
+- **True Color**: 24-bit color support enabled by default
 
 ---
 
 ## Requirements
 
 | Tool | Required? | Notes |
-|---|---|---|
+|------|-----------|-------|
 | **tmux** | Yes | Auto-installed by the installer |
 | **Claude Code** | Recommended | Auto-installed via `curl -fsSL https://claude.ai/install.sh \| bash` |
 | lazygit | Optional | Git UI — falls back to `git status` |
 | btop | Optional | System monitor — falls back to htop or top |
 | yazi | Optional | File manager — falls back to eza, tree, or find |
 | eza | Optional | Modern `ls` — falls back to tree or find |
+| Docker | Optional | Required only for `b server` (Telegram bot) |
 
 All optional tools are auto-installed when possible. If any are missing, batipanel still works — each panel gracefully falls back to a simpler alternative.
 
@@ -411,8 +572,9 @@ sudo apt install xclip
 
 - **Alt + h/j/k/l** — switch panels (vim-style)
 - **Alt + Arrow Keys** — switch panels
+- **Alt + f** — zoom/focus a panel (toggle fullscreen)
 - **Prefix + Arrow Keys** — resize panels (prefix = Ctrl+B by default)
-- **Mouse** — click to select a panel, scroll to view history
+- **Mouse** — click to select a panel, drag borders to resize, scroll to view history
 
 ---
 

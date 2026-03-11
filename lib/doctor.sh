@@ -119,6 +119,25 @@ tmux_doctor() {
     echo "          Fix: re-run install.sh or source ~/.batipanel/completions/batipanel.bash"
   fi
 
+  # 10. server
+  echo ""
+  echo -e "${BLUE}=== Server ===${NC}"
+  if [ -f "$BATIPANEL_HOME/server/.env" ]; then
+    if has_cmd docker && docker info &>/dev/null 2>&1; then
+      if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "batipanel-server"; then
+        echo -e "  [$ok]  Server running (Docker)"
+      else
+        echo -e "  [$warn]  Server configured but not running"
+        echo "          Start with: b server start"
+      fi
+    else
+      echo -e "  [$warn]  Server configured but Docker not available"
+    fi
+  else
+    echo -e "  [--]  Server not configured (optional)"
+    echo "          Setup with: b server init"
+  fi
+
   # summary
   echo ""
   if (( issues == 0 )); then
