@@ -26,8 +26,27 @@ tmux_start() {
     fi
   fi
 
-  # iTerm2: use -CC mode, otherwise normal attach
-  if [ "${TERM_PROGRAM:-}" = "iTerm.app" ]; then
+  # iTerm2 -CC mode: opt-in via config, prompt on first encounter
+  if [ "${TERM_PROGRAM:-}" = "iTerm.app" ] && [ -z "${BATIPANEL_ITERM_CC:-}" ]; then
+    echo ""
+    echo -e "${BLUE}iTerm2 detected!${NC}"
+    echo "  iTerm2 supports native tmux integration (tmux -CC)."
+    echo "  Panes become native iTerm2 splits instead of tmux UI."
+    echo -e "  ${YELLOW}Note:${NC} tmux status bar and theme will not be visible in this mode."
+    echo ""
+    printf "Enable iTerm2 integration? [y/N] "
+    local iterm_answer
+    read -r iterm_answer
+    if [[ "$iterm_answer" == [yY] ]]; then
+      BATIPANEL_ITERM_CC="1"
+    else
+      BATIPANEL_ITERM_CC="0"
+    fi
+    # persist choice
+    _save_config "BATIPANEL_ITERM_CC" "$BATIPANEL_ITERM_CC"
+  fi
+
+  if [ "${BATIPANEL_ITERM_CC:-0}" = "1" ]; then
     exec tmux -CC attach -t "$SESSION"
   else
     exec tmux attach -t "$SESSION"

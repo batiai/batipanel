@@ -66,11 +66,13 @@ _batipanel() {
           ;;
         config)
           if (( CURRENT == 3 )); then
-            compadd layout theme
+            compadd layout theme iterm-cc
           elif (( CURRENT == 4 )) && [[ ${words[3]} == layout ]]; then
             _batipanel_layouts
           elif (( CURRENT == 4 )) && [[ ${words[3]} == theme ]]; then
             compadd default dracula nord gruvbox tokyo-night catppuccin rose-pine kanagawa
+          elif (( CURRENT == 4 )) && [[ ${words[3]} == iterm-cc ]]; then
+            compadd on off
           fi
           ;;
         *)

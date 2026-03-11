@@ -42,9 +42,11 @@ _batipanel() {
       ;;
     config)
       if [[ $cword -eq 2 ]]; then
-        mapfile -t COMPREPLY < <(compgen -W "layout theme" -- "$cur")
+        mapfile -t COMPREPLY < <(compgen -W "layout theme iterm-cc" -- "$cur")
       elif [[ $cword -eq 3 && "${words[2]}" == "theme" ]]; then
         mapfile -t COMPREPLY < <(compgen -W "default dracula nord gruvbox tokyo-night catppuccin rose-pine kanagawa" -- "$cur")
+      elif [[ $cword -eq 3 && "${words[2]}" == "iterm-cc" ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "on off" -- "$cur")
       elif [[ $cword -eq 3 && "${words[2]}" == "layout" ]]; then
         local layouts=""
         if [[ -d "$home/layouts" ]]; then

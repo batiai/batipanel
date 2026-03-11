@@ -83,6 +83,32 @@ tmux_config() {
     theme)
       tmux_theme "$value"
       ;;
+    iterm-cc)
+      if [ -z "$value" ]; then
+        echo -e "  iTerm2 -CC mode: ${GREEN}${BATIPANEL_ITERM_CC:-not set}${NC}"
+        echo ""
+        echo "  b config iterm-cc on    Enable iTerm2 native integration"
+        echo "  b config iterm-cc off   Use standard tmux UI (themed)"
+        return
+      fi
+      case "$value" in
+        on|1)
+          _save_config "BATIPANEL_ITERM_CC" "1"
+          BATIPANEL_ITERM_CC="1"
+          echo -e "${GREEN}iTerm2 -CC mode enabled${NC}"
+          echo "  Next session will use native iTerm2 splits."
+          ;;
+        off|0)
+          _save_config "BATIPANEL_ITERM_CC" "0"
+          BATIPANEL_ITERM_CC="0"
+          echo -e "${GREEN}iTerm2 -CC mode disabled${NC}"
+          echo "  Next session will use standard tmux UI with themes."
+          ;;
+        *)
+          echo -e "${RED}Invalid value: $value (use on/off)${NC}"
+          ;;
+      esac
+      ;;
     "")
       echo "Usage: b config <key> [value]"
       echo ""
@@ -90,6 +116,7 @@ tmux_config() {
       echo "  b config layout 7panel   Change default layout"
       echo "  b config theme           Show current theme"
       echo "  b config theme dracula   Change color theme"
+      echo "  b config iterm-cc        iTerm2 native integration (on/off)"
       ;;
     *)
       echo -e "${RED}Unknown config key: $key${NC}"
