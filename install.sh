@@ -388,7 +388,8 @@ case "$USER_SHELL" in
 esac
 
 BATIPANEL_ALIAS="alias batipanel='bash \"$BATIPANEL_HOME/bin/start.sh\"'"
-SHORT_ALIAS="alias b='bash \"$BATIPANEL_HOME/bin/start.sh\"'"
+# b is a function (not alias) so theme changes can auto-reload the prompt
+SHORT_FUNC="b() { bash \"$BATIPANEL_HOME/bin/start.sh\" \"\$@\"; if [[ \"\${1:-}\" == \"theme\" || (\"\${1:-}\" == \"config\" && \"\${2:-}\" == \"theme\") ]]; then local _pf=\"$BATIPANEL_HOME/config/bash-prompt.sh\"; [ -f \"\$_pf\" ] && source \"\$_pf\"; fi; }"
 
 # Always register 'batipanel' alias
 if grep -q "alias batipanel=" "$SHELL_RC" 2>/dev/null; then
@@ -402,18 +403,23 @@ else
 fi
 echo "  Added alias: batipanel ($SHELL_RC)"
 
-# Register short alias 'b' if no conflict
-if grep -q "alias b=" "$SHELL_RC" 2>/dev/null; then
-  if grep -q "batipanel" "$SHELL_RC" && grep -q "alias b=.*batipanel" "$SHELL_RC" 2>/dev/null; then
-    sed_i "s|alias b=.*|$SHORT_ALIAS|" "$SHELL_RC"
-    echo "  Updated alias: b ($SHELL_RC)"
-  else
-    echo "  Skipped alias 'b' — already defined in $SHELL_RC"
-    echo "  You can add it manually: $SHORT_ALIAS"
-  fi
+# Register short command 'b' as function (auto-reloads prompt on theme change)
+# migrate: remove old alias format
+if grep -q "alias b=.*batipanel" "$SHELL_RC" 2>/dev/null; then
+  sed_i "/alias b=.*batipanel/d" "$SHELL_RC"
+fi
+# update or add function
+if grep -qF "b() {" "$SHELL_RC" 2>/dev/null && grep -q "batipanel" "$SHELL_RC" 2>/dev/null; then
+  sed_i "/b() {.*batipanel/d" "$SHELL_RC"
+  echo "$SHORT_FUNC" >> "$SHELL_RC"
+  echo "  Updated command: b ($SHELL_RC)"
+elif grep -q "alias b=" "$SHELL_RC" 2>/dev/null; then
+  # 'b' alias exists from another tool — skip
+  echo "  Skipped 'b' — already defined in $SHELL_RC"
+  echo "  You can add it manually: $SHORT_FUNC"
 else
-  echo "$SHORT_ALIAS" >> "$SHELL_RC"
-  echo "  Added alias: b ($SHELL_RC)"
+  echo "$SHORT_FUNC" >> "$SHELL_RC"
+  echo "  Added command: b ($SHELL_RC)"
 fi
 
 # === 8. persist tool paths in shell RC ===
@@ -513,6 +519,7 @@ echo "  b stop myproject             # Stop a session"
 echo "  b ls                         # List sessions & projects"
 echo "  b layouts                    # Show available layouts"
 echo "  b config layout 7panel       # Change default layout"
+echo "  b theme                      # List/change color themes"
 echo ""
 # auto-apply: start a fresh shell so aliases are immediately available
 if [ -t 0 ]; then
