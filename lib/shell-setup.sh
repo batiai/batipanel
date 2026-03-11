@@ -148,9 +148,9 @@ setup_bash_prompt() {
 __batipanel_prompt() {
   local exit_code=$?
 
-  # powerline symbols (fallback to ASCII if terminal doesn't support)
-  local sep=""
-  local sep_thin=""
+  # powerline arrow symbols (U+E0B0, U+E0B1)
+  local sep=$'\uE0B0'
+  local sep_thin=$'\uE0B1'
 
   # colors
   local bg_user="\[\e[44m\]"      # blue bg
@@ -190,7 +190,8 @@ __batipanel_prompt() {
 
   if [ -n "$git_branch" ]; then
     ps+="${t_dir_git}${sep}"
-    ps+="${bg_git}${fg_git}  ${git_branch} "
+    local git_icon=$'\uE0A0'
+    ps+="${bg_git}${fg_git} ${git_icon} ${git_branch} "
     ps+="${reset}${t_git_end}${sep}${reset} "
   else
     ps+="${reset}${t_dir_end}${sep}${reset} "
