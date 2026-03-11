@@ -29,22 +29,27 @@ _install_docker() {
       echo "  Installing Docker Engine..."
 
       # official convenience script (Ubuntu, Debian, Fedora, CentOS, etc.)
+      local tmpdir
+      tmpdir=$(mktemp -d) || { echo -e "${RED}  Failed to create temp directory.${NC}"; return 1; }
+      local docker_script="$tmpdir/get-docker.sh"
+
       if has_cmd curl; then
-        curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+        curl -fsSL https://get.docker.com -o "$docker_script"
       elif has_cmd wget; then
-        wget -qO /tmp/get-docker.sh https://get.docker.com
+        wget -qO "$docker_script" https://get.docker.com
       else
+        rm -rf "$tmpdir"
         echo -e "${RED}  curl or wget required to install Docker.${NC}"
         return 1
       fi
 
-      if ! sudo sh /tmp/get-docker.sh 2>&1 | tail -5; then
-        rm -f /tmp/get-docker.sh
+      if ! sudo sh "$docker_script" 2>&1 | tail -5; then
+        rm -rf "$tmpdir"
         echo -e "${RED}  Docker installation failed.${NC}"
         echo "  Install manually: https://docs.docker.com/engine/install/"
         return 1
       fi
-      rm -f /tmp/get-docker.sh
+      rm -rf "$tmpdir"
 
       # add current user to docker group
       if ! groups "$USER" 2>/dev/null | grep -qw docker; then

@@ -39,7 +39,7 @@ debug_log() {
 _save_config() {
   local key="$1" val="$2"
   if [ -f "$BATIPANEL_HOME/config.sh" ]; then
-    if grep -q "${key}=" "$BATIPANEL_HOME/config.sh"; then
+    if grep -qF "${key}=" "$BATIPANEL_HOME/config.sh"; then
       _sed_i "s|${key}=.*|${key}=\"${val}\"|" "$BATIPANEL_HOME/config.sh"
     else
       echo "${key}=\"${val}\"" >> "$BATIPANEL_HOME/config.sh"

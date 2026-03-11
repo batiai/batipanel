@@ -218,9 +218,11 @@ _add_line_if_missing() {
   fi
 
   if ! grep -qF "$search" "$rc_file" 2>/dev/null; then
-    echo "" >> "$rc_file"
-    echo "# batipanel shell theme" >> "$rc_file"
-    echo "$line" >> "$rc_file"
+    {
+      echo ""
+      echo "# batipanel shell theme"
+      echo "$line"
+    } >> "$rc_file"
   fi
 }
 

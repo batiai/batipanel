@@ -99,12 +99,11 @@ echo "Installing optional tools..."
 
 ARCH="$(uname -m)"
 case "$ARCH" in
-  x86_64)  ARCH_GO="x86_64" ; ARCH_ALT="amd64" ; ARCH_YAZI="x86_64" ;;
-  aarch64|arm64) ARCH_GO="arm64" ; ARCH_ALT="arm64" ; ARCH_YAZI="aarch64" ;;
-  *) ARCH_GO="$ARCH" ; ARCH_ALT="$ARCH" ; ARCH_YAZI="$ARCH" ;;
+  x86_64)  ARCH_GO="x86_64" ; ARCH_YAZI="x86_64" ;;
+  aarch64|arm64) ARCH_GO="arm64" ; ARCH_YAZI="aarch64" ;;
+  *) ARCH_GO="$ARCH" ; ARCH_YAZI="$ARCH" ;;
 esac
 OS_LOWER="$(uname -s | tr '[:upper:]' '[:lower:]')"
-OS_CAPITAL="$(uname -s)"
 
 install_from_github() {
   local name="$1" url="$2" tmpdir

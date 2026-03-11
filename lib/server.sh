@@ -3,7 +3,6 @@
 # Provides: b server init|start|stop|status|logs|config|update
 
 BATIPANEL_SERVER_DIR="${BATIPANEL_SERVER_DIR:-$BATIPANEL_HOME/server}"
-BATIPANEL_DOCKER_DIR="$BATIPANEL_HOME/docker"
 
 # Docker dependency management is in server-docker.sh
 # _require_docker(), _install_docker(), _install_compose_plugin()
@@ -32,9 +31,13 @@ server_start() {
 
   echo "Starting batipanel server..."
 
-  _compose up -d --pull always 2>&1 | while read -r line; do
-    echo "  $line"
-  done
+  local compose_output
+  if ! compose_output=$(_compose up -d --pull always 2>&1); then
+    echo "$compose_output" | sed 's/^/  /'
+    echo -e "${RED}Failed to start server${NC}"
+    return 1
+  fi
+  echo "$compose_output" | sed 's/^/  /'
 
   # wait for health
   echo ""
@@ -67,9 +70,13 @@ server_stop() {
   fi
 
   echo "Stopping batipanel server..."
-  _compose down 2>&1 | while read -r line; do
-    echo "  $line"
-  done
+  local compose_output
+  if ! compose_output=$(_compose down 2>&1); then
+    echo "$compose_output" | sed 's/^/  /'
+    echo -e "${RED}Failed to stop server${NC}"
+    return 1
+  fi
+  echo "$compose_output" | sed 's/^/  /'
   echo -e "${GREEN}Server stopped.${NC}"
 }
 
@@ -140,14 +147,21 @@ server_update() {
   fi
 
   echo "Updating batipanel server..."
-  _compose pull 2>&1 | while read -r line; do
-    echo "  $line"
-  done
+  local compose_output
+  if ! compose_output=$(_compose pull 2>&1); then
+    echo "$compose_output" | sed 's/^/  /'
+    echo -e "${RED}Failed to pull server image${NC}"
+    return 1
+  fi
+  echo "$compose_output" | sed 's/^/  /'
 
   echo "Restarting with new image..."
-  _compose up -d 2>&1 | while read -r line; do
-    echo "  $line"
-  done
+  if ! compose_output=$(_compose up -d 2>&1); then
+    echo "$compose_output" | sed 's/^/  /'
+    echo -e "${RED}Failed to restart server${NC}"
+    return 1
+  fi
+  echo "$compose_output" | sed 's/^/  /'
 
   echo -e "${GREEN}Server updated.${NC}"
 }

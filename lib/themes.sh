@@ -318,7 +318,7 @@ _apply_theme() {
 
   # persist to config.sh
   if [ -f "$TMUX_CONFIG" ]; then
-    if grep -q "BATIPANEL_THEME=" "$TMUX_CONFIG"; then
+    if grep -qF "BATIPANEL_THEME=" "$TMUX_CONFIG"; then
       _sed_i "s|BATIPANEL_THEME=.*|BATIPANEL_THEME=\"$theme\"|" "$TMUX_CONFIG"
     else
       echo "BATIPANEL_THEME=\"$theme\"" >> "$TMUX_CONFIG"

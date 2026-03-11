@@ -70,7 +70,7 @@ tmux_config() {
       fi
       # update config.sh
       if [ -f "$TMUX_CONFIG" ]; then
-        if grep -q "DEFAULT_LAYOUT=" "$TMUX_CONFIG"; then
+        if grep -qF "DEFAULT_LAYOUT=" "$TMUX_CONFIG"; then
           _sed_i "s|DEFAULT_LAYOUT=.*|DEFAULT_LAYOUT=\"$value\"|" "$TMUX_CONFIG"
         else
           echo "DEFAULT_LAYOUT=\"$value\"" >> "$TMUX_CONFIG"
