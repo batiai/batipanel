@@ -601,3 +601,9 @@ Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING
 ## Author
 
 Made by [bati.ai](https://bati.ai)
+
+---
+
+<p align="center">
+  <sub>Sponsored by <a href="https://bati.ai">bati.ai</a></sub>
+</p>

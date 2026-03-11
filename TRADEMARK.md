@@ -35,7 +35,7 @@ If you fork or create a derivative work, you must:
 
 ## Questions
 
-For trademark usage questions, contact: [trademark@bati.ai](mailto:trademark@bati.ai)
+For trademark usage questions, contact: [support@bati.ai](mailto:support@bati.ai)
 
 ---
 
