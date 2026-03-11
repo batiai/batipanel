@@ -61,7 +61,7 @@ _batipanel() {
           ;;
         theme)
           if (( CURRENT == 3 )); then
-            compadd default dracula nord gruvbox tokyo-night list
+            compadd default dracula nord gruvbox tokyo-night catppuccin rose-pine kanagawa catppuccin rose-pine kanagawa list
           fi
           ;;
         config)
@@ -70,7 +70,7 @@ _batipanel() {
           elif (( CURRENT == 4 )) && [[ ${words[3]} == layout ]]; then
             _batipanel_layouts
           elif (( CURRENT == 4 )) && [[ ${words[3]} == theme ]]; then
-            compadd default dracula nord gruvbox tokyo-night
+            compadd default dracula nord gruvbox tokyo-night catppuccin rose-pine kanagawa
           fi
           ;;
         *)

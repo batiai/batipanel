@@ -2,7 +2,7 @@
 # batipanel themes - color theme system
 
 # available themes
-BATIPANEL_THEMES="default dracula nord gruvbox tokyo-night"
+BATIPANEL_THEMES="default dracula nord gruvbox tokyo-night catppuccin rose-pine kanagawa"
 
 # get all theme colors as space-separated values
 # usage: _get_theme_colors <theme>
@@ -27,6 +27,15 @@ _get_theme_colors() {
     tokyo-night)
       echo "colour234 colour253 colour111 colour232 colour238 colour253 colour141 colour255 colour240 colour111 colour232 111 238 141 203"
       ;;
+    catppuccin)
+      echo "colour234 colour189 colour183 colour233 colour237 colour146 colour183 colour233 colour239 colour237 colour189 183 237 151 211"
+      ;;
+    rose-pine)
+      echo "colour234 colour189 colour181 colour234 colour236 colour103 colour181 colour234 colour238 colour235 colour189 182 238 152 168"
+      ;;
+    kanagawa)
+      echo "colour235 colour187 colour110 colour234 colour236 colour242 colour110 colour234 colour59 colour236 colour187 103 236 107 203"
+      ;;
     *)
       return 1
       ;;
@@ -41,6 +50,9 @@ _get_theme_desc() {
     nord)        echo "Arctic blue palette" ;;
     gruvbox)     echo "Retro warm colors" ;;
     tokyo-night) echo "Blue/purple night theme" ;;
+    catppuccin)  echo "Pastel warm dark (Mocha)" ;;
+    rose-pine)   echo "Soho vibes, warm rose" ;;
+    kanagawa)    echo "Japanese ink painting" ;;
   esac
 }
 
@@ -129,6 +141,9 @@ _generate_themed_prompt() {
     67)  t_user_fg="67" ;;   # nord blue (256-color)
     172) t_user_fg="172" ;;  # gruvbox orange (256-color)
     111) t_user_fg="111" ;;  # tokyo blue (256-color)
+    183) t_user_fg="183" ;;  # catppuccin mauve (256-color)
+    182) t_user_fg="182" ;;  # rose-pine iris (256-color)
+    103) t_user_fg="103" ;;  # kanagawa violet (256-color)
     *)   t_user_fg="34" ;;   # fallback blue
   esac
 
@@ -140,6 +155,9 @@ _generate_themed_prompt() {
     110) t_git_fg="110" ;;   # frost (256-color)
     142) t_git_fg="142" ;;   # gruvbox green (256-color)
     141) t_git_fg="141" ;;   # purple (256-color)
+    151) t_git_fg="151" ;;   # catppuccin green (256-color)
+    152) t_git_fg="152" ;;   # rose-pine foam (256-color)
+    107) t_git_fg="107" ;;   # kanagawa spring green (256-color)
     *)   t_git_fg="32" ;;    # fallback green
   esac
 
@@ -150,6 +168,8 @@ _generate_themed_prompt() {
     203) t_err_fg="203" ;;   # salmon (256-color)
     131) t_err_fg="131" ;;   # nord red (256-color)
     167) t_err_fg="167" ;;   # gruvbox red (256-color)
+    211) t_err_fg="211" ;;   # catppuccin red (256-color)
+    168) t_err_fg="168" ;;   # rose-pine/kanagawa red (256-color)
     *)   t_err_fg="31" ;;    # fallback red
   esac
 
@@ -182,7 +202,7 @@ _generate_themed_prompt() {
 
   # git fg (text on git bg) — use black for light bg, white for dark
   case "$prompt_git" in
-    42|142|214) fg_git="\\[\\e[30m\\]" ;;  # black text
+    42|142|151|152|107|214) fg_git="\\[\\e[30m\\]" ;;  # black text
     *)          fg_git="\\[\\e[97m\\]" ;;   # white text
   esac
 

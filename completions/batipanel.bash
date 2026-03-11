@@ -37,14 +37,14 @@ _batipanel() {
       ;;
     theme)
       if [[ $cword -eq 2 ]]; then
-        mapfile -t COMPREPLY < <(compgen -W "default dracula nord gruvbox tokyo-night list" -- "$cur")
+        mapfile -t COMPREPLY < <(compgen -W "default dracula nord gruvbox tokyo-night catppuccin rose-pine kanagawa list" -- "$cur")
       fi
       ;;
     config)
       if [[ $cword -eq 2 ]]; then
         mapfile -t COMPREPLY < <(compgen -W "layout theme" -- "$cur")
       elif [[ $cword -eq 3 && "${words[2]}" == "theme" ]]; then
-        mapfile -t COMPREPLY < <(compgen -W "default dracula nord gruvbox tokyo-night" -- "$cur")
+        mapfile -t COMPREPLY < <(compgen -W "default dracula nord gruvbox tokyo-night catppuccin rose-pine kanagawa" -- "$cur")
       elif [[ $cword -eq 3 && "${words[2]}" == "layout" ]]; then
         local layouts=""
         if [[ -d "$home/layouts" ]]; then
