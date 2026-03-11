@@ -175,37 +175,151 @@ Settings > Branches > Add rule > master
 
 ## Phase 4: Promotion & User Acquisition
 
-### Day 1 — Launch
+### Launch Timeline
 
-| Channel | Action |
-|---------|--------|
-| **Hacker News** | "Show HN: batipanel – AI terminal workspace manager (tmux + Claude Code)" |
-| **Reddit** | Post to r/commandline, r/tmux, r/terminal, r/ClaudeAI |
-| **Twitter/X** | Demo GIF + tweet with #opensource #cli #tmux tags |
-| **Product Hunt** | Launch page in Developer Tools category |
+```
+Day 0   : GitHub repo → Public 전환
+Day 1   : Hacker News "Show HN" 포스트        ← 가장 임팩트 큼
+Day 2-3 : Reddit (r/commandline, r/tmux)
+Day 3-5 : Twitter/X 데모 GIF 트윗
+Week 2  : Dev.to / Hashnode 블로그 포스트
+Week 2-3: awesome-lists PR 제출
+Month 2+: Product Hunt 런칭 (star가 좀 쌓인 후)
+```
 
-### Week 1-2 — Content
+### Day 0 — Public 전환 직후
 
-| Channel | Action |
-|---------|--------|
-| **Dev.to / Hashnode** | "How I built an AI terminal workspace manager" blog post |
-| **YouTube** | 2-3 min demo video (install → run → work) |
-| **GitHub Topics** | Add relevant topics to repo |
+- [ ] GitHub Discussions 활성화 (Settings > General > Features)
+- [ ] Repository topics 확인: `tmux`, `claude`, `ai`, `terminal`, `workspace`, `developer-tools`, `cli`, `claude-code`, `tmux-manager`, `terminal-multiplexer`, `bash`
+- [ ] Description: "AI-powered terminal workspace manager (tmux + Claude Code)"
+- [ ] Homepage URL: `https://batipanel.com`
+- [ ] 데모 GIF 녹화 (asciinema 또는 vhs) → README 상단에 추가
 
-### Ongoing — Community Building
+### Day 1 — Hacker News
 
-- **Awesome lists**: PR to awesome-tmux, awesome-cli-apps, awesome-claude
-- **GitHub Discussions**: Enable for Q&A and feature requests
-- **Discord/Slack**: Create community channel when user base grows
-- **Claude Code community**: Share in relevant forums and channels
+**가장 효과적인 채널.** 첫 페이지 노출 시 하루 100-500+ stars 가능.
 
-### Effective Branding Tips
+- **제목**: `Show HN: batipanel – One command to launch a multi-panel AI dev workspace (tmux + Claude)`
+- **URL**: `https://github.com/batiai/batipanel`
+- **첫 댓글** (필수): 본인 소개 + 왜 만들었는지 + 핵심 기능 3줄 요약
 
-1. **Demo GIF is king** — Use [asciinema](https://asciinema.org) or [vhs](https://github.com/charmbracelet/vhs) for terminal recording at README top
-2. **One-line pitch** — "AI-powered terminal workspace manager"
-3. **One-command install** — `npx batipanel` is a strong selling point
-4. **Before/After** — Show manual tmux setup vs batipanel side by side
-5. **Social proof** — Star count badge, user testimonials, community size
+```
+Hi, I'm the author. I built batipanel because setting up tmux for AI-assisted
+coding was too tedious. One command gives you Claude Code + git + monitoring
++ file browser in a clean multi-panel layout. Works on macOS, Linux, and WSL.
+
+Try it: npx batipanel
+```
+
+**타이밍**: 미국 동부시간 오전 8-10시 (한국시간 밤 10시-자정)가 가장 좋음.
+
+### Day 2-3 — Reddit
+
+각 서브레딧에 맞게 톤을 다르게:
+
+| Subreddit | 포커스 |
+|-----------|--------|
+| **r/commandline** (300K+) | "I built a CLI that sets up a full dev workspace with one command" |
+| **r/tmux** (30K+) | tmux 설정의 pain point 해결에 초점 |
+| **r/ClaudeAI** (100K+) | Claude Code와의 통합, AI 워크플로우 |
+| **r/terminal** | 터미널 UI/UX, 스크린샷/GIF 중심 |
+| **r/linux** | 리눅스 호환성, WSL 지원 |
+| **r/webdev**, **r/programming** | 개발 생산성 도구 관점 |
+
+**주의**: 서브레딧마다 1-2일 간격으로 나눠서 포스트 (동시 포스팅은 스팸으로 인식됨).
+
+### Day 3-5 — Twitter/X
+
+- 데모 GIF (15-30초) 필수 — 텍스트만 있으면 묻힘
+- 해시태그: `#opensource #cli #tmux #ClaudeCode #devtools`
+- 개발자 인플루언서 멘션/태그 (tmux, CLI 관련 활동하는 사람들)
+- 스레드 형식 추천:
+  1. 데모 GIF + 원라이너 소개
+  2. 왜 만들었나 (pain point)
+  3. 핵심 기능 3가지
+  4. 설치 방법 (`npx batipanel`)
+  5. GitHub 링크 + star 부탁
+
+### Week 2 — 블로그 포스트
+
+**Dev.to / Hashnode** 중 하나 (또는 둘 다):
+
+추천 제목들:
+- "How I built a tmux workspace manager with Claude Code"
+- "One command to replace your entire tmux config"
+- "AI-powered terminal: my open-source dev setup"
+
+구조:
+1. Before/After 스크린샷
+2. 왜 만들었나 (문제 정의)
+3. 데모 (GIF/영상)
+4. 기술 스택 설명
+5. 설치 + 시작 방법
+6. GitHub 링크
+
+### Week 2-3 — Awesome Lists PR
+
+이것들은 지속적 유입 채널이 됨:
+
+- [ ] [awesome-tmux](https://github.com/rothgar/awesome-tmux) — PR 제출
+- [ ] [awesome-cli-apps](https://github.com/agarrharr/awesome-cli-apps) — Developer Tools 카테고리
+- [ ] [awesome-shell](https://github.com/alebcay/awesome-shell) — Productivity Tools
+- [ ] [awesome-claude](https://github.com/... ) — Claude 관련 리스트 (있으면)
+
+### Month 2+ — Product Hunt
+
+star가 50-100+ 쌓인 후 런칭하는 것이 효과적.
+- "Developer Tools" 카테고리
+- 런칭 전날에 Hunter 확보 (팔로워 많은 사람)
+- 런칭 당일: 투표 독려 (커뮤니티에 공유)
+
+---
+
+## Metrics & Visibility Checklist
+
+### npm 인기 지표 올리기
+
+| 지표 | 방법 |
+|------|------|
+| **Weekly Downloads** | `npx batipanel` 홍보 (실행마다 다운로드 카운트), 블로그/README에서 npx 설치법 강조 |
+| **Dependents** | starter-kit, dotfiles, dev-setup 같은 프로젝트에서 dependency로 추가 |
+| **Version frequency** | 정기 릴리즈 (2-4주마다) — "recently updated" 검색 우대 |
+| **README quality** | npmjs.com에 README가 그대로 표시됨 — 뱃지, GIF, 명확한 설치법 |
+
+### GitHub 인기 지표 올리기
+
+| 지표 | 방법 |
+|------|------|
+| **Stars** | Show HN, Reddit이 가장 효과적. README에 "Star this repo" CTA |
+| **Star velocity** | GitHub Trending은 절대 수가 아니라 증가 속도 기반 — 런칭 집중 포화 |
+| **Forks** | CONTRIBUTING.md 잘 만들어두면 자연 증가 |
+| **Used by** | package.json에서 dependency로 사용하는 프로젝트 수 |
+| **Contributors** | "good first issue" 라벨 붙은 이슈 만들기 → 기여자 유입 |
+| **Activity** | 정기 커밋, 이슈 응답, Discussion 활동 |
+
+### GitHub Trending 진입 조건 (비공식)
+
+- 하루 20-50+ stars 지속 → Daily trending
+- 일주일 100-200+ stars → Weekly trending
+- **핵심**: 런칭 첫 주에 홍보를 집중해서 star velocity를 최대화
+
+### 검색 최적화 (SEO)
+
+- GitHub Topics 설정 ✅ (완료)
+- npm keywords 설정 ✅ (완료)
+- README 첫 줄에 키워드 포함 ✅ ("AI-powered terminal workspace manager")
+- `batipanel.com` 홈페이지 → SEO + 설치 가이드 페이지
+
+---
+
+## Effective Branding Tips
+
+1. **데모 GIF가 핵심** — [asciinema](https://asciinema.org) 또는 [vhs](https://github.com/charmbracelet/vhs)로 터미널 녹화, README 상단에 배치
+2. **원라인 피치** — "AI-powered terminal workspace manager"
+3. **원커맨드 설치** — `npx batipanel`은 강력한 셀링포인트
+4. **Before/After** — 수동 tmux 설정 vs batipanel 비교
+5. **소셜 프루프** — Star count 뱃지, 사용자 후기, 커뮤니티 규모
+6. **일관된 브랜딩** — GitHub, npm, Twitter, 블로그에서 같은 소개 문구 + 로고 사용
 
 ---
 
