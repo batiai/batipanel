@@ -594,6 +594,10 @@ Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING
 
 [MIT](LICENSE) — Copyright (c) 2026 [bati.ai](https://bati.ai)
 
+## Trademark
+
+"batipanel" and the batipanel logo are trademarks of batiai. The MIT license grants rights to the source code only, not to the batipanel name or branding. See [TRADEMARK.md](TRADEMARK.md) for details.
+
 ## Author
 
 Made by [bati.ai](https://bati.ai)
