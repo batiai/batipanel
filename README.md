@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey)]()
 
-AI-powered terminal workspace manager. One command to launch a fully configured multi-panel development environment with Claude Code, git, system monitor, file browser, and more.
+**AI-powered terminal workspace manager.** One command to launch a fully configured, beautifully themed multi-panel development environment.
 
 ```
 ┌────────────────────────────────┬──────────────┐
@@ -22,6 +22,97 @@ AI-powered terminal workspace manager. One command to launch a fully configured 
 ```
 
 > **Looking for a GUI?** [batipanel Desktop](https://batipanel.com/download) is available for macOS and Windows — same multi-panel workspace with a native app experience.
+
+---
+
+## Why batipanel?
+
+AI 시대의 개발 환경은 달라져야 합니다. Claude Code 같은 AI 어시스턴트, Git UI, 시스템 모니터, 파일 브라우저를 **매번 하나씩 열고 배치하는 건 비효율적**입니다. batipanel은 이 모든 것을 **명령어 한 줄**로 해결합니다.
+
+### 1. AI-First Multi-Panel Workspace
+
+> AI 시대에 최적화된 개발환경을 명령어 한 줄로 구축
+
+#### 1-1. AI Interface (Claude Code + Remote Control)
+
+- **Claude Code** 패널이 워크스페이스의 중심 — 55% 이상의 화면을 차지하는 넓은 AI 작업 공간
+- **Remote Control** 패널로 별도 터미널에서 Claude에 명령 전달 (다른 작업 중에도 AI 제어 가능)
+- **Dual-Claude** 레이아웃으로 두 개의 Claude 인스턴스를 동시에 운영 (멀티 에이전트)
+
+#### 1-2. Multi-Panel Development Tools
+
+- **Git UI** (lazygit) — 시각적 Git 관리, 커밋/브랜치/머지를 한눈에
+- **System Monitor** (btop) — CPU, 메모리, 네트워크 실시간 모니터링
+- **File Browser** (yazi) — 트리 구조 파일 탐색, Nerd Font 아이콘 지원
+- **Terminal** — 범용 쉘, 빌드/테스트 명령 실행
+- **Logs** — `tail -f`, `npm run dev` 등 실시간 로그 모니터링
+
+#### 1-3. Smart Layout System
+
+화면 크기와 워크플로우에 맞는 **8가지 레이아웃** 제공:
+
+| Layout | Panels | Best For |
+|--------|--------|----------|
+| `7panel` (default) | 7 | AI 코딩 + 외장 모니터 |
+| `4panel` | 4 | 노트북 (13-14") |
+| `5panel` | 5 | 균형 잡힌 워크스페이스 |
+| `6panel` | 6 | 일반 개발 + 대형 모니터 |
+| `7panel_log` | 7 | 풀 로그 바 + 개발 |
+| `8panel` | 8 | 듀얼 Claude + 모니터링 |
+| `dual-claude` | 7 | 멀티 AI 에이전트 + 울트라와이드 |
+| `devops` | 5 | Docker/K8s 운영 |
+
+각 도구가 없어도 **자동 폴백** — btop -> htop -> top, yazi -> eza -> tree -> find
+
+### 2. Instant Session Resume
+
+> 언제든 떠나고, 언제든 돌아오는 작업 환경
+
+tmux 세션 기반으로 **작업 상태가 완벽히 보존**됩니다:
+
+- `b myproject` — 세션이 있으면 즉시 복귀, 없으면 새로 생성
+- AI 대화, Git 상태, 로그 출력 등 **모든 패널의 상태가 그대로** 유지
+- SSH 연결이 끊겨도, 터미널을 닫아도 — 다시 `b myproject` 하면 끝
+- 여러 프로젝트를 동시에 운영하고 `b ls`로 관리
+
+```bash
+b myproject          # 작업 시작 (또는 이전 세션 복귀)
+# ... 작업 중 터미널 닫기, SSH 끊김 등 ...
+b myproject          # 모든 패널이 그대로 — 바로 이어서 작업
+```
+
+### 3. AI Telegram Bot (OpenClaw) — One-Command Deploy
+
+> 격리된 Docker 환경에서 개인 AI 봇을 명령어 한 줄로 배포
+
+#### 3-1. Zero-Cost AI for Claude Max Users
+
+- Claude Max 구독($200/mo)이 있다면 **추가 API 비용 $0**
+- OpenClaw 게이트웨이가 Claude Max 세션을 활용 — 토큰 과금 없음
+- API 키 방식도 지원 (유량 기반 과금)
+
+#### 3-2. Secure by Default — Docker Isolation
+
+보안 걱정 없는 **5계층 격리**:
+
+| Layer | Protection |
+|-------|-----------|
+| **Container** | Read-only filesystem, dropped Linux capabilities |
+| **Sandbox** | Tool execution in separate containers |
+| **Network** | Loopback binding only (not exposed to LAN) |
+| **Access** | Telegram allowlist (only your user ID) |
+| **Credentials** | File permissions 600, gateway token auto-generated |
+
+#### 3-3. 5-Minute Setup
+
+```bash
+b server init     # 3단계 대화형 설정 (봇 토큰, AI 모델, 사용자 ID)
+b server start    # Docker 서버 시작 — 끝!
+```
+
+웹 검색, PDF 분석, 코드 실행, 리포트 생성 등 **풀 AI 에이전트 기능**을 Telegram으로 사용.
+
+---
 
 ## Quick Start
 
@@ -148,19 +239,72 @@ Just type `b` (or `batipanel`). The setup wizard will:
 4. Register your current directory as a project
 5. Launch immediately
 
-### Everyday Commands
+**Wizard layout mapping:**
+
+| Screen | AI Coding | General Dev | DevOps |
+|--------|-----------|-------------|--------|
+| Laptop (small) | 4panel | 4panel | devops |
+| Monitor (large) | 7panel | 6panel | devops |
+| Ultrawide | dual-claude | 7panel_log | devops |
+
+### Commands
+
+#### Session
 
 ```bash
 b myproject                        # Start or resume a project
-b myproject --layout 6panel        # Start with a specific layout
-b new myproject ~/path/to/project  # Register a new project
+b myproject --layout 6panel        # Start with a specific layout (-l shorthand)
 b stop myproject                   # Stop a session
-b ls                               # List sessions & projects
-b layouts                          # Show available layouts
-b config layout 7panel_log         # Change default layout
-b doctor                           # Check system health
-b help                             # Show all commands
+b stop myproject -f                # Stop without confirmation
+b reload myproject                 # Restart session (stop + start)
+b reload myproject --layout 8panel # Restart with a different layout
 ```
+
+#### Project
+
+```bash
+b new myproject ~/path/to/project  # Register a new project
+b ls                               # List active sessions & registered projects
+```
+
+#### Configuration
+
+```bash
+b config layout 7panel_log         # Change default layout
+b config layout                    # View current default layout
+b theme                            # List available themes
+b theme dracula                    # Apply a theme
+b config iterm-cc on               # Enable iTerm2 native tmux integration
+```
+
+#### System
+
+```bash
+b doctor                           # Check system health
+b layouts                          # Show available layouts
+b help                             # Show all commands
+b --version                        # Show version
+```
+
+#### Server (AI Telegram Bot)
+
+```bash
+b server init                      # Interactive setup wizard
+b server start                     # Start the Docker server
+b server stop                      # Stop the server
+b server status                    # Show status + security report
+b server logs [-f]                 # View logs (follow with -f)
+b server update                    # Pull latest image & restart
+b server config                    # View configuration (secrets masked)
+```
+
+#### Global Flags
+
+| Flag | Description |
+|------|-------------|
+| `--version`, `-v` | Show version |
+| `--debug` | Enable debug logging |
+| `--no-color` | Disable colored output (respects [NO_COLOR](https://no-color.org) standard) |
 
 ### How It Works
 
@@ -172,105 +316,42 @@ b help                             # Show all commands
 
 ---
 
-## Batipanel Server — AI Telegram Bot
+## Color Themes
 
-Run your own AI assistant on Telegram, powered by Claude. Docker-isolated, secure, no coding required.
-
-```
-You (Telegram)  -->  Batipanel Server (Docker)  -->  Claude AI
-     chat               OpenClaw gateway              Opus 4.6
-```
-
-### Why?
-
-- **5-minute setup** — just 3 questions (bot token, AI model, your Telegram ID)
-- **No API costs** — uses Claude Max subscription ($200/mo unlimited)
-- **Secure by default** — Docker isolation, sandbox, allowlist access
-- **Full AI capabilities** — web search, PDF analysis, code execution, reports
-
-### Quick Start
+batipanel includes **8 built-in color themes** that style the tmux status bar, window tabs, pane borders, and shell prompt.
 
 ```bash
-# 1. Setup (interactive, 3 steps)
-b server init
-
-# 2. Start
-b server start
-
-# 3. Chat with your bot on Telegram!
+b theme              # List all themes
+b theme dracula      # Apply a theme (live reload)
 ```
 
-### Setup Walkthrough
+| Theme | Style |
+|-------|-------|
+| `default` | Green/blue — clean and balanced |
+| `dracula` | Purple/pink dark theme |
+| `nord` | Arctic blue palette |
+| `gruvbox` | Retro warm colors |
+| `tokyo-night` | Blue/purple night theme |
+| `catppuccin` | Pastel warm dark (Mocha variant) |
+| `rose-pine` | Warm rose, soho vibes |
+| `kanagawa` | Japanese ink painting palette |
 
-```
-$ b server init
+**Theme applies to:**
+- tmux status bar with Powerline-style arrow separators
+- Window tabs (active/inactive distinction)
+- Pane borders and titles (each panel labeled: Claude, Git, Shell, Monitor, etc.)
+- Shell prompt (Powerline-style segments: user, directory, git branch)
+- Messages and notifications
 
-=== Batipanel Server Setup ===
+Themes persist across sessions. Live-reload if tmux is already running.
 
-Step 1/3: Telegram Bot
-  Create a bot via @BotFather on Telegram.
-  Bot Token: 7234567890:AAF_xxxxx
-  ✓ Token format valid
+### Shell Prompt
 
-Step 2/3: AI Model
-  Use Claude Max subscription (no API cost)? [Y/n]: Y
-  ✓ Claude Max session detected (no API cost)
+The installer sets up a Powerline-style shell prompt themed to match:
 
-Step 3/3: Security
-  Telegram User ID: 123456789
-  ✓ Only user 123456789 can access the bot
-
-=== Setup Complete ===
-  Start the server: b server start
-```
-
-### Server Commands
-
-```bash
-b server init              # Interactive setup wizard
-b server start             # Start the Docker server
-b server stop              # Stop the server
-b server status            # Show status + security report
-b server logs [-f]         # View logs (follow with -f)
-b server update            # Pull latest image & restart
-b server config            # View configuration (secrets masked)
-```
-
-### Security
-
-Batipanel Server runs with hardened defaults:
-
-| Layer | Protection |
-|-------|-----------|
-| **Container** | Read-only filesystem, dropped Linux capabilities |
-| **Sandbox** | Tool execution in separate containers |
-| **Network** | Loopback binding only (not exposed to LAN) |
-| **Access** | Telegram allowlist (only your user ID) |
-| **Credentials** | File permissions 600, gateway token auto-generated |
-
-### AI Model Options
-
-| Option | Cost | Setup |
-|--------|------|-------|
-| **Claude Max** | $0 extra (included in $200/mo subscription) | Auto-detected from Claude CLI |
-| **API Key** | Usage-based (~$15-75/M tokens) | Enter `sk-ant-...` key |
-
-### What Can It Do?
-
-Chat with your Telegram bot just like ChatGPT, but with full agent capabilities:
-
-- **Web search** — "Find the latest AI news"
-- **URL analysis** — "Summarize this article: https://..."
-- **PDF analysis** — Send a PDF file for analysis
-- **Code execution** — "Write a Python script that..."
-- **Reports** — "Create a weekly report on..."
-- **Q&A** — General knowledge, coding help, writing
-
-### Requirements
-
-- Docker & Docker Compose
-- Telegram account
-- Claude Max subscription (recommended) or Anthropic API key
+- **Zsh**: Oh My Zsh + agnoster theme (hostname hidden)
+- **Bash**: Powerline-style PS1 with git branch (hostname hidden)
+- **Fonts**: Powerline / Nerd Fonts auto-installed (apt/brew/git fallback)
 
 ---
 
@@ -454,51 +535,6 @@ Best for: Docker/Kubernetes workflows
 
 ---
 
-## Shell Theme
-
-The installer sets up a Powerline-style shell prompt:
-
-- **Zsh**: Oh My Zsh + agnoster theme (hostname hidden)
-- **Bash**: Powerline-style PS1 with git branch (hostname hidden)
-- **Fonts**: Powerline fonts auto-installed (apt/brew/git fallback)
-- **tmux**: Powerline status bar with arrow separators
-
-Each panel shows its tool name in the border (Claude, Git, Shell, Monitor, etc.).
-
----
-
-## Terminal Compatibility
-
-batipanel works with any terminal that supports tmux:
-
-| Platform | Supported Terminals |
-|----------|---------------------|
-| **macOS** | Terminal.app, iTerm2, Alacritty, Kitty, WezTerm, Warp |
-| **Linux** | GNOME Terminal, Konsole, Alacritty, Kitty, WezTerm, xterm |
-| **Windows** | Windows Terminal + WSL2 |
-
-- **iTerm2**: Auto-detected — uses native tmux integration for seamless tabs
-- **Clipboard**: Copy from tmux works automatically on all platforms (macOS, Linux X11, WSL)
-- **True Color**: 24-bit color support enabled by default
-
----
-
-## Requirements
-
-| Tool | Required? | Notes |
-|------|-----------|-------|
-| **tmux** | Yes | Auto-installed by the installer |
-| **Claude Code** | Recommended | Auto-installed via `curl -fsSL https://claude.ai/install.sh \| bash` |
-| lazygit | Optional | Git UI — falls back to `git status` |
-| btop | Optional | System monitor — falls back to htop or top |
-| yazi | Optional | File manager — falls back to eza, tree, or find |
-| eza | Optional | Modern `ls` — falls back to tree or find |
-| Docker | Optional | Required only for `b server` (Telegram bot) |
-
-All optional tools are auto-installed when possible. If any are missing, batipanel still works — each panel gracefully falls back to a simpler alternative.
-
----
-
 ## Customization
 
 ### Register a project
@@ -513,6 +549,27 @@ b new myproject ~/code/myproject
 b config layout 7panel_log
 ```
 
+### Change color theme
+
+```bash
+b theme dracula
+```
+
+### Enable Nerd Font icons in file tree
+
+```bash
+b config icons on
+```
+
+Icons are auto-detected on known Nerd Font terminals (iTerm2, WezTerm, Kitty).
+
+### iTerm2 native integration
+
+```bash
+b config iterm-cc on     # Use iTerm2 native splits (auto-detected on first run)
+b config iterm-cc off    # Use standard tmux UI
+```
+
 ### Create a custom layout
 
 ```bash
@@ -520,6 +577,38 @@ cp ~/.batipanel/layouts/7panel.sh ~/.batipanel/layouts/custom.sh
 # Edit custom.sh to your needs
 b myproject --layout custom
 ```
+
+---
+
+## Terminal Compatibility
+
+batipanel works with any terminal that supports tmux:
+
+| Platform | Supported Terminals |
+|----------|---------------------|
+| **macOS** | Terminal.app, iTerm2, Alacritty, Kitty, WezTerm, Warp |
+| **Linux** | GNOME Terminal, Konsole, Alacritty, Kitty, WezTerm, xterm |
+| **Windows** | Windows Terminal + WSL2 |
+
+- **iTerm2**: Auto-detected — supports native tmux integration for seamless tabs
+- **Clipboard**: Copy from tmux works automatically on all platforms (macOS, Linux X11, WSL)
+- **True Color**: 24-bit color support enabled by default
+
+---
+
+## Requirements
+
+| Tool | Required? | Notes |
+|------|-----------|-------|
+| **tmux** | Yes | Auto-installed by the installer |
+| **Claude Code** | Recommended | AI assistant — `curl -fsSL https://claude.ai/install.sh \| bash` |
+| lazygit | Optional | Git UI — falls back to `git status` |
+| btop | Optional | System monitor — falls back to htop or top |
+| yazi | Optional | File manager — falls back to eza, tree, or find |
+| eza | Optional | Modern `ls` — falls back to tree or find |
+| Docker | Optional | Required only for `b server` (Telegram bot) |
+
+All optional tools are auto-installed when possible. If any are missing, batipanel still works — each panel gracefully falls back to a simpler alternative.
 
 ---
 
