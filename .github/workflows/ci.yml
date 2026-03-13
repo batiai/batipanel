@@ -29,7 +29,33 @@ jobs:
             echo "$f: OK"
           done
 
-  test:
+  unit-test:
+    name: BATS unit tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tmux
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update && sudo apt-get install -y tmux
+          else
+            brew install tmux
+          fi
+
+      - name: Install BATS
+        run: |
+          git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+          sudo /tmp/bats-core/install.sh /usr/local
+          rm -rf /tmp/bats-core
+
+      - name: Run BATS tests
+        run: bats test/
+
+  install-test:
     name: Install test
     strategy:
       matrix:
@@ -53,6 +79,7 @@ jobs:
         run: |
           test -f "$HOME/.batipanel/lib/common.sh"
           test -f "$HOME/.batipanel/lib/core.sh"
+          test -f "$HOME/.batipanel/lib/logger.sh"
           test -f "$HOME/.batipanel/lib/session.sh"
           test -f "$HOME/.batipanel/bin/start.sh"
           test -d "$HOME/.batipanel/layouts"

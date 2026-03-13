@@ -3,9 +3,11 @@
 
 BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 
-has_cmd() { command -v "$1" &>/dev/null; }
-
-# portable sed -i (macOS vs GNU) — may already be defined by caller
+# has_cmd and _sed_i are expected from the caller (install.sh or core.sh)
+# define fallbacks only if not already available
+if ! declare -f has_cmd &>/dev/null; then
+  has_cmd() { command -v "$1" &>/dev/null; }
+fi
 if ! declare -f _sed_i &>/dev/null; then
   _sed_i() {
     if [ "$(uname -s)" = "Darwin" ]; then

@@ -3,6 +3,7 @@
 # Provides: b server init|start|stop|status|logs|config|update
 
 BATIPANEL_SERVER_DIR="${BATIPANEL_SERVER_DIR:-$BATIPANEL_HOME/server}"
+BATIPANEL_DOCKER_DIR="${BATIPANEL_DOCKER_DIR:-$BATIPANEL_HOME/docker}"
 
 # Docker dependency management is in server-docker.sh
 # _require_docker(), _install_docker(), _install_compose_plugin()
@@ -29,6 +30,7 @@ server_start() {
     return 1
   fi
 
+  log_info "server start"
   echo "Starting batipanel server..."
 
   local compose_output
@@ -69,6 +71,7 @@ server_stop() {
     return 1
   fi
 
+  log_info "server stop"
   echo "Stopping batipanel server..."
   local compose_output
   if ! compose_output=$(_compose down 2>&1); then
@@ -146,6 +149,7 @@ server_update() {
     return 1
   fi
 
+  log_info "server update"
   echo "Updating batipanel server..."
   local compose_output
   if ! compose_output=$(_compose pull 2>&1); then

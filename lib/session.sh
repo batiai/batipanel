@@ -16,8 +16,10 @@ tmux_start() {
   fi
 
   if tmux has-session -t "$SESSION" 2>/dev/null; then
+    log_info "session resume: $SESSION"
     echo -e "${GREEN}Resuming session: $SESSION${NC}"
   else
+    log_info "session start: $SESSION layout=${LAYOUT:-$DEFAULT_LAYOUT}"
     echo -e "${BLUE}Starting new session: $SESSION${NC}"
     if [ -n "$LAYOUT" ]; then
       LAYOUT="$LAYOUT" bash "$SCRIPT" "$SESSION"
@@ -68,7 +70,7 @@ tmux_stop() {
         return 0
       fi
     fi
-    tmux kill-session -t "$SESSION" && echo -e "${RED}Stopped: $SESSION${NC}"
+    tmux kill-session -t "$SESSION" && { log_info "session stop: $SESSION"; echo -e "${RED}Stopped: $SESSION${NC}"; }
   else
     echo -e "${YELLOW}Session not found: $SESSION${NC}"
   fi

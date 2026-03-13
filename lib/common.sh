@@ -10,6 +10,8 @@ _BATIPANEL_LIB="$BATIPANEL_HOME/lib"
 
 # shellcheck source=lib/core.sh
 source "$_BATIPANEL_LIB/core.sh"
+# shellcheck source=lib/logger.sh
+source "$_BATIPANEL_LIB/logger.sh"
 # shellcheck source=lib/validate.sh
 source "$_BATIPANEL_LIB/validate.sh"
 # shellcheck source=lib/layout.sh
@@ -28,5 +30,11 @@ source "$_BATIPANEL_LIB/server-docker.sh"
 source "$_BATIPANEL_LIB/server.sh"
 # shellcheck source=lib/server-init.sh
 source "$_BATIPANEL_LIB/server-init.sh"
+# shellcheck source=lib/themes-data.sh
+source "$_BATIPANEL_LIB/themes-data.sh"
+# shellcheck source=lib/themes-tmux.sh
+source "$_BATIPANEL_LIB/themes-tmux.sh"
+# shellcheck source=lib/themes-bash.sh
+source "$_BATIPANEL_LIB/themes-bash.sh"
 # shellcheck source=lib/themes.sh
 source "$_BATIPANEL_LIB/themes.sh"
