@@ -122,6 +122,18 @@ case "${ARGS[0]:-}" in
   *)
     if [ -f "$BATIPANEL_HOME/projects/${ARGS[0]}.sh" ]; then
       tmux_start "${ARGS[0]}" "$LAYOUT_ARG"
+    elif [[ "${ARGS[0]}" =~ ^[a-zA-Z0-9_-]+$ ]] && [ -t 0 ]; then
+      # looks like a project name but not registered — offer to create
+      _cwd=$(pwd)
+      echo -e "Project '${YELLOW}${ARGS[0]}${NC}' is not registered."
+      echo ""
+      echo -e "  Register ${BLUE}${_cwd}${NC} as '${GREEN}${ARGS[0]}${NC}' and start?"
+      printf "  [Y/n]: "
+      read -r _answer
+      if [[ "${_answer:-Y}" != [nN] ]]; then
+        tmux_new "${ARGS[0]}" "$_cwd"
+        tmux_start "${ARGS[0]}" "$LAYOUT_ARG"
+      fi
     else
       echo -e "${RED}Unknown command: ${ARGS[0]}${NC}"
       echo "  Run 'b help' for usage"
