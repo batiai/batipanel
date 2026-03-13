@@ -8,6 +8,9 @@ BATIPANEL_DOCKER_DIR="${BATIPANEL_DOCKER_DIR:-$BATIPANEL_HOME/docker}"
 # Docker dependency management is in server-docker.sh
 # _require_docker(), _install_docker(), _install_compose_plugin()
 
+# indent multiline output by 2 spaces
+_indent() { while IFS= read -r line; do printf '  %s\n' "$line"; done <<< "$1"; }
+
 # docker compose command (v2 plugin or standalone)
 _compose() {
   if docker compose version &>/dev/null 2>&1; then
@@ -30,16 +33,26 @@ server_start() {
     return 1
   fi
 
+  # check for port conflict
+  local port="${BATIPANEL_GATEWAY_PORT:-18789}"
+  if ss -tuln 2>/dev/null | grep -q ":${port} " \
+    || netstat -tuln 2>/dev/null | grep -q ":${port} "; then
+    echo -e "${RED}Port ${port} is already in use.${NC}"
+    echo "  Check what is using it: ss -tuln | grep :${port}"
+    echo "  Use a different port:   BATIPANEL_GATEWAY_PORT=18790 b server start"
+    return 1
+  fi
+
   log_info "server start"
   echo "Starting batipanel server..."
 
   local compose_output
   if ! compose_output=$(_compose up -d --pull always 2>&1); then
-    echo "$compose_output" | sed 's/^/  /'
+    _indent "$compose_output"
     echo -e "${RED}Failed to start server${NC}"
     return 1
   fi
-  echo "$compose_output" | sed 's/^/  /'
+  _indent "$compose_output"
 
   # wait for health
   echo ""
@@ -75,11 +88,11 @@ server_stop() {
   echo "Stopping batipanel server..."
   local compose_output
   if ! compose_output=$(_compose down 2>&1); then
-    echo "$compose_output" | sed 's/^/  /'
+    _indent "$compose_output"
     echo -e "${RED}Failed to stop server${NC}"
     return 1
   fi
-  echo "$compose_output" | sed 's/^/  /'
+  _indent "$compose_output"
   echo -e "${GREEN}Server stopped.${NC}"
 }
 
@@ -153,19 +166,19 @@ server_update() {
   echo "Updating batipanel server..."
   local compose_output
   if ! compose_output=$(_compose pull 2>&1); then
-    echo "$compose_output" | sed 's/^/  /'
+    _indent "$compose_output"
     echo -e "${RED}Failed to pull server image${NC}"
     return 1
   fi
-  echo "$compose_output" | sed 's/^/  /'
+  _indent "$compose_output"
 
   echo "Restarting with new image..."
   if ! compose_output=$(_compose up -d 2>&1); then
-    echo "$compose_output" | sed 's/^/  /'
+    _indent "$compose_output"
     echo -e "${RED}Failed to restart server${NC}"
     return 1
   fi
-  echo "$compose_output" | sed 's/^/  /'
+  _indent "$compose_output"
 
   echo -e "${GREEN}Server updated.${NC}"
 }

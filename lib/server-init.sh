@@ -12,6 +12,19 @@ server_init() {
 
   _require_docker || return 1
 
+  # warn if existing configuration found
+  if [ -f "$BATIPANEL_SERVER_DIR/.env" ] && [ -t 0 ]; then
+    echo -e "  ${YELLOW}Existing configuration found.${NC}"
+    printf "  Overwrite and reconfigure? [y/N]: "
+    local overwrite
+    read -r overwrite
+    if [[ ! "$overwrite" =~ ^[Yy] ]]; then
+      echo "  Cancelled. Current configuration preserved."
+      return 0
+    fi
+    echo ""
+  fi
+
   # create server directory
   mkdir -p "$BATIPANEL_SERVER_DIR"/{config,workspace}
 
