@@ -74,15 +74,21 @@ run_remote() {
 }
 
 # Launch system monitor: btop → htop → top
-# btop needs ~80x24 minimum; auto-fallback to htop/top for small panes
+# btop needs ~80x24 minimum; if pane is too small, let user choose
 run_monitor() {
   local pane="$1"
   label_pane "$pane" "Monitor"
-  local pw ph
-  pw=$(tmux display-message -t "$pane" -p '#{pane_width}' 2>/dev/null || echo 0)
-  ph=$(tmux display-message -t "$pane" -p '#{pane_height}' 2>/dev/null || echo 0)
-  if has_cmd btop && (( pw >= 80 && ph >= 24 )); then
-    tmux send-keys -t "$pane" "btop" Enter
+  if has_cmd btop; then
+    local pw ph
+    pw=$(tmux display-message -t "$pane" -p '#{pane_width}' 2>/dev/null || echo 0)
+    ph=$(tmux display-message -t "$pane" -p '#{pane_height}' 2>/dev/null || echo 0)
+    if (( pw >= 80 && ph >= 24 )); then
+      tmux send-keys -t "$pane" "btop" Enter
+    else
+      # pane too small for btop — let user choose
+      tmux send-keys -t "$pane" \
+        "echo 'Pane is ${pw}x${ph} (btop needs 80x24)' && echo '' && echo '  1) btop  (force — or zoom with Alt+f first)' && echo '  2) htop' && echo '  3) top' && echo '' && printf 'Choose [1]: ' && read -r _c && case \${_c:-1} in 2) htop;; 3) top;; *) btop;; esac" Enter
+    fi
   elif has_cmd htop; then
     tmux send-keys -t "$pane" "htop" Enter
   elif has_cmd top; then

@@ -31,9 +31,9 @@ _apply_theme() {
     echo "BATIPANEL_THEME=\"$theme\"" > "$TMUX_CONFIG"
   fi
 
-  # live reload tmux if running
+  # live reload: apply theme overlay to all running tmux servers
   if command -v tmux &>/dev/null && tmux list-sessions &>/dev/null 2>&1; then
-    tmux source-file "$BATIPANEL_HOME/config/tmux.conf" 2>/dev/null || true
+    # source theme.conf directly (not tmux.conf which reloads defaults first)
     tmux source-file "$BATIPANEL_HOME/config/theme.conf" 2>/dev/null || true
   fi
 
