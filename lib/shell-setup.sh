@@ -64,27 +64,40 @@ _generate_zsh_prompt() {
 # batipanel zsh prompt (no Oh My Zsh needed)
 # This file is sourced from .zshrc
 
-# enable colors
 autoload -U colors && colors
-
-# enable git info
 autoload -Uz vcs_info
-precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats ' %F{black}%K{green} ⎇ %b %k%F{green}▸%f'
-zstyle ':vcs_info:*' enable git
-
-# enable prompt substitution
 setopt PROMPT_SUBST
 
-# dark terminal colors via OSC escape sequences (works immediately)
-if [[ "$TERM" != "dumb" ]]; then
-  printf '\e]11;#1e1e2e\a'  # background: dark blue-grey
-  printf '\e]10;#cdd6f4\a'  # foreground: light grey
-  printf '\e]12;#f5e0dc\a'  # cursor: pink
+# detect powerline font support
+_bp_sep='▸'
+_bp_git='⎇'
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  if ls ~/Library/Fonts/*owerline* &>/dev/null 2>&1 \
+    || ls ~/Library/Fonts/*erd* &>/dev/null 2>&1 \
+    || ls /Library/Fonts/*erd* &>/dev/null 2>&1; then
+    _bp_sep=$'\uE0B0'
+    _bp_git=$'\uE0A0'
+  fi
+else
+  if fc-list 2>/dev/null | grep -qi "powerline\|nerd"; then
+    _bp_sep=$'\uE0B0'
+    _bp_git=$'\uE0A0'
+  fi
 fi
 
-# prompt: user > directory > git branch
-PROMPT='%K{blue}%F{white} %n %f%k%F{blue}%K{240}▸%f%F{white} %~ %f%k%F{240}${vcs_info_msg_0_:-%F{240}▸}%f '
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats " %F{black}%K{green} ${_bp_git} %b %k%F{green}${_bp_sep}%f"
+zstyle ':vcs_info:*' enable git
+
+# dark terminal colors via OSC (works immediately, no Terminal.app config needed)
+if [[ "$TERM" != "dumb" ]]; then
+  printf '\e]11;#1e1e2e\a'  # background: catppuccin base
+  printf '\e]10;#cdd6f4\a'  # foreground: catppuccin text
+  printf '\e]12;#f5e0dc\a'  # cursor: catppuccin rosewater
+fi
+
+# prompt
+PROMPT="%K{blue}%F{white} %n %f%k%F{blue}%K{240}${_bp_sep}%f%F{white} %~ %f%k%F{240}\${vcs_info_msg_0_:-%F{240}${_bp_sep}}%f "
 RPROMPT='%(?..%F{red}✘ %?%f)'
 ZSH_PROMPT_EOF
 }
@@ -132,6 +145,20 @@ if [[ "$TERM" != "dumb" ]]; then
   printf '\e]12;#f5e0dc\a'
 fi
 
+# detect powerline font
+_bp_sep='▸'
+_bp_git='⎇'
+if [ "$(uname -s)" = "Darwin" ]; then
+  if ls ~/Library/Fonts/*owerline* &>/dev/null 2>&1 \
+    || ls ~/Library/Fonts/*erd* &>/dev/null 2>&1; then
+    _bp_sep=$'\uE0B0'
+    _bp_git=$'\uE0A0'
+  fi
+elif fc-list 2>/dev/null | grep -qi "powerline\|nerd"; then
+  _bp_sep=$'\uE0B0'
+  _bp_git=$'\uE0A0'
+fi
+
 __batipanel_prompt() {
   local exit_code=$?
   local bg_user="\[\e[44m\]"
@@ -147,18 +174,18 @@ __batipanel_prompt() {
   local t_git="\[\e[32m\]"
   local ps=""
   if [ "$exit_code" -ne 0 ]; then
-    ps+="\[\e[41m\]\[\e[97m\] ✘ ${exit_code} \[\e[31;48;5;240m\]▸"
+    ps+="\[\e[41m\]\[\e[97m\] ✘ ${exit_code} \[\e[31;48;5;240m\]${_bp_sep}"
   fi
-  ps+="${bg_user}${fg_user} \\u ${t_user}▸"
+  ps+="${bg_user}${fg_user} \\u ${t_user}${_bp_sep}"
   ps+="${bg_dir}${fg_dir} \\w "
   local git_branch=""
   if command -v git &>/dev/null; then
     git_branch="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)"
   fi
   if [ -n "$git_branch" ]; then
-    ps+="${t_dir}▸${bg_git}${fg_git} ⎇ ${git_branch} ${reset}${t_git}▸${reset} "
+    ps+="${t_dir}${_bp_sep}${bg_git}${fg_git} ${_bp_git} ${git_branch} ${reset}${t_git}${_bp_sep}${reset} "
   else
-    ps+="${reset}${t_end}▸${reset} "
+    ps+="${reset}${t_end}${_bp_sep}${reset} "
   fi
   PS1="$ps"
 }
