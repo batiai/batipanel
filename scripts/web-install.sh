@@ -29,25 +29,13 @@ fail()  { echo -e "${RED}[batipanel]${NC} $*" >&2; exit 1; }
 # check minimum requirements
 command -v bash &>/dev/null || fail "bash is required"
 
-# macOS: install Homebrew first if missing (needs interactive /dev/tty)
+# macOS: ensure Homebrew is in PATH if installed but not yet visible
 if [ "$(uname -s)" = "Darwin" ] && ! command -v brew &>/dev/null; then
-  info "Homebrew is not installed (required on macOS)."
-  info "Installing Homebrew..."
-  echo ""
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/tty
-  # add brew to PATH for this session
   if [ -f /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
   elif [ -f /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
   fi
-  if command -v brew &>/dev/null; then
-    ok "Homebrew installed successfully."
-  else
-    echo ""
-    fail "Homebrew install finished but 'brew' not in PATH. Close and reopen Terminal, then try again."
-  fi
-  echo ""
 fi
 
 # create temp directory

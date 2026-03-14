@@ -25,31 +25,12 @@ has_cmd() { command -v "$1" &>/dev/null; }
 echo ""
 echo "Checking tools..."
 
-# macOS: auto-install Homebrew if missing (required for tmux and other tools)
+# macOS: ensure Homebrew is in PATH if installed but not yet visible
 if [ "$OS" = "Darwin" ] && ! has_cmd brew; then
-  echo ""
-  echo "Homebrew is not installed (required for macOS package management)."
-  echo "Installing Homebrew..."
-  echo ""
-  # use /dev/tty for interactive Homebrew installer (supports curl|bash)
-  if [ -e /dev/tty ]; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/tty
-  else
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  fi
-  # add to PATH for this session (Apple Silicon vs Intel)
   if [ -f /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
   elif [ -f /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
-  fi
-  if has_cmd brew; then
-    echo "Homebrew installed successfully."
-  else
-    echo ""
-    echo "Homebrew install completed but 'brew' not found in PATH."
-    echo "  Close and reopen Terminal, then re-run this installer."
-    exit 1
   fi
 fi
 
@@ -58,6 +39,12 @@ install_packages() {
 
   if command -v brew &>/dev/null; then
     brew install "${packages[@]}" 2>/dev/null || true
+  elif command -v port &>/dev/null; then
+    sudo port install "${packages[@]}" 2>/dev/null || true
+  elif command -v nix-env &>/dev/null; then
+    for pkg in "${packages[@]}"; do
+      nix-env -iA "nixpkgs.$pkg" 2>/dev/null || true
+    done
   elif command -v apt-get &>/dev/null; then
     sudo apt-get update -qq
     sudo apt-get install -y -qq "${packages[@]}" 2>/dev/null || true
@@ -65,6 +52,10 @@ install_packages() {
     sudo dnf install -y "${packages[@]}" 2>/dev/null || true
   elif command -v pacman &>/dev/null; then
     sudo pacman -S --noconfirm "${packages[@]}" 2>/dev/null || true
+  elif command -v apk &>/dev/null; then
+    sudo apk add "${packages[@]}" 2>/dev/null || true
+  elif command -v zypper &>/dev/null; then
+    sudo zypper install -y "${packages[@]}" 2>/dev/null || true
   else
     echo "No package manager found."
     echo "Please install manually: ${packages[*]}"
@@ -75,23 +66,36 @@ install_packages() {
 # required: tmux
 if ! command -v tmux &>/dev/null; then
   echo "Installing tmux..."
-  install_packages tmux || {
-    echo ""
-    echo "Failed to install tmux. Please install manually:"
-    case "$OS" in
-      Darwin) echo "  brew install tmux" ;;
-      *)
-        echo "  Ubuntu/Debian: sudo apt install tmux"
-        echo "  Fedora:        sudo dnf install tmux"
-        echo "  Arch:          sudo pacman -S tmux"
-        ;;
-    esac
-    exit 1
-  }
+  install_packages tmux 2>/dev/null || true
 fi
 
 if ! command -v tmux &>/dev/null; then
-  echo "tmux installation failed."
+  echo ""
+  echo "tmux is required but could not be installed automatically."
+  echo ""
+  echo "Install tmux using any of these methods:"
+  case "$OS" in
+    Darwin)
+      echo "  # Homebrew (most common)"
+      echo "  brew install tmux"
+      echo ""
+      echo "  # MacPorts"
+      echo "  sudo port install tmux"
+      echo ""
+      echo "  # Nix (no admin required)"
+      echo "  curl -L https://nixos.org/nix/install | sh && nix-env -iA nixpkgs.tmux"
+      ;;
+    *)
+      echo "  Ubuntu/Debian:  sudo apt install tmux"
+      echo "  Fedora/RHEL:    sudo dnf install tmux"
+      echo "  Arch:           sudo pacman -S tmux"
+      echo "  Alpine:         sudo apk add tmux"
+      echo "  openSUSE:       sudo zypper install tmux"
+      echo "  Nix:            nix-env -iA nixpkgs.tmux"
+      ;;
+  esac
+  echo ""
+  echo "After installing tmux, re-run this installer."
   exit 1
 fi
 

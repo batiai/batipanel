@@ -148,7 +148,7 @@ That's it. The wizard asks 2 questions (screen size + workflow) and sets up your
    cd batipanel
    bash install.sh
    ```
-   - Homebrew가 없으면 자동으로 설치 안내가 나옵니다
+   - tmux가 없으면 설치 방법을 안내합니다 (Homebrew, MacPorts, Nix 등)
    - 비밀번호를 물어보면 Mac 로그인 비밀번호 입력
 
 3. **새 터미널 열기** 후 실행:
@@ -230,8 +230,8 @@ cd batipanel
 bash install.sh
 ```
 
-The installer auto-detects your package manager (apt, dnf, pacman, brew) and installs everything.
-On macOS without Homebrew, the installer will install it automatically.
+The installer auto-detects your package manager (apt, dnf, pacman, brew, port, nix, apk, zypper) and installs everything.
+On macOS, any package manager works — Homebrew, MacPorts, or Nix.
 
 ### Windows (WSL)
 
