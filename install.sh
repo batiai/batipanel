@@ -31,7 +31,12 @@ if [ "$OS" = "Darwin" ] && ! has_cmd brew; then
   echo "Homebrew is not installed (required for macOS package management)."
   echo "Installing Homebrew..."
   echo ""
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # use /dev/tty for interactive Homebrew installer (supports curl|bash)
+  if [ -e /dev/tty ]; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/tty
+  else
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
   # add to PATH for this session (Apple Silicon vs Intel)
   if [ -f /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
