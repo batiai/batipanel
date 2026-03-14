@@ -74,3 +74,13 @@ cd "$TMPDIR_INSTALL/batipanel"
 bash install.sh </dev/tty
 
 # cleanup happens via trap
+
+echo ""
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}  Installation complete!${NC}"
+echo ""
+echo -e "  Run this to start using batipanel now:"
+echo ""
+echo -e "    ${BLUE}source ~/.$(basename "${SHELL:-zsh}")rc && b${NC}"
+echo ""
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
