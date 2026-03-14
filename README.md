@@ -132,6 +132,69 @@ That's it. The wizard asks 2 questions (screen size + workflow) and sets up your
 
 ## Installation
 
+### Complete beginner? Start here
+
+**터미널 사용이 처음이거나, npm/Homebrew가 없는 경우** 아래 순서를 따르세요:
+
+<details>
+<summary><b>macOS — 처음부터 설치하기</b></summary>
+
+1. **Terminal 열기**: `Cmd + Space` → "Terminal" 검색 → 실행
+
+2. **설치 명령어 실행** (복사 후 붙여넣기):
+   ```bash
+   git clone https://github.com/batiai/batipanel.git
+   cd batipanel
+   bash install.sh
+   ```
+   - Homebrew가 없으면 자동으로 설치 안내가 나옵니다
+   - 비밀번호를 물어보면 Mac 로그인 비밀번호 입력
+
+3. **새 터미널 열기** 후 실행:
+   ```bash
+   b
+   ```
+
+> **npm/npx로 설치하고 싶다면**: 먼저 [nvm](https://github.com/nvm-sh/nvm)을 설치하세요:
+> ```bash
+> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+> source ~/.zshrc
+> nvm install --lts
+> npx batipanel
+> ```
+
+</details>
+
+<details>
+<summary><b>Linux / WSL — 처음부터 설치하기</b></summary>
+
+1. **터미널 열기**
+
+2. **설치 명령어 실행**:
+   ```bash
+   git clone https://github.com/batiai/batipanel.git
+   cd batipanel
+   bash install.sh
+   ```
+   - 모든 도구(tmux, btop 등)가 자동 설치됩니다
+
+3. **새 터미널 열기** 후 실행:
+   ```bash
+   b
+   ```
+
+> **npm/npx로 설치하고 싶다면**: 먼저 [nvm](https://github.com/nvm-sh/nvm)을 설치하세요:
+> ```bash
+> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+> source ~/.bashrc
+> nvm install --lts
+> npx batipanel
+> ```
+
+</details>
+
+---
+
 ### npm / npx
 
 ```bash
@@ -166,6 +229,7 @@ bash install.sh
 ```
 
 The installer auto-detects your package manager (apt, dnf, pacman, brew) and installs everything.
+On macOS without Homebrew, the installer will offer to install it automatically.
 
 ### Windows (WSL)
 

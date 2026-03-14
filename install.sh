@@ -25,6 +25,44 @@ has_cmd() { command -v "$1" &>/dev/null; }
 echo ""
 echo "Checking tools..."
 
+# macOS: auto-install Homebrew if missing (required for tmux and other tools)
+if [ "$OS" = "Darwin" ] && ! has_cmd brew; then
+  echo ""
+  echo "Homebrew is not installed (required for macOS package management)."
+  if [ -t 0 ]; then
+    printf "Install Homebrew automatically? [Y/n]: "
+    read -r yn
+    yn="${yn:-Y}"
+    if [[ "$yn" =~ ^[Yy] ]]; then
+      echo "Installing Homebrew..."
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      # add to PATH for this session (Apple Silicon vs Intel)
+      if [ -f /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+      elif [ -f /usr/local/bin/brew ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+      fi
+      if has_cmd brew; then
+        echo "Homebrew installed successfully."
+      else
+        echo "Homebrew install completed but 'brew' not found in PATH."
+        echo "  Close and reopen Terminal, then re-run this installer."
+        exit 1
+      fi
+    else
+      echo ""
+      echo "Homebrew is required on macOS. Install manually:"
+      echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+      echo ""
+      echo "Then re-run: bash install.sh"
+      exit 1
+    fi
+  else
+    echo "  Install Homebrew first: https://brew.sh"
+    exit 1
+  fi
+fi
+
 install_packages() {
   local packages=("$@")
 
