@@ -61,6 +61,13 @@ _generate_zsh_prompt() {
 _bp_env="$HOME/.batipanel/config/theme-env.sh"
 [[ -f "$_bp_env" ]] && source "$_bp_env"
 
+# set terminal colors via OSC sequences
+if [[ "$TERM" != "dumb" ]] && [[ -n "${BP_BG:-}" ]]; then
+  printf '\e]11;%s\a' "$BP_BG"
+  printf '\e]10;%s\a' "$BP_FG"
+  printf '\e]12;%s\a' "$BP_CURSOR"
+fi
+
 autoload -U colors && colors
 autoload -Uz vcs_info
 setopt PROMPT_SUBST

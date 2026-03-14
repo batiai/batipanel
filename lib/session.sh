@@ -48,6 +48,7 @@ tmux_start() {
     _save_config "BATIPANEL_ITERM_CC" "$BATIPANEL_ITERM_CC"
   fi
 
+  echo -e "  ${YELLOW}Tip:${NC} Detach with Ctrl+b d  |  Stop with: b stop $SESSION"
   if [ "${BATIPANEL_ITERM_CC:-0}" = "1" ]; then
     exec tmux -CC attach -t "$SESSION"
   else

@@ -82,6 +82,13 @@ run_wizard() {
   cwd=$(pwd)
   proj_name=$(basename "$cwd" | tr -c 'a-zA-Z0-9_-' '-' | sed 's/-*$//')
 
+  # warn if current directory looks like a temp/clone directory
+  if [[ "$cwd" == /tmp/* ]] || [[ "$cwd" == /private/tmp/* ]] || { [[ "$cwd" == */batipanel ]] && [[ -f "$cwd/install.sh" ]]; }; then
+    echo -e "${YELLOW}Warning:${NC} Current directory looks like a temporary or installer path."
+    echo -e "  You probably want to cd to your actual project directory first."
+    echo ""
+  fi
+
   echo -e "Register ${BLUE}${cwd}${NC} as project '${GREEN}${proj_name}${NC}'?"
   printf "[Y/n] "
   read -r reg_answer

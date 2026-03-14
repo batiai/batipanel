@@ -17,7 +17,23 @@ tmux_doctor() {
     ver=$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
     local major="${ver%%.*}" minor="${ver#*.}"
     if [[ -n "$ver" ]] && (( major >= 2 && (major > 2 || minor >= 6) )); then
-      echo -e "  [$ok]  tmux $ver"
+      # functional test: actually create and destroy a test session
+      local test_sess="_bp_doctor_test_$$"
+      local tmux_test_err
+      if tmux_test_err=$(tmux new-session -d -s "$test_sess" -x 10 -y 5 2>&1); then
+        tmux kill-session -t "$test_sess" 2>/dev/null
+        echo -e "  [$ok]  tmux $ver (functional)"
+      else
+        echo -e "  [$fail]  tmux $ver installed but cannot create sessions"
+        if [[ "$tmux_test_err" == *"open terminal failed"* ]]; then
+          echo "          terminfo issue — try: export TERM=xterm-256color"
+        elif [[ "$tmux_test_err" == *"library"* ]] || [[ "$tmux_test_err" == *"dylib"* ]]; then
+          echo "          library issue — try reinstalling tmux"
+        else
+          echo "          error: $tmux_test_err"
+        fi
+        issues=$((issues + 1))
+      fi
     else
       echo -e "  [$fail]  tmux ${ver:-unknown} (need 2.6+)"
       issues=$((issues + 1))
@@ -107,7 +123,7 @@ tmux_doctor() {
   # 9. tab completion
   local comp_found=0
   for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
-    if [ -f "$rc" ] && grep -q "completions/batipanel" "$rc" 2>/dev/null; then
+    if [ -f "$rc" ] && grep -qE "(completions/batipanel|_batipanel|\.zfunc)" "$rc" 2>/dev/null; then
       comp_found=1
       break
     fi

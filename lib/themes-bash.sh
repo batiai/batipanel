@@ -118,16 +118,43 @@ _generate_themed_prompt() {
     t_err_dir="\\[\\e[38;5;${t_err_fg};48;5;${prompt_dir}m\\]"
   fi
 
+  # detect glyph support: Nerd Font terminals get powerline arrows, others get ASCII
+  local use_powerline=0
+  case "${TERM_PROGRAM:-}" in
+    iTerm.app|WezTerm|kitty) use_powerline=1 ;;
+  esac
+  [[ "${BATIPANEL_ICONS:-0}" == "1" ]] && use_powerline=1
+
+  local sep_char git_icon_line
+  if (( use_powerline )); then
+    sep_char=\$\'\\\\uE0B0\'
+    git_icon_line="    local git_icon=\$'\\\\uE0A0'"
+  else
+    sep_char='>'
+    git_icon_line='    local git_icon=""'
+  fi
+
   mkdir -p "$BATIPANEL_HOME/config"
   cat > "$prompt_file" << PROMPT_EOF
 #!/usr/bin/env bash
 # batipanel bash prompt - theme: ${theme} (auto-generated)
 
+# load theme colors for OSC
+_bp_env="\$HOME/.batipanel/config/theme-env.sh"
+[ -f "\$_bp_env" ] && source "\$_bp_env"
+
+# set terminal colors via OSC sequences
+if [[ "\$TERM" != "dumb" ]] && [[ -n "\${BP_BG:-}" ]]; then
+  printf '\e]11;%s\a' "\$BP_BG"
+  printf '\e]10;%s\a' "\$BP_FG"
+  printf '\e]12;%s\a' "\$BP_CURSOR"
+fi
+
 __batipanel_prompt() {
   local exit_code=\$?
 
-  # powerline arrow symbols (U+E0B0, U+E0B1)
-  local sep=\$'\\uE0B0'
+  # glyph (powerline arrow or ASCII fallback)
+  local sep=${sep_char}
 
   # colors (generated from theme: ${theme})
   local bg_user="${bg_user}"
@@ -167,8 +194,12 @@ __batipanel_prompt() {
 
   if [ -n "\$git_branch" ]; then
     ps+="\${t_dir_git}\${sep}"
-    local git_icon=\$'\\uE0A0'
-    ps+="\${bg_git}\${fg_git} \${git_icon} \${git_branch} "
+${git_icon_line}
+    if [ -n "\$git_icon" ]; then
+      ps+="\${bg_git}\${fg_git} \${git_icon} \${git_branch} "
+    else
+      ps+="\${bg_git}\${fg_git} \${git_branch} "
+    fi
     ps+="\${reset}\${t_git_end}\${sep}\${reset} "
   else
     ps+="\${reset}\${t_dir_end}\${sep}\${reset} "

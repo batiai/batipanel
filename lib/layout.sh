@@ -17,20 +17,34 @@ init_layout() {
   debug_log "init_layout: session=$session project=$project"
   tmux kill-session -t "$session" 2>/dev/null || true
 
-  # try creating session; if TERM/terminfo causes issues, retry with safe TERM
-  if ! tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>/dev/null; then
+  # try creating session; capture stderr for debug output
+  local tmux_err
+  tmux_err=$(tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>&1) || {
+    debug_log "init_layout: first attempt failed: $tmux_err"
+    # retry with safe TERM
     debug_log "init_layout: retrying with TERM=xterm-256color"
-    if ! TERM=xterm-256color tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>/dev/null; then
+    tmux_err=$(TERM=xterm-256color tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>&1) || {
+      debug_log "init_layout: second attempt failed: $tmux_err"
       # check if session was created by a concurrent invocation
       if tmux has-session -t "$session" 2>/dev/null; then
         debug_log "init_layout: session already exists (concurrent creation)"
         return 0
       fi
       echo -e "${RED}Failed to create tmux session '$session'${NC}"
-      echo "  Is another tmux server blocking? Try: tmux kill-server"
+      # provide specific guidance based on error
+      if [[ "$tmux_err" == *"open terminal failed"* ]]; then
+        echo "  Error: open terminal failed (terminfo issue)"
+        echo "  Try: export TERM=xterm-256color && b $session"
+      elif [[ "$tmux_err" == *"server"* ]] || [[ "$tmux_err" == *"socket"* ]]; then
+        echo "  Stale tmux server? Try: tmux kill-server"
+      elif [[ "$tmux_err" == *"library"* ]] || [[ "$tmux_err" == *"dylib"* ]]; then
+        echo "  Library issue — try reinstalling tmux"
+      else
+        echo "  tmux error: $tmux_err"
+      fi
       return 1
-    fi
-  fi
+    }
+  }
 }
 
 # Wait for shell init after pane splits
