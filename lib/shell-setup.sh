@@ -58,9 +58,6 @@ _generate_zsh_prompt() {
 
   cat > "$prompt_file" << 'ZSH_PROMPT_EOF'
 # batipanel zsh prompt
-# This file is sourced from .zshrc
-
-# load theme colors
 _bp_env="$HOME/.batipanel/config/theme-env.sh"
 [[ -f "$_bp_env" ]] && source "$_bp_env"
 
@@ -69,17 +66,10 @@ autoload -Uz vcs_info
 setopt PROMPT_SUBST
 
 precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats " %%F{${BP_C_GIT:-green}}(%b)%%f"
+zstyle ':vcs_info:git:*' formats ' %F{green}(%b)%f'
 zstyle ':vcs_info:*' enable git
 
-# set terminal colors via OSC
-if [[ "$TERM" != "dumb" ]]; then
-  printf "\e]11;${BP_BG:-#1e1e2e}\a"
-  printf "\e]10;${BP_FG:-#cdd6f4}\a"
-  printf "\e]12;${BP_CURSOR:-#f5e0dc}\a"
-fi
-
-PROMPT="%F{${BP_C_USER:-blue}}%n%f %F{${BP_C_DIR:-cyan}}%~%f"'${vcs_info_msg_0_}'" %F{${BP_C_PROMPT:-magenta}}>%f "
+PROMPT='%F{blue}%n%f %F{cyan}%~%f${vcs_info_msg_0_} %F{magenta}>%f '
 RPROMPT='%(?..%F{red}[%?]%f)'
 ZSH_PROMPT_EOF
 }

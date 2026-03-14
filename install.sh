@@ -102,14 +102,21 @@ install_via_mamba() {
   echo "  Installing $pkg..."
   "$mamba_bin" install -r "$mamba_root" -n base -c conda-forge -y "$pkg" 2>/dev/null || return 1
 
-  # symlink binary to ~/.batipanel/bin/ for easy PATH access
+  # create wrapper script (sets library paths so conda binaries work)
   local installed_bin="$mamba_root/bin/$pkg"
   if [ ! -f "$installed_bin" ]; then
     installed_bin=$(find "$mamba_root" -name "$pkg" -type f -executable 2>/dev/null | head -1)
   fi
   if [ -n "$installed_bin" ] && [ -f "$installed_bin" ]; then
     mkdir -p "$BATIPANEL_HOME/bin"
-    ln -sf "$installed_bin" "$BATIPANEL_HOME/bin/$pkg"
+    cat > "$BATIPANEL_HOME/bin/$pkg" << WRAPPER_EOF
+#!/usr/bin/env bash
+export DYLD_LIBRARY_PATH="$mamba_root/lib:\${DYLD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="$mamba_root/lib:\${LD_LIBRARY_PATH:-}"
+export TERMINFO_DIRS="$mamba_root/share/terminfo:\${TERMINFO_DIRS:-}"
+exec "$installed_bin" "\$@"
+WRAPPER_EOF
+    chmod +x "$BATIPANEL_HOME/bin/$pkg"
     export PATH="$BATIPANEL_HOME/bin:$PATH"
     echo "  Installed $pkg successfully"
     return 0
@@ -616,8 +623,5 @@ echo ""
 echo "Tip: For a polished arrow-style prompt, set your terminal font"
 echo "     to a Powerline or Nerd Font (e.g. MesloLGS NF, Hack NF)."
 echo ""
-# auto-apply: silently launch a fresh login shell so aliases work immediately
-if [ -t 0 ] && [ -z "${BATIPANEL_NO_EXEC:-}" ]; then
-  cd "$HOME"
-  exec "$SHELL" -l
-fi
+# apply changes: source the RC file in current shell if possible
+echo "Open a new terminal window, then type: b"
