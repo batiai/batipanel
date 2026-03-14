@@ -31,11 +31,35 @@ _apply_theme() {
     echo "BATIPANEL_THEME=\"$theme\"" > "$TMUX_CONFIG"
   fi
 
+  # update zsh prompt terminal colors
+  local zsh_prompt="$BATIPANEL_HOME/config/zsh-prompt.zsh"
+  if [ -f "$zsh_prompt" ]; then
+    local term_colors
+    term_colors=$(_get_theme_terminal_colors "$theme")
+    local bg fg cursor
+    bg=$(echo "$term_colors" | awk '{print $1}')
+    fg=$(echo "$term_colors" | awk '{print $2}')
+    cursor=$(echo "$term_colors" | awk '{print $3}')
+    _sed_i "s|printf '\\\\e\]11;#[0-9a-f]*\\\\a'|printf '\\\\e]11;${bg}\\\\a'|" "$zsh_prompt"
+    _sed_i "s|printf '\\\\e\]10;#[0-9a-f]*\\\\a'|printf '\\\\e]10;${fg}\\\\a'|" "$zsh_prompt"
+    _sed_i "s|printf '\\\\e\]12;#[0-9a-f]*\\\\a'|printf '\\\\e]12;${cursor}\\\\a'|" "$zsh_prompt"
+  fi
+
   # live reload: apply theme overlay to all running tmux servers
   if command -v tmux &>/dev/null && tmux list-sessions &>/dev/null 2>&1; then
-    # source theme.conf directly (not tmux.conf which reloads defaults first)
     tmux source-file "$BATIPANEL_HOME/config/theme.conf" 2>/dev/null || true
   fi
+
+  # live reload: apply terminal colors to current shell immediately
+  local term_colors
+  term_colors=$(_get_theme_terminal_colors "$theme")
+  local bg fg cursor
+  bg=$(echo "$term_colors" | awk '{print $1}')
+  fg=$(echo "$term_colors" | awk '{print $2}')
+  cursor=$(echo "$term_colors" | awk '{print $3}')
+  printf '\e]11;%s\a' "$bg"
+  printf '\e]10;%s\a' "$fg"
+  printf '\e]12;%s\a' "$cursor"
 
   BATIPANEL_THEME="$theme"
   log_info "theme applied: $theme"

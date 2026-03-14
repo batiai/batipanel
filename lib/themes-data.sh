@@ -56,6 +56,22 @@ _get_theme_desc() {
   esac
 }
 
+# terminal hex colors for OSC escape sequences
+# returns: BG FG CURSOR
+_get_theme_terminal_colors() {
+  case "$1" in
+    default)     echo "#1e1e2e #cdd6f4 #f5e0dc" ;;
+    dracula)     echo "#282a36 #f8f8f2 #ff79c6" ;;
+    nord)        echo "#2e3440 #d8dee9 #88c0d0" ;;
+    gruvbox)     echo "#282828 #ebdbb2 #fe8019" ;;
+    tokyo-night) echo "#1a1b26 #c0caf5 #bb9af7" ;;
+    catppuccin)  echo "#1e1e2e #cdd6f4 #f5e0dc" ;;
+    rose-pine)   echo "#191724 #e0def4 #ebbcba" ;;
+    kanagawa)    echo "#1f1f28 #dcd7ba #7e9cd8" ;;
+    *)           echo "#1e1e2e #cdd6f4 #f5e0dc" ;;
+  esac
+}
+
 # list available themes
 _list_themes() {
   local current="${BATIPANEL_THEME:-default}"

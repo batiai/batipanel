@@ -533,13 +533,19 @@ fi
 
 # === 9. register tab completion ===
 if [ "$USER_SHELL" = "zsh" ]; then
-  # zsh: install via fpath (not bash source)
+  # zsh: install completion + ensure compinit runs
   local_zsh_comp="${ZDOTDIR:-$HOME}/.zfunc"
   mkdir -p "$local_zsh_comp"
   if [ -f "$BATIPANEL_HOME/completions/_batipanel.zsh" ]; then
     cp "$BATIPANEL_HOME/completions/_batipanel.zsh" "$local_zsh_comp/_batipanel"
+    # also copy as _b so completion works for the 'b' function
+    cp "$BATIPANEL_HOME/completions/_batipanel.zsh" "$local_zsh_comp/_b"
     if ! grep -qF "$local_zsh_comp" "$SHELL_RC" 2>/dev/null; then
       echo "fpath+=($local_zsh_comp)" >> "$SHELL_RC"
+    fi
+    # ensure compinit is loaded (needed for fpath completions)
+    if ! grep -qF "compinit" "$SHELL_RC" 2>/dev/null; then
+      echo 'autoload -Uz compinit && compinit -C' >> "$SHELL_RC"
     fi
     echo "  Added zsh completion"
   fi
