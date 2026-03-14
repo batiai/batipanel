@@ -71,16 +71,15 @@ echo ""
 # run the real installer with /dev/tty as stdin
 # (curl | bash consumes stdin, so interactive prompts need /dev/tty)
 cd "$TMPDIR_INSTALL/batipanel"
-bash install.sh </dev/tty
+BATIPANEL_NO_EXEC=1 bash install.sh </dev/tty
 
-# cleanup happens via trap
+# cleanup temp files before launching shell
+rm -rf "$TMPDIR_INSTALL"
+trap - EXIT
 
 echo ""
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}  Installation complete!${NC}"
+ok "Installation complete!"
 echo ""
-echo -e "  Run this to start using batipanel now:"
-echo ""
-echo -e "    ${BLUE}source ~/.$(basename "${SHELL:-zsh}")rc && b${NC}"
-echo ""
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "  Launching new shell to apply changes..."
+cd "$HOME"
+exec "${SHELL:-/bin/zsh}" -l
