@@ -71,11 +71,19 @@ echo ""
 # run the real installer with /dev/tty as stdin
 # (curl | bash consumes stdin, so interactive prompts need /dev/tty)
 cd "$TMPDIR_INSTALL/batipanel"
-BATIPANEL_NO_EXEC=1 bash install.sh </dev/tty
+if [ -e /dev/tty ]; then
+  BATIPANEL_NO_EXEC=1 bash install.sh </dev/tty
+else
+  BATIPANEL_NO_EXEC=1 bash install.sh
+fi
 
 # cleanup temp files before launching shell
 rm -rf "$TMPDIR_INSTALL"
 trap - EXIT
 
 cd "$HOME"
-exec "${SHELL:-/bin/zsh}" -l </dev/tty
+if [ -e /dev/tty ]; then
+  exec "${SHELL:-/bin/zsh}" -l </dev/tty
+else
+  exec "${SHELL:-/bin/zsh}" -l
+fi

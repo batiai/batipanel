@@ -36,6 +36,8 @@ source "$_BATIPANEL_LIB/server-docker.sh"
 source "$_BATIPANEL_LIB/server.sh"
 # shellcheck source=lib/server-init.sh
 source "$_BATIPANEL_LIB/server-init.sh"
+# shellcheck source=lib/shell-setup.sh
+source "$_BATIPANEL_LIB/shell-setup.sh"
 # shellcheck source=lib/themes-data.sh
 source "$_BATIPANEL_LIB/themes-data.sh"
 # shellcheck source=lib/themes-tmux.sh

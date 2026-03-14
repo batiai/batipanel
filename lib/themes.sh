@@ -20,10 +20,10 @@ _apply_theme() {
   # generate themed bash prompt
   _generate_themed_prompt "$theme"
 
-  # regenerate zsh prompt with new theme colors
+  # update theme env file (used by zsh/bash prompts)
   BATIPANEL_THEME="$theme"
-  if declare -f _generate_zsh_prompt &>/dev/null; then
-    _generate_zsh_prompt
+  if declare -f generate_theme_env &>/dev/null; then
+    generate_theme_env "$theme"
   fi
 
   # persist to config.sh
@@ -42,20 +42,18 @@ _apply_theme() {
     tmux source-file "$BATIPANEL_HOME/config/theme.conf" 2>/dev/null || true
   fi
 
-  # live reload: apply terminal colors to current shell immediately
+  # live reload: apply terminal colors immediately via OSC
   local term_colors
   term_colors=$(_get_theme_terminal_colors "$theme")
   local bg fg cursor
-  bg=$(echo "$term_colors" | awk '{print $1}')
-  fg=$(echo "$term_colors" | awk '{print $2}')
-  cursor=$(echo "$term_colors" | awk '{print $3}')
+  read -r bg fg cursor _ <<< "$term_colors"
   printf '\e]11;%s\a' "$bg"
   printf '\e]10;%s\a' "$fg"
   printf '\e]12;%s\a' "$cursor"
 
   log_info "theme applied: $theme"
   echo -e "${GREEN}Theme applied: ${theme}${NC}"
-  echo "  Run: source ~/.zshrc   (to update prompt colors)"
+  echo "  Terminal colors updated. Run: source ~/.zshrc  (for prompt colors)"
 }
 
 # CLI entry point: b theme [name]

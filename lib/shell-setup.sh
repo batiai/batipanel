@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# batipanel shell-setup - prompt theme, terminal colors, powerline fonts
+# batipanel shell-setup - prompt theme, terminal colors
 
 BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 
-# has_cmd and _sed_i are expected from the caller (install.sh or core.sh)
-# define fallbacks only if not already available
 if ! declare -f has_cmd &>/dev/null; then
   has_cmd() { command -v "$1" &>/dev/null; }
 fi
@@ -18,93 +16,81 @@ if ! declare -f _sed_i &>/dev/null; then
   }
 fi
 
-# === 1. Install powerline fonts ===
-install_powerline_fonts() {
-  echo "  Setting up Powerline fonts..."
-
-  local OS
-  OS="$(uname -s)"
-
-  # check if already installed
-  if [ "$OS" = "Darwin" ] && [ -d "$HOME/Library/Fonts" ]; then
-    if ls "$HOME/Library/Fonts/"*owerline* &>/dev/null 2>&1 \
-      || ls "$HOME/Library/Fonts/"*erd* &>/dev/null 2>&1; then
-      echo "    Powerline-compatible fonts already installed"
-      return 0
-    fi
-  elif fc-list 2>/dev/null | grep -qi "powerline\|nerd"; then
-    echo "    Powerline-compatible fonts already installed"
-    return 0
-  fi
-
-  # clone and install powerline fonts from GitHub (works on all platforms)
-  if ! has_cmd git; then
-    echo "    git not found, skipping font install"
-    return 1
-  fi
-
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  if git clone --depth=1 https://github.com/powerline/fonts.git "$tmpdir/fonts" 2>/dev/null; then
-    bash "$tmpdir/fonts/install.sh" 2>/dev/null || true
-    echo "    Installed powerline fonts"
-  else
-    echo "    Failed to download powerline fonts (optional)"
-  fi
-  rm -rf "$tmpdir"
-}
-
-# === 2. Generate zsh prompt config file ===
-# Writes a standalone zsh prompt config that works WITHOUT Oh My Zsh
-_generate_zsh_prompt() {
-  local prompt_file="$BATIPANEL_HOME/config/zsh-prompt.zsh"
+# === 1. Generate theme env file ===
+# This small file is sourced by both zsh and bash prompts
+generate_theme_env() {
+  local theme="${1:-default}"
+  local env_file="$BATIPANEL_HOME/config/theme-env.sh"
   mkdir -p "$BATIPANEL_HOME/config"
 
-  # get theme colors
-  local theme="${BATIPANEL_THEME:-default}"
+  # get terminal colors (needs themes-data.sh to be sourced)
   local term_colors
   if declare -f _get_theme_terminal_colors &>/dev/null; then
     term_colors=$(_get_theme_terminal_colors "$theme")
   else
     term_colors="#1e1e2e #cdd6f4 #f5e0dc blue cyan green magenta"
   fi
+
   local bg fg cursor c_user c_dir c_git c_prompt
   read -r bg fg cursor c_user c_dir c_git c_prompt <<< "$term_colors"
 
-  cat > "$prompt_file" << ZSH_PROMPT_EOF
-# batipanel zsh prompt (no Oh My Zsh needed)
+  cat > "$env_file" << EOF
+# batipanel theme colors (auto-generated, do not edit)
+BP_THEME="$theme"
+BP_BG="$bg"
+BP_FG="$fg"
+BP_CURSOR="$cursor"
+BP_C_USER="$c_user"
+BP_C_DIR="$c_dir"
+BP_C_GIT="$c_git"
+BP_C_PROMPT="$c_prompt"
+EOF
+}
+
+# === 2. Generate zsh prompt ===
+_generate_zsh_prompt() {
+  local prompt_file="$BATIPANEL_HOME/config/zsh-prompt.zsh"
+  mkdir -p "$BATIPANEL_HOME/config"
+
+  # ensure theme env exists
+  local theme="${BATIPANEL_THEME:-default}"
+  generate_theme_env "$theme"
+
+  cat > "$prompt_file" << 'ZSH_PROMPT_EOF'
+# batipanel zsh prompt
 # This file is sourced from .zshrc
+
+# load theme colors
+_bp_env="$HOME/.batipanel/config/theme-env.sh"
+[[ -f "$_bp_env" ]] && source "$_bp_env"
 
 autoload -U colors && colors
 autoload -Uz vcs_info
 setopt PROMPT_SUBST
 
 precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats ' %F{${c_git}}(%b)%f'
+zstyle ':vcs_info:git:*' formats " %%F{${BP_C_GIT:-green}}(%b)%%f"
 zstyle ':vcs_info:*' enable git
 
-# terminal colors via OSC
-if [[ "\$TERM" != "dumb" ]]; then
-  printf '\e]11;${bg}\a'
-  printf '\e]10;${fg}\a'
-  printf '\e]12;${cursor}\a'
+# set terminal colors via OSC
+if [[ "$TERM" != "dumb" ]]; then
+  printf "\e]11;${BP_BG:-#1e1e2e}\a"
+  printf "\e]10;${BP_FG:-#cdd6f4}\a"
+  printf "\e]12;${BP_CURSOR:-#f5e0dc}\a"
 fi
 
-PROMPT='%F{${c_user}}%n%f %F{${c_dir}}%~%f\${vcs_info_msg_0_} %F{${c_prompt}}>%f '
+PROMPT="%F{${BP_C_USER:-blue}}%n%f %F{${BP_C_DIR:-cyan}}%~%f"'${vcs_info_msg_0_}'" %F{${BP_C_PROMPT:-magenta}}>%f "
 RPROMPT='%(?..%F{red}[%?]%f)'
 ZSH_PROMPT_EOF
 }
 
-# === 3. Setup zsh prompt (direct, no Oh My Zsh) ===
+# === 3. Setup zsh prompt ===
 setup_zsh_theme() {
   local shell_rc="$1"
 
   echo "  Configuring zsh prompt..."
-
-  # generate the prompt file
   _generate_zsh_prompt
 
-  # add source line to .zshrc if not present
   local prompt_file="$BATIPANEL_HOME/config/zsh-prompt.zsh"
   local source_line="[[ -f \"$prompt_file\" ]] && source \"$prompt_file\""
 
@@ -120,22 +106,30 @@ setup_zsh_theme() {
     echo "$source_line" > "$shell_rc"
   fi
 
-  echo "    Set powerline-style prompt"
+  echo "    Set prompt theme"
 }
 
-# === 4. Bash prompt (fallback) ===
+# === 4. Bash prompt ===
 _setup_default_bash_prompt() {
   local prompt_file="$BATIPANEL_HOME/config/bash-prompt.sh"
   mkdir -p "$BATIPANEL_HOME/config"
-  cat > "$prompt_file" << 'FALLBACK_EOF'
-#!/usr/bin/env bash
-# batipanel bash prompt - powerline style
 
-# dark terminal colors via OSC
+  local theme="${BATIPANEL_THEME:-default}"
+  generate_theme_env "$theme"
+
+  cat > "$prompt_file" << 'BASH_PROMPT_EOF'
+#!/usr/bin/env bash
+# batipanel bash prompt
+
+# load theme colors
+_bp_env="$HOME/.batipanel/config/theme-env.sh"
+[ -f "$_bp_env" ] && source "$_bp_env"
+
+# set terminal colors via OSC
 if [[ "$TERM" != "dumb" ]]; then
-  printf '\e]11;#1e1e2e\a'
-  printf '\e]10;#cdd6f4\a'
-  printf '\e]12;#f5e0dc\a'
+  printf "\e]11;${BP_BG:-#1e1e2e}\a"
+  printf "\e]10;${BP_FG:-#cdd6f4}\a"
+  printf "\e]12;${BP_CURSOR:-#f5e0dc}\a"
 fi
 
 __batipanel_prompt() {
@@ -157,12 +151,11 @@ __batipanel_prompt() {
   PS1="$ps"
 }
 PROMPT_COMMAND="__batipanel_prompt"
-FALLBACK_EOF
+BASH_PROMPT_EOF
 }
 
 setup_bash_prompt() {
   local shell_rc="$1"
-
   echo "  Configuring bash prompt..."
 
   local current_theme="${BATIPANEL_THEME:-default}"
@@ -176,10 +169,10 @@ setup_bash_prompt() {
   local source_line="source \"$prompt_file\""
   _add_line_if_missing "$shell_rc" "bash-prompt.sh" "$source_line"
 
-  echo "    Set powerline-style prompt"
+  echo "    Set prompt theme"
 }
 
-# === Helper: add line to RC if not already present ===
+# === Helper ===
 _add_line_if_missing() {
   local rc_file="$1"
   local search="$2"
@@ -207,20 +200,10 @@ setup_shell_environment() {
   echo ""
   echo "Setting up shell environment..."
 
-  # install powerline fonts
-  install_powerline_fonts
-
-  # configure prompt based on shell
   case "$user_shell" in
-    zsh)
-      setup_zsh_theme "$shell_rc"
-      ;;
-    bash)
-      setup_bash_prompt "$shell_rc"
-      ;;
-    *)
-      echo "  Unsupported shell ($user_shell), skipping prompt setup"
-      ;;
+    zsh)  setup_zsh_theme "$shell_rc" ;;
+    bash) setup_bash_prompt "$shell_rc" ;;
+    *)    echo "  Unsupported shell ($user_shell), skipping prompt setup" ;;
   esac
 
   echo "  Shell environment setup complete"
