@@ -61,7 +61,7 @@ _generate_zsh_prompt() {
   mkdir -p "$BATIPANEL_HOME/config"
 
   cat > "$prompt_file" << 'ZSH_PROMPT_EOF'
-# batipanel zsh prompt - powerline style (no Oh My Zsh needed)
+# batipanel zsh prompt (no Oh My Zsh needed)
 # This file is sourced from .zshrc
 
 # enable colors
@@ -70,7 +70,7 @@ autoload -U colors && colors
 # enable git info
 autoload -Uz vcs_info
 precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats ' %F{black}%K{green} \uE0A0 %b %k%F{green}\uE0B0%f'
+zstyle ':vcs_info:git:*' formats ' %F{black}%K{green} ⎇ %b %k%F{green}▸%f'
 zstyle ':vcs_info:*' enable git
 
 # enable prompt substitution
@@ -83,9 +83,9 @@ if [[ "$TERM" != "dumb" ]]; then
   printf '\e]12;#f5e0dc\a'  # cursor: pink
 fi
 
-# powerline-style prompt
-PROMPT='%K{blue}%F{white} %n %f%k%F{blue}%K{240}\uE0B0%f%F{white} %~ %f%k%F{240}${vcs_info_msg_0_:-%F{240}\uE0B0}%f '
-RPROMPT='%(?..%F{red}\u2718 %?%f)'
+# prompt: user > directory > git branch
+PROMPT='%K{blue}%F{white} %n %f%k%F{blue}%K{240}▸%f%F{white} %~ %f%k%F{240}${vcs_info_msg_0_:-%F{240}▸}%f '
+RPROMPT='%(?..%F{red}✘ %?%f)'
 ZSH_PROMPT_EOF
 }
 
@@ -134,40 +134,31 @@ fi
 
 __batipanel_prompt() {
   local exit_code=$?
-  local sep=$'\uE0B0'
   local bg_user="\[\e[44m\]"
   local fg_user="\[\e[97m\]"
   local bg_dir="\[\e[48;5;240m\]"
   local fg_dir="\[\e[97m\]"
   local bg_git="\[\e[42m\]"
   local fg_git="\[\e[30m\]"
-  local bg_err="\[\e[41m\]"
-  local fg_err="\[\e[97m\]"
   local reset="\[\e[0m\]"
-  local t_user_dir="\[\e[34;48;5;240m\]"
-  local t_dir_git="\[\e[38;5;240;42m\]"
-  local t_dir_end="\[\e[38;5;240m\]"
-  local t_git_end="\[\e[32m\]"
-  local t_err_dir="\[\e[31;48;5;240m\]"
+  local t_user="\[\e[34;48;5;240m\]"
+  local t_dir="\[\e[38;5;240;42m\]"
+  local t_end="\[\e[38;5;240m\]"
+  local t_git="\[\e[32m\]"
   local ps=""
   if [ "$exit_code" -ne 0 ]; then
-    ps+="${bg_err}${fg_err} ✘ ${exit_code} "
-    ps+="${t_err_dir}${sep}"
+    ps+="\[\e[41m\]\[\e[97m\] ✘ ${exit_code} \[\e[31;48;5;240m\]▸"
   fi
-  ps+="${bg_user}${fg_user} \\u "
-  ps+="${t_user_dir}${sep}"
+  ps+="${bg_user}${fg_user} \\u ${t_user}▸"
   ps+="${bg_dir}${fg_dir} \\w "
   local git_branch=""
   if command -v git &>/dev/null; then
     git_branch="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)"
   fi
   if [ -n "$git_branch" ]; then
-    ps+="${t_dir_git}${sep}"
-    local git_icon=$'\uE0A0'
-    ps+="${bg_git}${fg_git} ${git_icon} ${git_branch} "
-    ps+="${reset}${t_git_end}${sep}${reset} "
+    ps+="${t_dir}▸${bg_git}${fg_git} ⎇ ${git_branch} ${reset}${t_git}▸${reset} "
   else
-    ps+="${reset}${t_dir_end}${sep}${reset} "
+    ps+="${reset}${t_end}▸${reset} "
   fi
   PS1="$ps"
 }
