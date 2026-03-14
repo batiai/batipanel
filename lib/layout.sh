@@ -16,15 +16,20 @@ init_layout() {
   # tmux auto-resizes to actual terminal dimensions on attach.
   debug_log "init_layout: session=$session project=$project"
   tmux kill-session -t "$session" 2>/dev/null || true
-  if ! tmux new-session -d -s "$session" -c "$project" -x 220 -y 60; then
-    # check if session was created by a concurrent invocation
-    if tmux has-session -t "$session" 2>/dev/null; then
-      debug_log "init_layout: session already exists (concurrent creation)"
-      return 0
+
+  # try creating session; if TERM/terminfo causes issues, retry with safe TERM
+  if ! tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>/dev/null; then
+    debug_log "init_layout: retrying with TERM=xterm-256color"
+    if ! TERM=xterm-256color tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>/dev/null; then
+      # check if session was created by a concurrent invocation
+      if tmux has-session -t "$session" 2>/dev/null; then
+        debug_log "init_layout: session already exists (concurrent creation)"
+        return 0
+      fi
+      echo -e "${RED}Failed to create tmux session '$session'${NC}"
+      echo "  Is another tmux server blocking? Try: tmux kill-server"
+      return 1
     fi
-    echo -e "${RED}Failed to create tmux session '$session'${NC}"
-    echo "  Is another tmux server blocking? Try: tmux kill-server"
-    return 1
   fi
 }
 
@@ -156,8 +161,16 @@ load_layout() {
 
   debug_log "load_layout: $layout_file"
 
+  # temporarily disable errexit so partial split failures don't kill the session
+  set +e
   # shellcheck source=/dev/null
   source "$layout_file" "$session" "$project"
+  local rc=$?
+  set -e
+
+  if [ "$rc" -ne 0 ]; then
+    debug_log "load_layout: layout exited with code $rc (partial setup possible)"
+  fi
 }
 
 # List available layouts
