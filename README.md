@@ -120,7 +120,8 @@ b server start    # Docker 서버 시작 — 끝!
 # Install (pick one)
 npx batipanel                                      # npm/npx
 brew install batiai/tap/batipanel                   # Homebrew
-curl -fsSL https://batipanel.com/install.sh | bash  # Shell script
+curl -fsSL https://batipanel.com/install.sh | bash  # Shell script (domain)
+curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/scripts/web-install.sh | bash  # Shell script (GitHub)
 
 # Run — the setup wizard guides you through everything
 batipanel
@@ -217,7 +218,8 @@ All dependencies (tmux, lazygit, btop, yazi, eza) are installed automatically.
 ### Shell script (Linux / WSL / macOS)
 
 ```bash
-curl -fsSL https://batipanel.com/install.sh | bash
+# One-line install (no npm/Node.js required)
+curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/scripts/web-install.sh | bash
 ```
 
 Or clone and install manually:
@@ -229,7 +231,7 @@ bash install.sh
 ```
 
 The installer auto-detects your package manager (apt, dnf, pacman, brew) and installs everything.
-On macOS without Homebrew, the installer will offer to install it automatically.
+On macOS without Homebrew, the installer will install it automatically.
 
 ### Windows (WSL)
 
