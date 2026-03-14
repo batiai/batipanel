@@ -69,7 +69,7 @@ autoload -Uz vcs_info
 setopt PROMPT_SUBST
 
 precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats ' %F{black}%K{green} ⎇ %b %k%F{green}❯%f'
+zstyle ':vcs_info:git:*' formats ' %F{green}(%b)%f'
 zstyle ':vcs_info:*' enable git
 
 # dark terminal colors via OSC (works immediately in any terminal)
@@ -79,9 +79,9 @@ if [[ "$TERM" != "dumb" ]]; then
   printf '\e]12;#f5e0dc\a'  # cursor
 fi
 
-# prompt: user ❯ directory ❯ git
-PROMPT='%F{blue}%K{blue}%F{white} %n %k%F{blue}❯%f%K{240}%F{white} %~ %k%F{240}${vcs_info_msg_0_:-%F{240}❯}%f '
-RPROMPT='%(?..%F{red}✘ %?%f)'
+# clean prompt: user | directory (branch) >
+PROMPT='%F{blue}%n%f %F{cyan}%~%f${vcs_info_msg_0_} %F{magenta}>%f '
+RPROMPT='%(?..%F{red}[%?]%f)'
 ZSH_PROMPT_EOF
 }
 
@@ -133,19 +133,17 @@ __batipanel_prompt() {
   local reset="\[\e[0m\]"
   local ps=""
   if [ "$exit_code" -ne 0 ]; then
-    ps+="\[\e[41;97m\] ✘ ${exit_code} \[\e[31;48;5;240m\]❯"
+    ps+="\[\e[31m\][${exit_code}] "
   fi
-  ps+="\[\e[44;97m\] \\u \[\e[34;48;5;240m\]❯"
-  ps+="\[\e[48;5;240;97m\] \\w "
+  ps+="\[\e[34m\]\\u${reset} \[\e[36m\]\\w${reset}"
   local git_branch=""
   if command -v git &>/dev/null; then
     git_branch="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)"
   fi
   if [ -n "$git_branch" ]; then
-    ps+="\[\e[38;5;240;42m\]❯\[\e[42;30m\] ⎇ ${git_branch} ${reset}\[\e[32m\]❯${reset} "
-  else
-    ps+="${reset}\[\e[38;5;240m\]❯${reset} "
+    ps+=" \[\e[32m\](${git_branch})${reset}"
   fi
+  ps+=" \[\e[35m\]>${reset} "
   PS1="$ps"
 }
 PROMPT_COMMAND="__batipanel_prompt"

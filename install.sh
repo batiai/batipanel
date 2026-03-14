@@ -613,6 +613,9 @@ echo "  b layouts                    # Show available layouts"
 echo "  b config layout 7panel       # Change default layout"
 echo "  b theme                      # List/change color themes"
 echo ""
+echo "Tip: For a polished arrow-style prompt, set your terminal font"
+echo "     to a Powerline or Nerd Font (e.g. MesloLGS NF, Hack NF)."
+echo ""
 # auto-apply: silently launch a fresh login shell so aliases work immediately
 if [ -t 0 ] && [ -z "${BATIPANEL_NO_EXEC:-}" ]; then
   cd "$HOME"
