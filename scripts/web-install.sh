@@ -71,6 +71,6 @@ echo ""
 # run the real installer with /dev/tty as stdin
 # (curl | bash consumes stdin, so interactive prompts need /dev/tty)
 cd "$TMPDIR_INSTALL/batipanel"
-bash install.sh
+bash install.sh </dev/tty
 
 # cleanup happens via trap
