@@ -210,11 +210,12 @@ install_from_github() {
     return 1
   fi
   chmod +x "$bin"
-  if sudo install "$bin" /usr/local/bin/ 2>/dev/null; then
-    echo "  Installed $name to /usr/local/bin/"
-  elif install "$bin" "$HOME/.local/bin/" 2>/dev/null; then
+  # prefer user-local install (no admin required), fallback to system-wide
+  if install "$bin" "$HOME/.local/bin/" 2>/dev/null; then
     echo "  Installed $name to ~/.local/bin/"
     NEED_LOCAL_BIN_PATH=1
+  elif install "$bin" /usr/local/bin/ 2>/dev/null; then
+    echo "  Installed $name to /usr/local/bin/"
   else
     echo "  Failed to install $name"
     rm -rf "$tmpdir"
@@ -264,6 +265,21 @@ fi
 # btop
 if ! has_cmd btop; then
   install_packages btop 2>/dev/null || true
+fi
+if ! has_cmd btop; then
+  tag=$(latest_github_tag "aristocratos/btop")
+  if [ -n "$tag" ]; then
+    case "$OS_LOWER" in
+      darwin)
+        install_from_github btop \
+          "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${ARCH_GO}-${OS_LOWER}-musl.tbz" 2>/dev/null || true
+        ;;
+      linux)
+        install_from_github btop \
+          "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${ARCH_GO}-${OS_LOWER}-musl.tbz" 2>/dev/null || true
+        ;;
+    esac
+  fi
 fi
 
 # lazygit — verify it actually works (old binary may fail with git version error)
