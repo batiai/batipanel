@@ -48,23 +48,36 @@ if [ -f "$HOME/.tmux.conf" ]; then
   fi
 fi
 
-# 3. remove shell aliases and completion source lines
+# 3. remove ALL batipanel lines from shell RC files
 for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
   [ -f "$rc" ] || continue
-  if grep -q "batipanel" "$rc" 2>/dev/null; then
+  if grep -qE "(batipanel|\.batipanel)" "$rc" 2>/dev/null; then
     _sed_i '/# batipanel/d' "$rc"
     _sed_i '/alias batipanel=/d' "$rc"
     _sed_i '/alias b=.*batipanel/d' "$rc"
+    # b() function (may span one line)
+    _sed_i '/b().*batipanel/d' "$rc"
+    # prompt source lines
+    _sed_i '/bash-prompt\.sh/d' "$rc"
+    _sed_i '/zsh-prompt\.zsh/d' "$rc"
+    _sed_i '/# batipanel shell theme/d' "$rc"
+    _sed_i '/# batipanel prompt theme/d' "$rc"
+    # completion lines
     _sed_i '/completions\/batipanel/d' "$rc"
-    echo "  Cleaned aliases and completions from $(basename "$rc")"
+    _sed_i '/_batipanel/d' "$rc"
+    # PATH additions
+    _sed_i '/\.batipanel\/bin/d' "$rc"
+    # clean up blank lines left behind (collapse multiple empty lines to one)
+    _sed_i '/^[[:space:]]*$/{ N; /^\n[[:space:]]*$/d; }' "$rc"
+    echo "  Cleaned all batipanel entries from $(basename "$rc")"
   fi
 done
 
 # remove zsh completion from fpath
 local_zsh_comp="${ZDOTDIR:-$HOME}/.zfunc"
-if [ -f "$local_zsh_comp/_batipanel" ]; then
-  rm -f "$local_zsh_comp/_batipanel"
-  echo "  Removed zsh completion"
+rm -f "$local_zsh_comp/_batipanel" "$local_zsh_comp/_b" 2>/dev/null
+if [ -d "$local_zsh_comp" ]; then
+  echo "  Removed zsh completions from .zfunc"
 fi
 
 # 4. stop server containers (if running)

@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 # batipanel session - start, stop, list, project listing
 
+# portable timeout: timeout → gtimeout → perl fallback
+_tmux_timeout() {
+  local secs="$1"; shift
+  if command -v timeout &>/dev/null; then
+    timeout "$secs" "$@"
+  elif command -v gtimeout &>/dev/null; then
+    gtimeout "$secs" "$@"
+  else
+    # perl is always available on macOS/Linux
+    perl -e "alarm $secs; exec @ARGV" -- "$@"
+  fi
+}
+
 tmux_start() {
   local SESSION="$1"
   local LAYOUT="${2:-}"
@@ -15,7 +28,7 @@ tmux_start() {
     return 1
   fi
 
-  if tmux has-session -t "$SESSION" 2>/dev/null; then
+  if _tmux_timeout 3 tmux has-session -t "$SESSION" 2>/dev/null; then
     log_info "session resume: $SESSION"
     echo -e "${GREEN}Resuming session: $SESSION${NC}"
   else
@@ -61,7 +74,7 @@ tmux_stop() {
   local FORCE="${2:-}"
   validate_session_name "$SESSION" || return 1
 
-  if tmux has-session -t "$SESSION" 2>/dev/null; then
+  if _tmux_timeout 3 tmux has-session -t "$SESSION" 2>/dev/null; then
     if [[ "$FORCE" != "-f" && -t 0 ]]; then
       printf "Stop session '%s'? [y/N] " "$SESSION"
       local answer
@@ -79,7 +92,13 @@ tmux_stop() {
 
 tmux_list() {
   echo -e "${BLUE}=== Active Sessions ===${NC}"
-  tmux ls 2>/dev/null || echo "  (none)"
+  # run tmux ls with 3s timeout to avoid hang on stale server
+  local tmux_out
+  if tmux_out=$(_tmux_timeout 3 tmux ls 2>/dev/null); then
+    echo "$tmux_out"
+  else
+    echo "  (none)"
+  fi
   echo ""
   echo -e "${BLUE}=== Registered Projects ===${NC}"
   list_projects
