@@ -60,7 +60,18 @@ _generate_zsh_prompt() {
   local prompt_file="$BATIPANEL_HOME/config/zsh-prompt.zsh"
   mkdir -p "$BATIPANEL_HOME/config"
 
-  cat > "$prompt_file" << 'ZSH_PROMPT_EOF'
+  # get theme colors
+  local theme="${BATIPANEL_THEME:-default}"
+  local term_colors
+  if declare -f _get_theme_terminal_colors &>/dev/null; then
+    term_colors=$(_get_theme_terminal_colors "$theme")
+  else
+    term_colors="#1e1e2e #cdd6f4 #f5e0dc blue cyan green magenta"
+  fi
+  local bg fg cursor c_user c_dir c_git c_prompt
+  read -r bg fg cursor c_user c_dir c_git c_prompt <<< "$term_colors"
+
+  cat > "$prompt_file" << ZSH_PROMPT_EOF
 # batipanel zsh prompt (no Oh My Zsh needed)
 # This file is sourced from .zshrc
 
@@ -69,18 +80,17 @@ autoload -Uz vcs_info
 setopt PROMPT_SUBST
 
 precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats ' %F{green}(%b)%f'
+zstyle ':vcs_info:git:*' formats ' %F{${c_git}}(%b)%f'
 zstyle ':vcs_info:*' enable git
 
-# dark terminal colors via OSC (works immediately in any terminal)
-if [[ "$TERM" != "dumb" ]]; then
-  printf '\e]11;#1e1e2e\a'  # background
-  printf '\e]10;#cdd6f4\a'  # foreground
-  printf '\e]12;#f5e0dc\a'  # cursor
+# terminal colors via OSC
+if [[ "\$TERM" != "dumb" ]]; then
+  printf '\e]11;${bg}\a'
+  printf '\e]10;${fg}\a'
+  printf '\e]12;${cursor}\a'
 fi
 
-# clean prompt: user | directory (branch) >
-PROMPT='%F{blue}%n%f %F{cyan}%~%f${vcs_info_msg_0_} %F{magenta}>%f '
+PROMPT='%F{${c_user}}%n%f %F{${c_dir}}%~%f\${vcs_info_msg_0_} %F{${c_prompt}}>%f '
 RPROMPT='%(?..%F{red}[%?]%f)'
 ZSH_PROMPT_EOF
 }

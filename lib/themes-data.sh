@@ -57,18 +57,18 @@ _get_theme_desc() {
 }
 
 # terminal hex colors for OSC escape sequences
-# returns: BG FG CURSOR
+# returns: BG FG CURSOR USER_COLOR DIR_COLOR GIT_COLOR PROMPT_COLOR
 _get_theme_terminal_colors() {
   case "$1" in
-    default)     echo "#1e1e2e #cdd6f4 #f5e0dc" ;;
-    dracula)     echo "#282a36 #f8f8f2 #ff79c6" ;;
-    nord)        echo "#2e3440 #d8dee9 #88c0d0" ;;
-    gruvbox)     echo "#282828 #ebdbb2 #fe8019" ;;
-    tokyo-night) echo "#1a1b26 #c0caf5 #bb9af7" ;;
-    catppuccin)  echo "#1e1e2e #cdd6f4 #f5e0dc" ;;
-    rose-pine)   echo "#191724 #e0def4 #ebbcba" ;;
-    kanagawa)    echo "#1f1f28 #dcd7ba #7e9cd8" ;;
-    *)           echo "#1e1e2e #cdd6f4 #f5e0dc" ;;
+    default)     echo "#1e1e2e #cdd6f4 #f5e0dc blue cyan green magenta" ;;
+    dracula)     echo "#282a36 #f8f8f2 #ff79c6 141 117 84 212" ;;
+    nord)        echo "#2e3440 #d8dee9 #88c0d0 blue 110 green 67" ;;
+    gruvbox)     echo "#282828 #ebdbb2 #fe8019 yellow 223 green 208" ;;
+    tokyo-night) echo "#1a1b26 #c0caf5 #bb9af7 blue 111 green 141" ;;
+    catppuccin)  echo "#1e1e2e #cdd6f4 #f5e0dc blue 183 green 183" ;;
+    rose-pine)   echo "#191724 #e0def4 #ebbcba magenta 181 green 182" ;;
+    kanagawa)    echo "#1f1f28 #dcd7ba #7e9cd8 blue 110 green 103" ;;
+    *)           echo "#1e1e2e #cdd6f4 #f5e0dc blue cyan green magenta" ;;
   esac
 }
 

@@ -8,6 +8,12 @@ set -euo pipefail
 BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 _BATIPANEL_LIB="$BATIPANEL_HOME/lib"
 
+# ensure batipanel-installed tools (e.g. tmux via micromamba) are in PATH
+case ":$PATH:" in
+  *":$BATIPANEL_HOME/bin:"*) ;;
+  *) export PATH="$BATIPANEL_HOME/bin:$PATH" ;;
+esac
+
 # shellcheck source=lib/core.sh
 source "$_BATIPANEL_LIB/core.sh"
 # shellcheck source=lib/logger.sh

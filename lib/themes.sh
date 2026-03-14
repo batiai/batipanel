@@ -20,6 +20,12 @@ _apply_theme() {
   # generate themed bash prompt
   _generate_themed_prompt "$theme"
 
+  # regenerate zsh prompt with new theme colors
+  BATIPANEL_THEME="$theme"
+  if declare -f _generate_zsh_prompt &>/dev/null; then
+    _generate_zsh_prompt
+  fi
+
   # persist to config.sh
   if [ -f "$TMUX_CONFIG" ]; then
     if grep -qF "BATIPANEL_THEME=" "$TMUX_CONFIG"; then
@@ -29,20 +35,6 @@ _apply_theme() {
     fi
   else
     echo "BATIPANEL_THEME=\"$theme\"" > "$TMUX_CONFIG"
-  fi
-
-  # update zsh prompt terminal colors
-  local zsh_prompt="$BATIPANEL_HOME/config/zsh-prompt.zsh"
-  if [ -f "$zsh_prompt" ]; then
-    local term_colors
-    term_colors=$(_get_theme_terminal_colors "$theme")
-    local bg fg cursor
-    bg=$(echo "$term_colors" | awk '{print $1}')
-    fg=$(echo "$term_colors" | awk '{print $2}')
-    cursor=$(echo "$term_colors" | awk '{print $3}')
-    _sed_i "s|printf '\\\\e\]11;#[0-9a-f]*\\\\a'|printf '\\\\e]11;${bg}\\\\a'|" "$zsh_prompt"
-    _sed_i "s|printf '\\\\e\]10;#[0-9a-f]*\\\\a'|printf '\\\\e]10;${fg}\\\\a'|" "$zsh_prompt"
-    _sed_i "s|printf '\\\\e\]12;#[0-9a-f]*\\\\a'|printf '\\\\e]12;${cursor}\\\\a'|" "$zsh_prompt"
   fi
 
   # live reload: apply theme overlay to all running tmux servers
@@ -61,9 +53,9 @@ _apply_theme() {
   printf '\e]10;%s\a' "$fg"
   printf '\e]12;%s\a' "$cursor"
 
-  BATIPANEL_THEME="$theme"
   log_info "theme applied: $theme"
   echo -e "${GREEN}Theme applied: ${theme}${NC}"
+  echo "  Run: source ~/.zshrc   (to update prompt colors)"
 }
 
 # CLI entry point: b theme [name]
