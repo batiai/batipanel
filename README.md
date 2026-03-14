@@ -118,13 +118,12 @@ b server start    # Docker 서버 시작 — 끝!
 
 ```bash
 # Install (pick one)
-npx batipanel                                      # npm/npx
-brew install batiai/tap/batipanel                   # Homebrew
-curl -fsSL https://batipanel.com/install.sh | bash  # Shell script (domain)
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/scripts/web-install.sh | bash  # Shell script (GitHub)
+curl -fsSL https://batipanel.com/install.sh | bash  # Recommended
+npx batipanel                                       # npm/npx
+brew install batiai/tap/batipanel                    # Homebrew
 
 # Run — the setup wizard guides you through everything
-batipanel
+b
 ```
 
 That's it. The wizard asks 2 questions (screen size + workflow) and sets up your workspace.
@@ -144,25 +143,17 @@ That's it. The wizard asks 2 questions (screen size + workflow) and sets up your
 
 2. **설치 명령어 실행** (복사 후 붙여넣기):
    ```bash
-   git clone https://github.com/batiai/batipanel.git
-   cd batipanel
-   bash install.sh
+   curl -fsSL https://batipanel.com/install.sh | bash
    ```
-   - tmux가 없으면 설치 방법을 안내합니다 (Homebrew, MacPorts, Nix 등)
-   - 비밀번호를 물어보면 Mac 로그인 비밀번호 입력
+   - tmux, 기타 도구를 자동으로 설치합니다
+   - Homebrew가 없으면 안내를 따르세요
 
 3. **새 터미널 열기** 후 실행:
    ```bash
    b
    ```
 
-> **npm/npx로 설치하고 싶다면**: 먼저 [nvm](https://github.com/nvm-sh/nvm)을 설치하세요:
-> ```bash
-> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-> source ~/.zshrc
-> nvm install --lts
-> npx batipanel
-> ```
+> **다른 설치 방법**: `npx batipanel` (Node.js 필요) 또는 `brew install batiai/tap/batipanel` (Homebrew)
 
 </details>
 
@@ -173,9 +164,7 @@ That's it. The wizard asks 2 questions (screen size + workflow) and sets up your
 
 2. **설치 명령어 실행**:
    ```bash
-   git clone https://github.com/batiai/batipanel.git
-   cd batipanel
-   bash install.sh
+   curl -fsSL https://batipanel.com/install.sh | bash
    ```
    - 모든 도구(tmux, btop 등)가 자동 설치됩니다
 
@@ -184,13 +173,7 @@ That's it. The wizard asks 2 questions (screen size + workflow) and sets up your
    b
    ```
 
-> **npm/npx로 설치하고 싶다면**: 먼저 [nvm](https://github.com/nvm-sh/nvm)을 설치하세요:
-> ```bash
-> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-> source ~/.bashrc
-> nvm install --lts
-> npx batipanel
-> ```
+> **다른 설치 방법**: `npx batipanel` (Node.js 필요) 또는 수동 설치: `git clone https://github.com/batiai/batipanel.git && cd batipanel && bash install.sh`
 
 </details>
 
@@ -219,7 +202,7 @@ All dependencies (tmux, lazygit, btop, yazi, eza) are installed automatically.
 
 ```bash
 # One-line install (no npm/Node.js required)
-curl -fsSL https://raw.githubusercontent.com/batiai/batipanel/master/scripts/web-install.sh | bash
+curl -fsSL https://batipanel.com/install.sh | bash
 ```
 
 Or clone and install manually:
