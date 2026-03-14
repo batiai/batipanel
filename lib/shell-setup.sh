@@ -228,6 +228,21 @@ _add_line_if_missing() {
   fi
 }
 
+# === 4. macOS Terminal.app dark profile ===
+setup_macos_terminal_profile() {
+  [ "$(uname -s)" = "Darwin" ] || return 0
+
+  echo "  Setting up Terminal.app dark theme..."
+
+  # set macOS built-in "Pro" dark profile as default
+  if defaults read com.apple.Terminal &>/dev/null 2>&1; then
+    defaults write com.apple.Terminal "Default Window Settings" -string "Pro"
+    defaults write com.apple.Terminal "Startup Window Settings" -string "Pro"
+    echo "    Set Terminal.app to dark theme (Pro)"
+    echo "    Open a new Terminal window to see the change"
+  fi
+}
+
 # === Main entry point ===
 setup_shell_environment() {
   local user_shell="$1"
@@ -251,6 +266,9 @@ setup_shell_environment() {
       echo "  Unsupported shell ($user_shell), skipping prompt setup"
       ;;
   esac
+
+  # macOS: set Terminal.app to dark theme
+  setup_macos_terminal_profile
 
   echo "  Shell environment setup complete"
 }

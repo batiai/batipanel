@@ -266,19 +266,16 @@ fi
 if ! has_cmd btop; then
   install_packages btop 2>/dev/null || true
 fi
-if ! has_cmd btop; then
+# btop GitHub releases only provide Linux binaries
+if ! has_cmd btop && [ "$OS_LOWER" = "linux" ]; then
   tag=$(latest_github_tag "aristocratos/btop")
   if [ -n "$tag" ]; then
-    case "$OS_LOWER" in
-      darwin)
-        install_from_github btop \
-          "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${ARCH_GO}-${OS_LOWER}-musl.tbz" 2>/dev/null || true
-        ;;
-      linux)
-        install_from_github btop \
-          "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${ARCH_GO}-${OS_LOWER}-musl.tbz" 2>/dev/null || true
-        ;;
+    _btop_arch="$ARCH"
+    case "$ARCH" in
+      aarch64|arm64) _btop_arch="aarch64" ;;
     esac
+    install_from_github btop \
+      "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${_btop_arch}-unknown-linux-musl.tbz" 2>/dev/null || true
   fi
 fi
 
