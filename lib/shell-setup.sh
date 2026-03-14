@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# batipanel shell-setup - powerline fonts, prompt theme, hostname hiding
+# batipanel shell-setup - prompt theme, terminal colors, powerline fonts
 
 BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 
@@ -26,57 +26,18 @@ install_powerline_fonts() {
   OS="$(uname -s)"
 
   # check if already installed
-  if fc-list 2>/dev/null | grep -qi "powerline\|nerd"; then
+  if [ "$OS" = "Darwin" ] && [ -d "$HOME/Library/Fonts" ]; then
+    if ls "$HOME/Library/Fonts/"*owerline* &>/dev/null 2>&1 \
+      || ls "$HOME/Library/Fonts/"*erd* &>/dev/null 2>&1; then
+      echo "    Powerline-compatible fonts already installed"
+      return 0
+    fi
+  elif fc-list 2>/dev/null | grep -qi "powerline\|nerd"; then
     echo "    Powerline-compatible fonts already installed"
     return 0
   fi
 
-  case "$OS" in
-    Darwin)
-      if has_cmd brew; then
-        # install Nerd Font (includes powerline glyphs)
-        brew tap homebrew/cask-fonts 2>/dev/null || true
-        if brew install --cask font-meslo-lg-nerd-font 2>/dev/null; then
-          echo "    Installed MesloLGS Nerd Font (macOS)"
-        else
-          echo "    Font install via brew failed, trying powerline-fonts..."
-          _install_powerline_fonts_git
-        fi
-      else
-        _install_powerline_fonts_git
-      fi
-      ;;
-    Linux)
-      if has_cmd apt-get; then
-        if sudo apt-get install -y -qq fonts-powerline 2>/dev/null; then
-          echo "    Installed fonts-powerline (apt)"
-        else
-          _install_powerline_fonts_git
-        fi
-      elif has_cmd dnf; then
-        if sudo dnf install -y powerline-fonts 2>/dev/null; then
-          echo "    Installed powerline-fonts (dnf)"
-        else
-          _install_powerline_fonts_git
-        fi
-      elif has_cmd pacman; then
-        if sudo pacman -S --noconfirm powerline-fonts 2>/dev/null; then
-          echo "    Installed powerline-fonts (pacman)"
-        else
-          _install_powerline_fonts_git
-        fi
-      else
-        _install_powerline_fonts_git
-      fi
-      ;;
-    *)
-      _install_powerline_fonts_git
-      ;;
-  esac
-}
-
-# fallback: clone and install powerline fonts from GitHub
-_install_powerline_fonts_git() {
+  # clone and install powerline fonts from GitHub (works on all platforms)
   if ! has_cmd git; then
     echo "    git not found, skipping font install"
     return 1
@@ -86,62 +47,91 @@ _install_powerline_fonts_git() {
   tmpdir=$(mktemp -d)
   if git clone --depth=1 https://github.com/powerline/fonts.git "$tmpdir/fonts" 2>/dev/null; then
     bash "$tmpdir/fonts/install.sh" 2>/dev/null || true
-    echo "    Installed powerline fonts from GitHub"
+    echo "    Installed powerline fonts"
   else
-    echo "    Failed to clone powerline fonts"
+    echo "    Failed to download powerline fonts (optional)"
   fi
   rm -rf "$tmpdir"
 }
 
-# === 2. Setup zsh with Oh My Zsh + agnoster ===
+# === 2. Generate zsh prompt config file ===
+# Writes a standalone zsh prompt config that works WITHOUT Oh My Zsh
+_generate_zsh_prompt() {
+  local prompt_file="$BATIPANEL_HOME/config/zsh-prompt.zsh"
+  mkdir -p "$BATIPANEL_HOME/config"
+
+  cat > "$prompt_file" << 'ZSH_PROMPT_EOF'
+# batipanel zsh prompt - powerline style (no Oh My Zsh needed)
+# This file is sourced from .zshrc
+
+# enable colors
+autoload -U colors && colors
+
+# enable git info
+autoload -Uz vcs_info
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats ' %F{black}%K{green} \uE0A0 %b %k%F{green}\uE0B0%f'
+zstyle ':vcs_info:*' enable git
+
+# enable prompt substitution
+setopt PROMPT_SUBST
+
+# dark terminal colors via OSC escape sequences (works immediately)
+if [[ "$TERM" != "dumb" ]]; then
+  printf '\e]11;#1e1e2e\a'  # background: dark blue-grey
+  printf '\e]10;#cdd6f4\a'  # foreground: light grey
+  printf '\e]12;#f5e0dc\a'  # cursor: pink
+fi
+
+# powerline-style prompt
+PROMPT='%K{blue}%F{white} %n %f%k%F{blue}%K{240}\uE0B0%f%F{white} %~ %f%k%F{240}${vcs_info_msg_0_:-%F{240}\uE0B0}%f '
+RPROMPT='%(?..%F{red}\u2718 %?%f)'
+ZSH_PROMPT_EOF
+}
+
+# === 3. Setup zsh prompt (direct, no Oh My Zsh) ===
 setup_zsh_theme() {
   local shell_rc="$1"
 
-  echo "  Configuring zsh theme..."
+  echo "  Configuring zsh prompt..."
 
-  # install Oh My Zsh if not present
-  if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo "    Installing Oh My Zsh..."
-    if has_cmd curl; then
-      RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 2>/dev/null || true
-    elif has_cmd wget; then
-      RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
-        sh -c "$(wget -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 2>/dev/null || true
-    else
-      echo "    curl/wget not found, skipping Oh My Zsh"
-      return 1
-    fi
-  fi
+  # generate the prompt file
+  _generate_zsh_prompt
 
-  if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo "    Oh My Zsh installation failed"
-    return 1
-  fi
+  # add source line to .zshrc if not present
+  local prompt_file="$BATIPANEL_HOME/config/zsh-prompt.zsh"
+  local source_line="[[ -f \"$prompt_file\" ]] && source \"$prompt_file\""
 
-  # set agnoster theme
   if [ -f "$shell_rc" ]; then
-    if grep -q 'ZSH_THEME=' "$shell_rc" 2>/dev/null; then
-      _sed_i 's/^ZSH_THEME=.*/ZSH_THEME="agnoster"/' "$shell_rc"
-    else
-      echo 'ZSH_THEME="agnoster"' >> "$shell_rc"
+    if ! grep -qF "zsh-prompt.zsh" "$shell_rc" 2>/dev/null; then
+      {
+        echo ""
+        echo "# batipanel prompt theme"
+        echo "$source_line"
+      } >> "$shell_rc"
     fi
+  else
+    echo "$source_line" > "$shell_rc"
   fi
 
-  # hide hostname: set DEFAULT_USER to current user
-  _add_line_if_missing "$shell_rc" "DEFAULT_USER" \
-    "DEFAULT_USER=\"\$(whoami)\""
-
-  echo "    Set agnoster theme with hostname hidden"
+  echo "    Set powerline-style prompt"
 }
 
-# fallback prompt generator (when themes.sh is not loaded)
+# === 4. Bash prompt (fallback) ===
 _setup_default_bash_prompt() {
   local prompt_file="$BATIPANEL_HOME/config/bash-prompt.sh"
   mkdir -p "$BATIPANEL_HOME/config"
   cat > "$prompt_file" << 'FALLBACK_EOF'
 #!/usr/bin/env bash
-# batipanel bash prompt - default theme (fallback)
+# batipanel bash prompt - powerline style
+
+# dark terminal colors via OSC
+if [[ "$TERM" != "dumb" ]]; then
+  printf '\e]11;#1e1e2e\a'
+  printf '\e]10;#cdd6f4\a'
+  printf '\e]12;#f5e0dc\a'
+fi
+
 __batipanel_prompt() {
   local exit_code=$?
   local sep=$'\uE0B0'
@@ -185,27 +175,23 @@ PROMPT_COMMAND="__batipanel_prompt"
 FALLBACK_EOF
 }
 
-# === 3. Setup bash powerline prompt ===
 setup_bash_prompt() {
   local shell_rc="$1"
 
   echo "  Configuring bash prompt..."
 
-  # generate prompt with current theme (uses _generate_themed_prompt from themes.sh)
   local current_theme="${BATIPANEL_THEME:-default}"
   if declare -f _generate_themed_prompt &>/dev/null; then
     _generate_themed_prompt "$current_theme"
   else
-    # fallback: generate default prompt directly (standalone install without themes.sh)
     _setup_default_bash_prompt
   fi
 
-  # source prompt from shell RC
   local prompt_file="$BATIPANEL_HOME/config/bash-prompt.sh"
   local source_line="source \"$prompt_file\""
   _add_line_if_missing "$shell_rc" "bash-prompt.sh" "$source_line"
 
-  echo "    Set powerline-style prompt (hostname hidden)"
+  echo "    Set powerline-style prompt"
 }
 
 # === Helper: add line to RC if not already present ===
@@ -225,21 +211,6 @@ _add_line_if_missing() {
       echo "# batipanel shell theme"
       echo "$line"
     } >> "$rc_file"
-  fi
-}
-
-# === 4. macOS Terminal.app dark profile ===
-setup_macos_terminal_profile() {
-  [ "$(uname -s)" = "Darwin" ] || return 0
-
-  echo "  Setting up Terminal.app dark theme..."
-
-  # set macOS built-in "Pro" dark profile as default
-  if defaults read com.apple.Terminal &>/dev/null 2>&1; then
-    defaults write com.apple.Terminal "Default Window Settings" -string "Pro"
-    defaults write com.apple.Terminal "Startup Window Settings" -string "Pro"
-    echo "    Set Terminal.app to dark theme (Pro)"
-    echo "    Open a new Terminal window to see the change"
   fi
 }
 
@@ -266,9 +237,6 @@ setup_shell_environment() {
       echo "  Unsupported shell ($user_shell), skipping prompt setup"
       ;;
   esac
-
-  # macOS: set Terminal.app to dark theme
-  setup_macos_terminal_profile
 
   echo "  Shell environment setup complete"
 }
