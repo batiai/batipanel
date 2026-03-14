@@ -138,8 +138,43 @@ fi
 if ! command -v tmux &>/dev/null; then
   echo ""
   echo "tmux is required but could not be installed."
-  echo "Please install tmux manually and re-run this installer."
+  if [ "$OS" = "Darwin" ]; then
+    echo "Install via Homebrew:  brew install tmux"
+  else
+    echo "Install via package manager:  sudo apt install tmux  (or equivalent)"
+  fi
   exit 1
+fi
+
+# smoke test: verify tmux can actually start a server
+_tmux_smoke_ok=0
+if tmux -f /dev/null new-session -d -s _bp_smoke -x 10 -y 5 2>/dev/null; then
+  tmux kill-session -t _bp_smoke 2>/dev/null || true
+  _tmux_smoke_ok=1
+fi
+
+if [ "$_tmux_smoke_ok" = "0" ]; then
+  echo ""
+  echo "WARNING: tmux is installed but fails to start (server exited unexpectedly)."
+  # if mamba tmux exists, it may be the broken one — remove wrapper so brew takes priority
+  if [ -f "$BATIPANEL_HOME/bin/tmux" ] && [ -d "$BATIPANEL_HOME/.mamba" ]; then
+    echo "  Removing unstable conda-forge tmux..."
+    rm -f "$BATIPANEL_HOME/bin/tmux"
+  fi
+  if [ "$OS" = "Darwin" ]; then
+    echo "  Please install tmux via Homebrew:  brew install tmux"
+  else
+    echo "  Please install tmux via package manager:  sudo apt install tmux"
+  fi
+  # re-check after removing mamba wrapper
+  if command -v tmux &>/dev/null && tmux -f /dev/null new-session -d -s _bp_smoke2 -x 10 -y 5 2>/dev/null; then
+    tmux kill-session -t _bp_smoke2 2>/dev/null || true
+    echo "  Found working system tmux: $(tmux -V)"
+  else
+    echo ""
+    echo "tmux is required. Install it and re-run this installer."
+    exit 1
+  fi
 fi
 
 # ensure git >= 2.32 (required by lazygit)
