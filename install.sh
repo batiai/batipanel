@@ -63,39 +63,75 @@ install_packages() {
   fi
 }
 
+# install tmux via micromamba (no admin required, works on any macOS/Linux)
+# uses conda-forge packages installed to ~/.batipanel/.mamba
+install_via_mamba() {
+  local pkg="$1"
+  local mamba_root="$BATIPANEL_HOME/.mamba"
+  local mamba_bin="$mamba_root/bin/micromamba"
+
+  # install micromamba if not present
+  if [ ! -x "$mamba_bin" ]; then
+    echo "  Setting up package manager (no admin required)..."
+    mkdir -p "$mamba_root/bin"
+    local platform
+    case "$OS" in
+      Darwin)
+        case "$(uname -m)" in
+          arm64) platform="osx-arm64" ;;
+          *)     platform="osx-64" ;;
+        esac
+        ;;
+      *)
+        case "$(uname -m)" in
+          aarch64|arm64) platform="linux-aarch64" ;;
+          ppc64le)       platform="linux-ppc64le" ;;
+          *)             platform="linux-64" ;;
+        esac
+        ;;
+    esac
+    if ! curl -fsSL "https://micro.mamba.pm/api/micromamba/${platform}/latest" \
+        | tar xj -C "$mamba_root/bin" --strip-components=1 bin/micromamba 2>/dev/null; then
+      echo "  Failed to download micromamba"
+      return 1
+    fi
+    chmod +x "$mamba_bin"
+  fi
+
+  # install package into base environment
+  echo "  Installing $pkg..."
+  "$mamba_bin" install -r "$mamba_root" -n base -c conda-forge -y "$pkg" 2>/dev/null || return 1
+
+  # symlink binary to ~/.batipanel/bin/ for easy PATH access
+  local installed_bin="$mamba_root/bin/$pkg"
+  if [ ! -f "$installed_bin" ]; then
+    installed_bin=$(find "$mamba_root" -name "$pkg" -type f -executable 2>/dev/null | head -1)
+  fi
+  if [ -n "$installed_bin" ] && [ -f "$installed_bin" ]; then
+    mkdir -p "$BATIPANEL_HOME/bin"
+    ln -sf "$installed_bin" "$BATIPANEL_HOME/bin/$pkg"
+    export PATH="$BATIPANEL_HOME/bin:$PATH"
+    echo "  Installed $pkg successfully"
+    return 0
+  fi
+  return 1
+}
+
 # required: tmux
 if ! command -v tmux &>/dev/null; then
   echo "Installing tmux..."
   install_packages tmux 2>/dev/null || true
 fi
 
+# fallback: install via micromamba (no admin, no package manager needed)
+if ! command -v tmux &>/dev/null; then
+  install_via_mamba tmux || true
+fi
+
 if ! command -v tmux &>/dev/null; then
   echo ""
-  echo "tmux is required but could not be installed automatically."
-  echo ""
-  echo "Install tmux using any of these methods:"
-  case "$OS" in
-    Darwin)
-      echo "  # Homebrew (most common)"
-      echo "  brew install tmux"
-      echo ""
-      echo "  # MacPorts"
-      echo "  sudo port install tmux"
-      echo ""
-      echo "  # Nix (no admin required)"
-      echo "  curl -L https://nixos.org/nix/install | sh && nix-env -iA nixpkgs.tmux"
-      ;;
-    *)
-      echo "  Ubuntu/Debian:  sudo apt install tmux"
-      echo "  Fedora/RHEL:    sudo dnf install tmux"
-      echo "  Arch:           sudo pacman -S tmux"
-      echo "  Alpine:         sudo apk add tmux"
-      echo "  openSUSE:       sudo zypper install tmux"
-      echo "  Nix:            nix-env -iA nixpkgs.tmux"
-      ;;
-  esac
-  echo ""
-  echo "After installing tmux, re-run this installer."
+  echo "tmux is required but could not be installed."
+  echo "Please install tmux manually and re-run this installer."
   exit 1
 fi
 
@@ -195,6 +231,10 @@ latest_github_tag() {
 # ensure tool directories are in PATH for this script
 NEED_LOCAL_BIN_PATH=0
 mkdir -p "$HOME/.local/bin"
+case ":$PATH:" in
+  *":$BATIPANEL_HOME/bin:"*) ;;
+  *) export PATH="$BATIPANEL_HOME/bin:$PATH" ;;
+esac
 case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
   *) export PATH="$HOME/.local/bin:$PATH" ;;
@@ -454,6 +494,14 @@ else
 fi
 
 # === 8. persist tool paths in shell RC ===
+# ~/.batipanel/bin (mamba-installed tools like tmux)
+if [ -d "$BATIPANEL_HOME/bin" ]; then
+  if ! grep -qF '.batipanel/bin' "$SHELL_RC" 2>/dev/null; then
+    echo 'export PATH="$HOME/.batipanel/bin:$PATH"' >> "$SHELL_RC"
+    echo "  Added ~/.batipanel/bin to PATH ($SHELL_RC)"
+  fi
+fi
+
 # ~/.claude/bin (Claude Code native installer location)
 if [ -d "$HOME/.claude/bin" ]; then
   if ! grep -qF '.claude/bin' "$SHELL_RC" 2>/dev/null; then
