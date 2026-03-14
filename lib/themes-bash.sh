@@ -154,7 +154,7 @@ __batipanel_prompt() {
   local exit_code=\$?
 
   # glyph (powerline arrow or ASCII fallback)
-  local sep=${sep_char}
+  local sep="${sep_char}"
 
   # colors (generated from theme: ${theme})
   local bg_user="${bg_user}"
