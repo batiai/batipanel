@@ -24,6 +24,7 @@ show_help() {
   echo "  b config layout [name]               Set default layout"
   echo "  b theme [name]                       Change color theme"
   echo "  b doctor                             Check system health"
+  echo "  b reset                              Kill tmux, clear projects, re-test"
   echo "  b server [init|start|stop|status]    AI server (Telegram bot)"
   echo "  b help                               Show this help"
   echo ""
@@ -105,6 +106,9 @@ case "${ARGS[0]:-}" in
     ;;
   doctor)
     tmux_doctor
+    ;;
+  reset)
+    tmux_reset
     ;;
   server)
     server_cmd "${ARGS[1]:-}" "${ARGS[2]:-}" "${ARGS[3]:-}"
