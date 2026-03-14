@@ -480,7 +480,7 @@ esac
 
 BATIPANEL_ALIAS="alias batipanel='bash \"$BATIPANEL_HOME/bin/start.sh\"'"
 # b is a function (not alias) so theme changes can auto-reload the prompt
-SHORT_FUNC="b() { bash \"$BATIPANEL_HOME/bin/start.sh\" \"\$@\"; if [[ \"\${1:-}\" == \"theme\" || (\"\${1:-}\" == \"config\" && \"\${2:-}\" == \"theme\") ]]; then local _pf=\"$BATIPANEL_HOME/config/bash-prompt.sh\"; [ -f \"\$_pf\" ] && source \"\$_pf\"; fi; }"
+SHORT_FUNC="b() { bash \"$BATIPANEL_HOME/bin/start.sh\" \"\$@\"; if [[ \"\${1:-}\" == \"theme\" || (\"\${1:-}\" == \"config\" && \"\${2:-}\" == \"theme\") ]]; then local _pf=\"$BATIPANEL_HOME/config/zsh-prompt.zsh\"; [ -f \"\$_pf\" ] && source \"\$_pf\"; _pf=\"$BATIPANEL_HOME/config/bash-prompt.sh\"; [ -f \"\$_pf\" ] && source \"\$_pf\" 2>/dev/null; fi; }"
 
 # Always register 'batipanel' alias
 if grep -q "alias batipanel=" "$SHELL_RC" 2>/dev/null; then

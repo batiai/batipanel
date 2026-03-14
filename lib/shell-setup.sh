@@ -66,10 +66,10 @@ autoload -Uz vcs_info
 setopt PROMPT_SUBST
 
 precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats ' %F{green}(%b)%f'
+zstyle ':vcs_info:git:*' formats " %F{${BP_C_GIT:-green}}(%b)%f"
 zstyle ':vcs_info:*' enable git
 
-PROMPT='%F{blue}%n%f %F{cyan}%~%f${vcs_info_msg_0_} %F{magenta}>%f '
+PROMPT="%F{${BP_C_USER:-blue}}%n%f %F{${BP_C_DIR:-cyan}}%~%f\${vcs_info_msg_0_} %F{${BP_C_PROMPT:-magenta}}>%f "
 RPROMPT='%(?..%F{red}[%?]%f)'
 ZSH_PROMPT_EOF
 }

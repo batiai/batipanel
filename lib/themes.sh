@@ -26,6 +26,11 @@ _apply_theme() {
     generate_theme_env "$theme"
   fi
 
+  # regenerate zsh prompt file with new theme colors
+  if declare -f _generate_zsh_prompt &>/dev/null; then
+    _generate_zsh_prompt
+  fi
+
   # persist to config.sh
   if [ -f "$TMUX_CONFIG" ]; then
     if grep -qF "BATIPANEL_THEME=" "$TMUX_CONFIG"; then
@@ -53,7 +58,7 @@ _apply_theme() {
 
   log_info "theme applied: $theme"
   echo -e "${GREEN}Theme applied: ${theme}${NC}"
-  echo "  Terminal colors updated. Run: source ~/.zshrc  (for prompt colors)"
+  echo "  Terminal and prompt colors updated."
 }
 
 # CLI entry point: b theme [name]
