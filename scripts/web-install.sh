@@ -78,4 +78,4 @@ rm -rf "$TMPDIR_INSTALL"
 trap - EXIT
 
 cd "$HOME"
-exec "${SHELL:-/bin/zsh}" -l
+exec "${SHELL:-/bin/zsh}" -l </dev/tty
