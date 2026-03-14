@@ -77,9 +77,5 @@ BATIPANEL_NO_EXEC=1 bash install.sh </dev/tty
 rm -rf "$TMPDIR_INSTALL"
 trap - EXIT
 
-echo ""
-ok "Installation complete!"
-echo ""
-echo -e "  Launching new shell to apply changes..."
 cd "$HOME"
 exec "${SHELL:-/bin/zsh}" -l

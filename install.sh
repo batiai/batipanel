@@ -610,14 +610,8 @@ echo "  b layouts                    # Show available layouts"
 echo "  b config layout 7panel       # Change default layout"
 echo "  b theme                      # List/change color themes"
 echo ""
-# auto-apply: launch a fresh login shell so aliases work immediately
-# skip if running inside curl|bash (web-install.sh handles this)
+# auto-apply: silently launch a fresh login shell so aliases work immediately
 if [ -t 0 ] && [ -z "${BATIPANEL_NO_EXEC:-}" ]; then
-  echo "Launching new shell to apply changes..."
   cd "$HOME"
   exec "$SHELL" -l
-else
-  echo "To start using batipanel, run:"
-  echo ""
-  echo "  source $SHELL_RC && b"
 fi
