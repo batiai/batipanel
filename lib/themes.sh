@@ -48,13 +48,16 @@ _apply_theme() {
   fi
 
   # live reload: apply terminal colors immediately via OSC
-  local term_colors
-  term_colors=$(_get_theme_terminal_colors "$theme")
-  local bg fg cursor
-  read -r bg fg cursor _ <<< "$term_colors"
-  printf '\e]11;%s\a' "$bg"
-  printf '\e]10;%s\a' "$fg"
-  printf '\e]12;%s\a' "$cursor"
+  # (skip Apple_Terminal — no OSC 10/11/12 support)
+  if [[ "${TERM_PROGRAM:-}" != "Apple_Terminal" ]]; then
+    local term_colors
+    term_colors=$(_get_theme_terminal_colors "$theme")
+    local bg fg cursor
+    read -r bg fg cursor _ <<< "$term_colors"
+    printf '\e]11;%s\a' "$bg"
+    printf '\e]10;%s\a' "$fg"
+    printf '\e]12;%s\a' "$cursor"
+  fi
 
   log_info "theme applied: $theme"
   echo -e "${GREEN}Theme applied: ${theme}${NC}"

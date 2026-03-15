@@ -642,6 +642,26 @@ else
   fi
 fi
 
+# === 9b. install Nerd Font for powerline glyphs (macOS) ===
+if [ "$OS" = "Darwin" ] && command -v brew &>/dev/null; then
+  if ! brew list --cask font-meslo-lg-nerd-font &>/dev/null 2>&1; then
+    echo ""
+    echo "Installing Nerd Font (MesloLGS NF) for powerline glyphs..."
+    if brew install --cask font-meslo-lg-nerd-font 2>/dev/null; then
+      echo "  Nerd Font installed."
+      echo ""
+      echo "  ** ACTION REQUIRED **"
+      echo "  Set your terminal font to 'MesloLGS NF':"
+      echo "    Terminal.app: Settings > Profiles > Font > Change > MesloLGS NF"
+      echo "    iTerm2:       Settings > Profiles > Text > Font > MesloLGS NF"
+      echo ""
+    else
+      echo "  Could not install Nerd Font automatically."
+      echo "  Install manually: brew install --cask font-meslo-lg-nerd-font"
+    fi
+  fi
+fi
+
 # === 10. setup shell environment (powerline fonts, prompt theme) ===
 # _sed_i is needed by shell-setup.sh (reuse install.sh's sed_i)
 _sed_i() { sed_i "$@"; }
@@ -712,6 +732,12 @@ echo "  b theme                      # List/change color themes"
 echo ""
 echo "Tip: For a polished arrow-style prompt, set your terminal font"
 echo "     to a Powerline or Nerd Font (e.g. MesloLGS NF, Hack NF)."
+if [ "${TERM_PROGRAM:-}" = "Apple_Terminal" ]; then
+  echo ""
+  echo "  Apple Terminal detected. For the best experience:"
+  echo "    1. Set font: Terminal > Settings > Profiles > Font > MesloLGS NF"
+  echo "    2. Or switch to iTerm2 for full color theme support"
+fi
 echo ""
 # apply changes: source the RC file in current shell if possible
 echo "Open a new terminal window, then type: b"

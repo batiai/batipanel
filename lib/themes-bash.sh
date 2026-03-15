@@ -127,8 +127,8 @@ _generate_themed_prompt() {
 _bp_env="\$HOME/.batipanel/config/theme-env.sh"
 [ -f "\$_bp_env" ] && source "\$_bp_env"
 
-# set terminal colors via OSC sequences
-if [[ "\$TERM" != "dumb" ]] && [[ -n "\${BP_BG:-}" ]]; then
+# set terminal colors via OSC sequences (skip Apple_Terminal — no OSC 10/11/12 support)
+if [[ "\$TERM" != "dumb" ]] && [[ "\${TERM_PROGRAM:-}" != "Apple_Terminal" ]] && [[ -n "\${BP_BG:-}" ]]; then
   printf '\e]11;%s\a' "\$BP_BG"
   printf '\e]10;%s\a' "\$BP_FG"
   printf '\e]12;%s\a' "\$BP_CURSOR"
