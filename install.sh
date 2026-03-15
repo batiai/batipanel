@@ -642,22 +642,30 @@ else
   fi
 fi
 
-# === 9b. install Nerd Font for powerline glyphs (macOS) ===
-if [ "$OS" = "Darwin" ] && command -v brew &>/dev/null; then
-  if ! brew list --cask font-meslo-lg-nerd-font &>/dev/null 2>&1; then
-    echo ""
-    echo "Installing Nerd Font (MesloLGS NF) for powerline glyphs..."
-    if brew install --cask font-meslo-lg-nerd-font 2>/dev/null; then
-      echo "  Nerd Font installed."
-      echo ""
-      echo "  ** ACTION REQUIRED **"
-      echo "  Set your terminal font to 'MesloLGS NF':"
-      echo "    Terminal.app: Settings > Profiles > Font > Change > MesloLGS NF"
-      echo "    iTerm2:       Settings > Profiles > Text > Font > MesloLGS NF"
-      echo ""
+# === 9b. install Nerd Font + recommend iTerm2 (macOS) ===
+if [ "$OS" = "Darwin" ]; then
+  echo ""
+
+  # install Nerd Font
+  if command -v brew &>/dev/null; then
+    if ! brew list --cask font-meslo-lg-nerd-font &>/dev/null 2>&1; then
+      echo "Installing Nerd Font (MesloLGS NF) for powerline glyphs..."
+      brew install --cask font-meslo-lg-nerd-font 2>/dev/null || true
+    fi
+  fi
+
+  # recommend iTerm2 if not installed and user is on Apple Terminal
+  if [ "${TERM_PROGRAM:-}" = "Apple_Terminal" ]; then
+    # check if iTerm2 is already installed
+    if [ ! -d "/Applications/iTerm.app" ]; then
+      echo "Recommended: install iTerm2 for full theme & color support."
+      if command -v brew &>/dev/null; then
+        echo "  brew install --cask iterm2"
+      else
+        echo "  https://iterm2.com/downloads.html"
+      fi
     else
-      echo "  Could not install Nerd Font automatically."
-      echo "  Install manually: brew install --cask font-meslo-lg-nerd-font"
+      echo "iTerm2 is installed. Use iTerm2 for the best experience."
     fi
   fi
 fi
@@ -730,14 +738,29 @@ echo "  b layouts                    # Show available layouts"
 echo "  b config layout 7panel       # Change default layout"
 echo "  b theme                      # List/change color themes"
 echo ""
-echo "Tip: For a polished arrow-style prompt, set your terminal font"
-echo "     to a Powerline or Nerd Font (e.g. MesloLGS NF, Hack NF)."
 if [ "${TERM_PROGRAM:-}" = "Apple_Terminal" ]; then
+  echo "** Apple Terminal does not support background color themes. **"
   echo ""
-  echo "  Apple Terminal detected. For the best experience:"
-  echo "    1. Set font: Terminal > Settings > Profiles > Font > MesloLGS NF"
-  echo "    2. Or switch to iTerm2 for full color theme support"
+  if [ -d "/Applications/iTerm.app" ]; then
+    echo "Next steps:"
+    echo "  1. Open iTerm2"
+    echo "  2. Set font: iTerm2 > Settings > Profiles > Text > Font > MesloLGS NF"
+    echo "  3. Type: b"
+  else
+    echo "Next steps:"
+    echo "  1. Install iTerm2:"
+    if command -v brew &>/dev/null; then
+      echo "     brew install --cask iterm2"
+    else
+      echo "     https://iterm2.com/downloads.html"
+    fi
+    echo "  2. Open iTerm2"
+    echo "  3. Set font: iTerm2 > Settings > Profiles > Text > Font > MesloLGS NF"
+    echo "  4. Type: b"
+  fi
+else
+  echo "Tip: Set your terminal font to a Nerd Font (e.g. MesloLGS NF)"
+  echo "     for powerline arrow-style prompt glyphs."
+  echo ""
+  echo "Open a new terminal window, then type: b"
 fi
-echo ""
-# apply changes: source the RC file in current shell if possible
-echo "Open a new terminal window, then type: b"

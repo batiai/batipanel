@@ -1,6 +1,6 @@
 {
   "name": "batipanel",
-  "version": "0.4.27",
+  "version": "0.4.28",
   "description": "AI-powered terminal workspace manager — multi-panel tmux layouts with Claude Code, git, monitoring, and more",
   "bin": {
     "batipanel": "./bin/cli.sh"
