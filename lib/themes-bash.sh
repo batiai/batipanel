@@ -121,8 +121,12 @@ _generate_themed_prompt() {
   # detect glyph support: Nerd Font terminals get powerline arrows, others get ASCII
   local use_powerline=0
   case "${TERM_PROGRAM:-}" in
-    iTerm.app|WezTerm|kitty) use_powerline=1 ;;
+    iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) use_powerline=1 ;;
   esac
+  # inside tmux, TERM_PROGRAM is not passed through;
+  # batipanel's tmux status bar always uses powerline glyphs,
+  # so the terminal must support them — enable for bash prompt too
+  [[ -n "${TMUX:-}" ]] && use_powerline=1
   [[ "${BATIPANEL_ICONS:-0}" == "1" ]] && use_powerline=1
 
   local sep_char git_icon_line
