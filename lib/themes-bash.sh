@@ -118,26 +118,6 @@ _generate_themed_prompt() {
     t_err_dir="\\[\\e[38;5;${t_err_fg};48;5;${prompt_dir}m\\]"
   fi
 
-  # detect glyph support: Nerd Font terminals get powerline arrows, others get ASCII
-  local use_powerline=0
-  case "${TERM_PROGRAM:-}" in
-    iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) use_powerline=1 ;;
-  esac
-  # inside tmux, TERM_PROGRAM is not passed through;
-  # batipanel's tmux status bar always uses powerline glyphs,
-  # so the terminal must support them — enable for bash prompt too
-  [[ -n "${TMUX:-}" ]] && use_powerline=1
-  [[ "${BATIPANEL_ICONS:-0}" == "1" ]] && use_powerline=1
-
-  local sep_char git_icon_line
-  if (( use_powerline )); then
-    sep_char=\$\'\\\\uE0B0\'
-    git_icon_line="    local git_icon=\$'\\\\uE0A0'"
-  else
-    sep_char='>'
-    git_icon_line='    local git_icon=""'
-  fi
-
   mkdir -p "$BATIPANEL_HOME/config"
   cat > "$prompt_file" << PROMPT_EOF
 #!/usr/bin/env bash
@@ -157,8 +137,20 @@ fi
 __batipanel_prompt() {
   local exit_code=\$?
 
-  # glyph (powerline arrow or ASCII fallback)
-  local sep="${sep_char}"
+  # detect powerline glyph support at runtime
+  local sep git_icon=""
+  local _use_pl=0
+  case "\${TERM_PROGRAM:-}" in
+    iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) _use_pl=1 ;;
+  esac
+  [[ -n "\${TMUX:-}" ]] && _use_pl=1
+  [[ "\${BATIPANEL_ICONS:-0}" == "1" ]] && _use_pl=1
+  if (( _use_pl )); then
+    sep=\$'\\uE0B0'
+    git_icon=\$'\\uE0A0'
+  else
+    sep='>'
+  fi
 
   # colors (generated from theme: ${theme})
   local bg_user="${bg_user}"
@@ -198,7 +190,6 @@ __batipanel_prompt() {
 
   if [ -n "\$git_branch" ]; then
     ps+="\${t_dir_git}\${sep}"
-${git_icon_line}
     if [ -n "\$git_icon" ]; then
       ps+="\${bg_git}\${fg_git} \${git_icon} \${git_branch} "
     else

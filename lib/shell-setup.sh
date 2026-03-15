@@ -76,7 +76,15 @@ precmd() { vcs_info }
 zstyle ':vcs_info:git:*' formats " %F{${BP_C_GIT:-green}}(%b)%f"
 zstyle ':vcs_info:*' enable git
 
-PROMPT="%F{${BP_C_USER:-blue}}%n%f %F{${BP_C_DIR:-cyan}}%~%f\${vcs_info_msg_0_} %F{${BP_C_PROMPT:-magenta}}>%f "
+# detect powerline glyph support at runtime
+_bp_sep='>'
+case "${TERM_PROGRAM:-}" in
+  iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) _bp_sep=$'\uE0B0' ;;
+esac
+[[ -n "${TMUX:-}" ]] && _bp_sep=$'\uE0B0'
+[[ "${BATIPANEL_ICONS:-0}" == "1" ]] && _bp_sep=$'\uE0B0'
+
+PROMPT="%F{${BP_C_USER:-blue}}%n%f %F{${BP_C_DIR:-cyan}}%~%f\${vcs_info_msg_0_} %F{${BP_C_PROMPT:-magenta}}${_bp_sep}%f "
 RPROMPT='%(?..%F{red}[%?]%f)'
 ZSH_PROMPT_EOF
 }
@@ -116,21 +124,36 @@ _setup_default_bash_prompt() {
 
   cat > "$prompt_file" << 'BASH_PROMPT_EOF'
 #!/usr/bin/env bash
-# batipanel bash prompt
+# batipanel bash prompt (fallback)
 
 # load theme colors
 _bp_env="$HOME/.batipanel/config/theme-env.sh"
 [ -f "$_bp_env" ] && source "$_bp_env"
 
 # set terminal colors via OSC
-if [[ "$TERM" != "dumb" ]]; then
-  printf "\e]11;${BP_BG:-#1e1e2e}\a"
-  printf "\e]10;${BP_FG:-#cdd6f4}\a"
-  printf "\e]12;${BP_CURSOR:-#f5e0dc}\a"
+if [[ "$TERM" != "dumb" ]] && [[ -n "${BP_BG:-}" ]]; then
+  printf '\e]11;%s\a' "$BP_BG"
+  printf '\e]10;%s\a' "$BP_FG"
+  printf '\e]12;%s\a' "$BP_CURSOR"
 fi
 
 __batipanel_prompt() {
   local exit_code=$?
+
+  # detect powerline glyph support at runtime
+  local sep
+  local _use_pl=0
+  case "${TERM_PROGRAM:-}" in
+    iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) _use_pl=1 ;;
+  esac
+  [[ -n "${TMUX:-}" ]] && _use_pl=1
+  [[ "${BATIPANEL_ICONS:-0}" == "1" ]] && _use_pl=1
+  if (( _use_pl )); then
+    sep=$'\uE0B0'
+  else
+    sep='>'
+  fi
+
   local reset="\[\e[0m\]"
   local ps=""
   if [ "$exit_code" -ne 0 ]; then
@@ -144,7 +167,7 @@ __batipanel_prompt() {
   if [ -n "$git_branch" ]; then
     ps+=" \[\e[32m\](${git_branch})${reset}"
   fi
-  ps+=" \[\e[35m\]>${reset} "
+  ps+=" \[\e[35m\]${sep}${reset} "
   PS1="$ps"
 }
 PROMPT_COMMAND="__batipanel_prompt"

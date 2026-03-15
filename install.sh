@@ -647,9 +647,24 @@ fi
 _sed_i() { sed_i "$@"; }
 export -f _sed_i 2>/dev/null || true
 
-# source shell-setup and run
+# source theme modules so _generate_themed_prompt is available
+# shellcheck source=lib/core.sh
+source "$BATIPANEL_HOME/lib/core.sh"
+# shellcheck source=lib/themes-data.sh
+source "$BATIPANEL_HOME/lib/themes-data.sh"
+# shellcheck source=lib/themes-tmux.sh
+source "$BATIPANEL_HOME/lib/themes-tmux.sh"
+# shellcheck source=lib/themes-bash.sh
+source "$BATIPANEL_HOME/lib/themes-bash.sh"
 # shellcheck source=lib/shell-setup.sh
 source "$BATIPANEL_HOME/lib/shell-setup.sh"
+
+# apply default theme (generates theme.conf, bash-prompt.sh, theme-env.sh)
+BATIPANEL_THEME="${BATIPANEL_THEME:-default}"
+_generate_theme_conf "$BATIPANEL_THEME"
+generate_theme_env "$BATIPANEL_THEME"
+
+# setup shell RC (sources prompt file from .bashrc/.zshrc)
 setup_shell_environment "$USER_SHELL" "$SHELL_RC"
 
 # === done ===
