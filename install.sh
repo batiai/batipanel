@@ -153,6 +153,18 @@ if tmux -f /dev/null new-session -d -s _bp_smoke -x 10 -y 5 2>/dev/null; then
   _tmux_smoke_ok=1
 fi
 
+# if smoke test failed, clean stale socket and retry (common on macOS)
+if [ "$_tmux_smoke_ok" = "0" ]; then
+  tmux kill-server 2>/dev/null || true
+  rm -rf "/tmp/tmux-$(id -u)/" "/private/tmp/tmux-$(id -u)/" 2>/dev/null || true
+  sleep 0.3
+  if tmux -f /dev/null new-session -d -s _bp_smoke -x 10 -y 5 2>/dev/null; then
+    tmux kill-session -t _bp_smoke 2>/dev/null || true
+    _tmux_smoke_ok=1
+    echo "  Cleared stale tmux socket — tmux is working now."
+  fi
+fi
+
 if [ "$_tmux_smoke_ok" = "0" ]; then
   echo ""
   echo "WARNING: tmux is installed but fails to start (server exited unexpectedly)."
@@ -162,9 +174,9 @@ if [ "$_tmux_smoke_ok" = "0" ]; then
     rm -f "$BATIPANEL_HOME/bin/tmux"
   fi
   if [ "$OS" = "Darwin" ]; then
-    echo "  Please install tmux via Homebrew:  brew install tmux"
+    echo "  Try: brew reinstall tmux"
   else
-    echo "  Please install tmux via package manager:  sudo apt install tmux"
+    echo "  Try: sudo apt install --reinstall tmux"
   fi
   # re-check after removing mamba wrapper
   if command -v tmux &>/dev/null && tmux -f /dev/null new-session -d -s _bp_smoke2 -x 10 -y 5 2>/dev/null; then
