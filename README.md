@@ -18,47 +18,59 @@
 
 ---
 
-One command to launch a fully configured, beautifully themed multi-panel development environment with **Claude Code**, **Git UI**, **system monitor**, **file browser**, and more.
+**One command. Full dev environment.** Install Claude Code, Git UI, system monitor, file browser — and manage them all as tmux sessions with a single keystroke.
+
+```bash
+curl -fsSL batipanel.com/install.sh | bash
+```
+
+<!-- GIF: before/after demo on a fresh Linux server -->
+<!-- <p align="center"><img src="docs/demo.gif" width="720" alt="batipanel demo"/></p> -->
+
+### What happens when you run this:
+
+1. **Auto-installs everything** — tmux, Claude Code, lazygit, btop, yazi, eza (+ Nerd Font on macOS)
+2. **Configures your terminal** — themed prompt, powerline glyphs, color scheme
+3. **One command to start** — `b myproject` launches a multi-panel workspace:
 
 ```
 ┌────────────────────────────────┬──────────────┐
-│                                │ system       │
-│  Claude Code (AI assistant)    │ monitor      │
-│                                ├──────────────┤
-│                                │ file tree    │
+│                                │   monitor    │
+│     Claude Code (AI)           ├──────────────┤
+│                                │  file tree   │
 │                                ├──────────────┤
 │                                │ remote ctrl  │
 ├───────────┬────────────────────┴──────────────┤
-│ git       │ terminal           │ logs         │
+│    git    │   terminal         │    logs      │
 └───────────┴────────────────────┴──────────────┘
 ```
+
+4. **Session persistence** — SSH drops? Terminal closed? `b myproject` brings it all back.
 
 ## Quick Start
 
 ```bash
 # Install (pick one)
 curl -fsSL https://batipanel.com/install.sh | bash   # Recommended
-npx batipanel                                         # npm/npx
-brew install batiai/tap/batipanel                      # Homebrew
+npm install -g batipanel                              # npm
+npx batipanel                                         # npx (no install)
 
-# Launch — the setup wizard guides you through everything
-b
+# Start your workspace
+b myproject
 ```
-
-That's it. The wizard asks 2 questions (screen size + workflow) and sets up your workspace.
 
 ---
 
-## Why batipanel?
+## Key Features
 
-| | What it does |
+| | |
 |---|---|
-| **AI-First Workspace** | Claude Code gets 55%+ of screen space. Remote Control panel lets you command AI from any pane. Dual-Claude layout for multi-agent workflows. |
-| **Multi-Panel Dev Tools** | lazygit, btop, yazi, terminal, logs — all auto-launched in themed panels. Missing tools gracefully fallback (btop → htop → top). |
-| **8 Layout Presets** | From 4-panel laptop mode to 8-panel ultrawide. Switch anytime with `b myproject --layout 6panel`. |
-| **Instant Session Resume** | tmux-powered persistence. SSH drops? Terminal closed? `b myproject` brings everything back exactly as you left it. |
-| **8 Color Themes** | Dracula, Nord, Gruvbox, Tokyo Night, Catppuccin, Rose Pine, Kanagawa + default. Powerline-style status bar and shell prompt. Live reload. |
-| **AI Telegram Bot** | Deploy a personal AI bot in Docker with `b server init && b server start`. Zero extra cost for Claude Max users. |
+| **All-in-one install** | One command sets up Claude Code + 5 dev tools + terminal theme. No manual config. |
+| **Session management** | `b start`, `b stop`, `b ls` — manage workspaces like containers. Persistent across disconnects. |
+| **8 layouts** | From 4-panel laptop to 8-panel ultrawide. Switch with `b myproject --layout 6panel`. |
+| **8 color themes** | Dracula, Nord, Gruvbox, Tokyo Night, Catppuccin, Rose Pine, Kanagawa. Live reload with `b theme`. |
+| **Smart fallbacks** | Every tool has a fallback. No btop? Uses htop. No htop? Uses top. Nothing breaks. |
+| **Cross-platform** | macOS (Terminal.app, iTerm2) + Linux (Ubuntu, Amazon Linux, CentOS) + WSL. |
 
 ---
 
