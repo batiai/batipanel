@@ -191,25 +191,33 @@ install_optional_tools() {
   # claude code (official standalone installer — no Node.js required)
   if ! has_cmd claude; then
     echo "  Installing Claude Code..."
-    if curl -fsSL https://claude.ai/install.sh | bash 2>/dev/null; then
-      # installer adds to PATH but current shell may not have it yet
-      export PATH="$HOME/.claude/bin:$PATH"
-      if has_cmd claude; then
-        echo "  Claude Code installed"
+    # download installer to temp file so we can run it properly
+    local _claude_installer
+    _claude_installer=$(mktemp)
+    if curl -fsSL https://claude.ai/install.sh -o "$_claude_installer" 2>/dev/null; then
+      if bash "$_claude_installer" 2>/dev/null; then
+        export PATH="$HOME/.claude/bin:$PATH"
+        if has_cmd claude; then
+          echo "  Claude Code installed"
+        else
+          echo "  Claude Code installer ran but 'claude' not found in PATH"
+        fi
       else
-        echo "  Claude Code installer ran but 'claude' not found in PATH"
+        echo "  Claude Code auto-install failed"
+        echo "  Install manually: curl -fsSL https://claude.ai/install.sh | bash"
       fi
     else
-      echo "  Claude Code auto-install failed"
+      echo "  Could not download Claude Code installer"
       echo "  Install manually: curl -fsSL https://claude.ai/install.sh | bash"
     fi
+    rm -f "$_claude_installer"
   fi
 
   # btop
   if ! has_cmd btop; then
     install_packages btop 2>/dev/null || true
   fi
-  # btop GitHub releases only provide Linux binaries
+  # btop: direct binary install for Linux (GitHub releases use .tbz = bzip2 tar)
   if ! has_cmd btop && [ "$OS_LOWER" = "linux" ]; then
     tag=$(latest_github_tag "aristocratos/btop")
     if [ -n "$tag" ]; then
@@ -217,8 +225,25 @@ install_optional_tools() {
       case "$ARCH" in
         aarch64|arm64) _btop_arch="aarch64" ;;
       esac
-      install_from_github btop \
-        "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${_btop_arch}-unknown-linux-musl.tbz" 2>/dev/null || true
+      local _btop_tmp
+      _btop_tmp=$(mktemp -d)
+      echo "  Downloading btop from GitHub..."
+      if curl -fsSL "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${_btop_arch}-linux-musl.tbz" -o "$_btop_tmp/btop.tbz" 2>/dev/null; then
+        if tar xjf "$_btop_tmp/btop.tbz" -C "$_btop_tmp" 2>/dev/null; then
+          local _btop_bin
+          _btop_bin=$(find "$_btop_tmp" -name "btop" -type f 2>/dev/null | head -1)
+          if [ -n "$_btop_bin" ] && [ -f "$_btop_bin" ]; then
+            chmod +x "$_btop_bin"
+            if install "$_btop_bin" "$HOME/.local/bin/" 2>/dev/null; then
+              echo "  Installed btop to ~/.local/bin/"
+              NEED_LOCAL_BIN_PATH=1
+            elif sudo install "$_btop_bin" /usr/local/bin/ 2>/dev/null; then
+              echo "  Installed btop to /usr/local/bin/"
+            fi
+          fi
+        fi
+      fi
+      rm -rf "$_btop_tmp"
     fi
   fi
 
