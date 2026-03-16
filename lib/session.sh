@@ -79,11 +79,21 @@ tmux_start() {
   fi
 
   echo -e "  ${YELLOW}Tip:${NC} Detach with Ctrl+b d  |  Stop with: b stop $SESSION"
-  # attach to session (exec replaces this process)
+  # attach to session
+  # use tmux directly (not exec) so we can detect attach failures
+  set +e
   if [ "${BATIPANEL_ITERM_CC:-0}" = "1" ]; then
-    exec tmux -CC attach -t "$SESSION"
+    tmux -CC attach -t "$SESSION"
   else
-    exec tmux attach -t "$SESSION"
+    tmux attach -t "$SESSION"
+  fi
+  local _attach_rc=$?
+  set -e
+  if [ "$_attach_rc" -ne 0 ]; then
+    echo -e "${RED}Failed to attach to tmux session '$SESSION' (exit code: $_attach_rc)${NC}"
+    echo "  tmux: $(tmux -V 2>/dev/null || echo 'not found')  TERM=${TERM:-unset}"
+    echo "  Try manually: tmux attach -t $SESSION"
+    return 1
   fi
 }
 
