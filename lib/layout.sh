@@ -21,29 +21,46 @@ init_layout() {
   local tmux_err
   tmux_err=$(tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>&1) || {
     debug_log "init_layout: first attempt failed: $tmux_err"
-    # retry with safe TERM
-    debug_log "init_layout: retrying with TERM=xterm-256color"
-    tmux_err=$(TERM=xterm-256color tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>&1) || {
-      debug_log "init_layout: second attempt failed: $tmux_err"
-      # check if session was created by a concurrent invocation
-      if tmux has-session -t "$session" 2>/dev/null; then
-        debug_log "init_layout: session already exists (concurrent creation)"
-        return 0
-      fi
-      echo -e "${RED}Failed to create tmux session '$session'${NC}"
-      # provide specific guidance based on error
-      if [[ "$tmux_err" == *"open terminal failed"* ]]; then
-        echo "  Error: open terminal failed (terminfo issue)"
-        echo "  Try: export TERM=xterm-256color && b $session"
-      elif [[ "$tmux_err" == *"server"* ]] || [[ "$tmux_err" == *"socket"* ]]; then
-        echo "  Stale tmux server? Try: tmux kill-server"
-      elif [[ "$tmux_err" == *"library"* ]] || [[ "$tmux_err" == *"dylib"* ]]; then
-        echo "  Library issue — try reinstalling tmux"
-      else
-        echo "  tmux error: $tmux_err"
-      fi
-      return 1
-    }
+
+    # if "server exited unexpectedly", clean stale socket and retry
+    if [[ "$tmux_err" == *"server exited"* ]] || [[ "$tmux_err" == *"server"* ]]; then
+      debug_log "init_layout: cleaning stale socket and retrying"
+      tmux kill-server 2>/dev/null || true
+      rm -rf "/tmp/tmux-$(id -u)/" "/private/tmp/tmux-$(id -u)/" 2>/dev/null || true
+      sleep 0.3
+      tmux_err=$(tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>&1) && {
+        debug_log "init_layout: succeeded after socket cleanup"
+        # fall through to success path below
+        tmux_err=""
+      }
+    fi
+
+    # if still failing, retry with safe TERM
+    if [ -n "$tmux_err" ]; then
+      debug_log "init_layout: retrying with TERM=xterm-256color"
+      tmux_err=$(TERM=xterm-256color tmux new-session -d -s "$session" -c "$project" -x 220 -y 60 2>&1) || {
+        debug_log "init_layout: all attempts failed: $tmux_err"
+        # check if session was created by a concurrent invocation
+        if tmux has-session -t "$session" 2>/dev/null; then
+          debug_log "init_layout: session already exists (concurrent creation)"
+          return 0
+        fi
+        echo -e "${RED}Failed to create tmux session '$session'${NC}"
+        # provide specific guidance based on error
+        if [[ "$tmux_err" == *"open terminal failed"* ]]; then
+          echo "  Error: open terminal failed (terminfo issue)"
+          echo "  Try: export TERM=xterm-256color && b $session"
+        elif [[ "$tmux_err" == *"server"* ]] || [[ "$tmux_err" == *"socket"* ]]; then
+          echo "  Stale tmux socket. Tried auto-cleanup but still failing."
+          echo "  Try: rm -rf /tmp/tmux-\$(id -u)/ && b $session"
+        elif [[ "$tmux_err" == *"library"* ]] || [[ "$tmux_err" == *"dylib"* ]]; then
+          echo "  Library issue — try reinstalling tmux"
+        else
+          echo "  tmux error: $tmux_err"
+        fi
+        return 1
+      }
+    fi
   }
 
   # pass parent terminal info into tmux so prompts can detect Apple Terminal etc.

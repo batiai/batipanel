@@ -512,6 +512,8 @@ fi
 
 # kill stale tmux server so new config takes effect
 tmux kill-server 2>/dev/null || true
+# clean stale socket (dead server leaves socket behind, blocks new sessions)
+rm -rf "/tmp/tmux-$(id -u)/" "/private/tmp/tmux-$(id -u)/" 2>/dev/null || true
 
 # clean ~/.tmux.conf (remove ALL old batipanel lines, then add fresh)
 BATIPANEL_SOURCE_LINE="source-file $BATIPANEL_HOME/config/tmux.conf"
