@@ -123,10 +123,8 @@ run_monitor() {
   local pane="$1"
   label_pane "$pane" "Monitor"
   if has_cmd btop; then
-    # compact config (cpu+proc only) + auto-fallback if pane too small
-    local _btop_conf="$BATIPANEL_HOME/config"
-    tmux send-keys -t "$pane" \
-      "XDG_CONFIG_HOME='$_btop_conf' btop || { command -v htop >/dev/null && htop || top; }" Enter
+    # -p 7: minimal preset (works in small panes)
+    tmux send-keys -t "$pane" "btop -p 7" Enter
   elif has_cmd htop; then
     tmux send-keys -t "$pane" "htop" Enter
   elif has_cmd top; then
