@@ -79,22 +79,12 @@ tmux_start() {
   fi
 
   echo -e "  ${YELLOW}Tip:${NC} Detach with Ctrl+b d  |  Stop with: b stop $SESSION"
-  # attach to session
-  # use tmux directly (not exec) so we can detect attach failures
-  set +e
+  # attach to session (exec hands terminal directly to tmux)
   # -CC mode only works in iTerm2 — ignore setting in other terminals
   if [ "${BATIPANEL_ITERM_CC:-0}" = "1" ] && [ "${TERM_PROGRAM:-}" = "iTerm.app" ]; then
-    tmux -CC attach -t "$SESSION"
+    exec tmux -CC attach -t "$SESSION"
   else
-    tmux attach -t "$SESSION"
-  fi
-  local _attach_rc=$?
-  set -e
-  if [ "$_attach_rc" -ne 0 ]; then
-    echo -e "${RED}Failed to attach to tmux session '$SESSION' (exit code: $_attach_rc)${NC}"
-    echo "  tmux: $(tmux -V 2>/dev/null || echo 'not found')  TERM=${TERM:-unset}"
-    echo "  Try manually: tmux attach -t $SESSION"
-    return 1
+    exec tmux attach -t "$SESSION"
   fi
 }
 
