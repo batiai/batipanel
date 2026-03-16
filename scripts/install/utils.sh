@@ -29,6 +29,8 @@ install_packages() {
     sudo apt-get install -y -qq "${packages[@]}" 2>/dev/null || true
   elif command -v dnf &>/dev/null; then
     sudo dnf install -y "${packages[@]}" 2>/dev/null || true
+  elif command -v yum &>/dev/null; then
+    sudo yum install -y "${packages[@]}" 2>/dev/null || true
   elif command -v pacman &>/dev/null; then
     sudo pacman -S --noconfirm "${packages[@]}" 2>/dev/null || true
   elif command -v apk &>/dev/null; then
