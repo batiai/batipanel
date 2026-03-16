@@ -120,11 +120,11 @@ install_required_tools() {
       _tmux_build_dir=$(mktemp -d)
       # install build dependencies
       if command -v yum &>/dev/null; then
-        sudo yum install -y libevent-devel ncurses-devel gcc make 2>/dev/null || true
+        sudo yum install -y libevent-devel ncurses-devel gcc make bison byacc 2>/dev/null || true
       elif command -v apt-get &>/dev/null; then
-        sudo apt-get install -y libevent-dev libncurses-dev gcc make 2>/dev/null || true
+        sudo apt-get install -y libevent-dev libncurses-dev gcc make bison 2>/dev/null || true
       elif command -v dnf &>/dev/null; then
-        sudo dnf install -y libevent-devel ncurses-devel gcc make 2>/dev/null || true
+        sudo dnf install -y libevent-devel ncurses-devel gcc make bison 2>/dev/null || true
       fi
       if curl -fsSL "https://github.com/tmux/tmux/releases/download/${_tmux_build_ver}/tmux-${_tmux_build_ver}.tar.gz" \
           | tar xz -C "$_tmux_build_dir" 2>/dev/null; then
