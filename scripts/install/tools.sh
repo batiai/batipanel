@@ -195,7 +195,13 @@ install_optional_tools() {
     local _claude_installer
     _claude_installer=$(mktemp)
     if curl -fsSL https://claude.ai/install.sh -o "$_claude_installer" 2>/dev/null; then
-      if bash "$_claude_installer" 2>/dev/null; then
+      local _claude_rc=0
+      bash "$_claude_installer" 2>/dev/null || _claude_rc=$?
+      if [ "$_claude_rc" -eq 137 ] || [ "$_claude_rc" -eq 9 ]; then
+        echo "  Claude Code install killed (not enough memory)"
+        echo "  This instance may need more RAM, or install on a larger machine"
+        echo "  Install manually: curl -fsSL https://claude.ai/install.sh | bash"
+      elif [ "$_claude_rc" -eq 0 ]; then
         export PATH="$HOME/.claude/bin:$PATH"
         if has_cmd claude; then
           echo "  Claude Code installed"
@@ -203,7 +209,7 @@ install_optional_tools() {
           echo "  Claude Code installer ran but 'claude' not found in PATH"
         fi
       else
-        echo "  Claude Code auto-install failed"
+        echo "  Claude Code auto-install failed (exit code: $_claude_rc)"
         echo "  Install manually: curl -fsSL https://claude.ai/install.sh | bash"
       fi
     else
@@ -228,7 +234,7 @@ install_optional_tools() {
       local _btop_tmp
       _btop_tmp=$(mktemp -d)
       echo "  Downloading btop from GitHub..."
-      if curl -fsSL "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${_btop_arch}-linux-musl.tbz" -o "$_btop_tmp/btop.tbz" 2>/dev/null; then
+      if curl -fsSL "https://github.com/aristocratos/btop/releases/download/${tag}/btop-${_btop_arch}-unknown-linux-musl.tbz" -o "$_btop_tmp/btop.tbz" 2>/dev/null; then
         if tar xjf "$_btop_tmp/btop.tbz" -C "$_btop_tmp" 2>/dev/null; then
           local _btop_bin
           _btop_bin=$(find "$_btop_tmp" -name "btop" -type f 2>/dev/null | head -1)
