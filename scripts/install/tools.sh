@@ -106,8 +106,38 @@ install_required_tools() {
   if [ -n "$_tmux_ver" ] && (( _tmux_major < 2 || (_tmux_major == 2 && _tmux_minor < 6) )); then
     echo ""
     echo "  tmux $_tmux_ver is too old (need 2.6+). Installing newer version..."
-    # try micromamba (provides tmux 3.x from conda-forge)
+    _tmux_upgraded=false
+
+    # try 1: micromamba (provides tmux 3.x from conda-forge)
     if install_via_mamba tmux 2>/dev/null; then
+      _tmux_upgraded=true
+    fi
+
+    # try 2: compile from source (works on Amazon Linux, CentOS, etc.)
+    if [ "$_tmux_upgraded" = false ] && [ "$OS" != "Darwin" ]; then
+      echo "  Trying to build tmux from source..."
+      _tmux_build_ver="3.4"
+      _tmux_build_dir=$(mktemp -d)
+      # install build dependencies
+      if command -v yum &>/dev/null; then
+        sudo yum install -y libevent-devel ncurses-devel gcc make 2>/dev/null || true
+      elif command -v apt-get &>/dev/null; then
+        sudo apt-get install -y libevent-dev libncurses-dev gcc make 2>/dev/null || true
+      elif command -v dnf &>/dev/null; then
+        sudo dnf install -y libevent-devel ncurses-devel gcc make 2>/dev/null || true
+      fi
+      if curl -fsSL "https://github.com/tmux/tmux/releases/download/${_tmux_build_ver}/tmux-${_tmux_build_ver}.tar.gz" \
+          | tar xz -C "$_tmux_build_dir" 2>/dev/null; then
+        if (cd "$_tmux_build_dir/tmux-${_tmux_build_ver}" && ./configure --prefix="$HOME/.local" 2>/dev/null && make -j"$(nproc 2>/dev/null || echo 2)" 2>/dev/null && make install 2>/dev/null); then
+          export PATH="$HOME/.local/bin:$PATH"
+          _tmux_upgraded=true
+          echo "  Built tmux ${_tmux_build_ver} → ~/.local/bin/tmux"
+        fi
+      fi
+      rm -rf "$_tmux_build_dir"
+    fi
+
+    if [ "$_tmux_upgraded" = true ]; then
       echo "  Upgraded tmux to $(tmux -V 2>/dev/null || echo 'unknown')"
     else
       echo ""
@@ -118,13 +148,8 @@ install_required_tools() {
       if [ "$OS" = "Darwin" ]; then
         echo "    brew install tmux"
       else
-        echo "    # Option 1: snap (easiest)"
         echo "    sudo snap install tmux --classic"
-        echo ""
-        echo "    # Option 2: compile from source"
-        echo "    sudo yum install -y libevent-devel ncurses-devel gcc make"
-        echo "    curl -fsSL https://github.com/tmux/tmux/releases/download/3.4/tmux-3.4.tar.gz | tar xz"
-        echo "    cd tmux-3.4 && ./configure && make && sudo make install"
+        echo "    # or: https://github.com/tmux/tmux/wiki/Installing"
       fi
       exit 1
     fi
