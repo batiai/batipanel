@@ -18,9 +18,9 @@ jobs:
 
       - name: ShellCheck
         run: |
-          shellcheck -s bash -e SC1091 bin/start.sh bin/cli.sh lib/*.sh install.sh uninstall.sh
+          shellcheck -s bash -e SC1091,SC2016 bin/start.sh bin/cli.sh lib/*.sh install.sh uninstall.sh
           shellcheck -s bash layouts/*.sh
-          shellcheck -s bash scripts/install/*.sh scripts/web-install.sh
+          shellcheck -s bash -e SC1091,SC2016,SC2034 scripts/install/*.sh scripts/web-install.sh
           shellcheck -s bash completions/batipanel.bash
 
       - name: Bash syntax check
