@@ -648,7 +648,37 @@ else
   fi
 fi
 
-# === 9b. install Nerd Font + configure terminal (macOS) ===
+# === 9b. install Nerd Font + configure terminal ===
+_install_nerd_font_linux() {
+  local font_dir="$HOME/.local/share/fonts"
+  # skip if already installed
+  if ls "$font_dir"/MesloLGS* &>/dev/null 2>&1; then
+    return 0
+  fi
+  echo "  Installing Nerd Font (MesloLGS NF) for powerline glyphs..."
+  mkdir -p "$font_dir"
+  local base_url="https://github.com/romkatv/powerlevel10k-media/raw/master"
+  local fonts=(
+    "MesloLGS NF Regular.ttf"
+    "MesloLGS NF Bold.ttf"
+    "MesloLGS NF Italic.ttf"
+    "MesloLGS NF Bold Italic.ttf"
+  )
+  for f in "${fonts[@]}"; do
+    local encoded="${f// /%20}"
+    curl -fsSL "$base_url/$encoded" -o "$font_dir/$f" 2>/dev/null || true
+  done
+  # rebuild font cache
+  if command -v fc-cache &>/dev/null; then
+    fc-cache -f "$font_dir" 2>/dev/null || true
+  fi
+  echo "    Nerd Font installed to $font_dir"
+}
+
+if [ "$OS" = "Linux" ]; then
+  _install_nerd_font_linux
+fi
+
 if [ "$OS" = "Darwin" ]; then
   echo ""
 
@@ -666,8 +696,20 @@ if [ "$OS" = "Darwin" ]; then
     _term_profile=$(defaults read com.apple.Terminal "Default Window Settings" 2>/dev/null || echo "Basic")
 
     # set Nerd Font on the profile
-    echo "  Configuring Apple Terminal font (MesloLGS NF)..."
-    osascript -e "tell application \"Terminal\" to set font name of settings set \"${_term_profile}\" to \"MesloLGS-NF-Regular\"" 2>/dev/null || true
+    # Nerd Fonts v3 (brew): MesloLGSNerdFont-Regular
+    # Nerd Fonts v2 / powerlevel10k: MesloLGS-NF-Regular
+    echo "  Configuring Apple Terminal font (MesloLGS Nerd Font)..."
+    _nf_applied=false
+    for _nf_name in "MesloLGSNerdFont-Regular" "MesloLGS-NF-Regular" "MesloLGSNerdFontMono-Regular"; do
+      if osascript -e "tell application \"Terminal\" to set font name of settings set \"${_term_profile}\" to \"${_nf_name}\"" 2>/dev/null; then
+        _nf_applied=true
+        break
+      fi
+    done
+    if [ "$_nf_applied" = false ]; then
+      echo "    Warning: Could not set Nerd Font. Powerline glyphs may not render."
+      echo "    Install manually: brew install --cask font-meslo-lg-nerd-font"
+    fi
     osascript -e "tell application \"Terminal\" to set font size of settings set \"${_term_profile}\" to 13" 2>/dev/null || true
 
     # apply theme colors to Terminal.app profile
@@ -696,19 +738,20 @@ if [ "$OS" = "Darwin" ]; then
         bg_rgb=$(_hex_to_applescript_rgb "$bg")
         fg_rgb=$(_hex_to_applescript_rgb "$fg")
         cursor_rgb=$(_hex_to_applescript_rgb "$cursor")
-        local profile="$_term_profile"
         osascript <<APPLESCRIPT 2>/dev/null || true
 tell application "Terminal"
-  set background color of settings set "$profile" to {${bg_rgb}}
-  set normal text color of settings set "$profile" to {${fg_rgb}}
-  set cursor color of settings set "$profile" to {${cursor_rgb}}
+  -- apply to current window only, not the profile
+  set w to front window
+  set background color of current settings of w to {${bg_rgb}}
+  set normal text color of current settings of w to {${fg_rgb}}
+  set cursor color of current settings of w to {${cursor_rgb}}
 end tell
 APPLESCRIPT
       fi
     }
 
     _apply_terminal_app_colors "${BATIPANEL_THEME:-default}"
-    echo "  Applied theme colors to Apple Terminal profile (${_term_profile})"
+    echo "  Applied theme colors to current Terminal window"
   fi
 fi
 

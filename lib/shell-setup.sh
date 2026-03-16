@@ -86,7 +86,10 @@ _bp_sep='>'
 case "${TERM_PROGRAM:-}" in
   iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) _bp_sep=$'\uE0B0' ;;
 esac
-[[ -n "${TMUX:-}" ]] && _bp_sep=$'\uE0B0'
+# in tmux, only enable powerline if NOT Apple Terminal (glyphs may not render)
+if [[ -n "${TMUX:-}" ]] && [[ "${TERM_PROGRAM:-}" != "Apple_Terminal" ]]; then
+  _bp_sep=$'\uE0B0'
+fi
 [[ "${BATIPANEL_ICONS:-0}" == "1" ]] && _bp_sep=$'\uE0B0'
 
 PROMPT="%F{${BP_C_USER:-blue}}%n%f %F{${BP_C_DIR:-cyan}}%~%f\${vcs_info_msg_0_} %F{${BP_C_PROMPT:-magenta}}${_bp_sep}%f "
@@ -151,7 +154,8 @@ __batipanel_prompt() {
   case "${TERM_PROGRAM:-}" in
     iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) _use_pl=1 ;;
   esac
-  [[ -n "${TMUX:-}" ]] && _use_pl=1
+  # in tmux, only enable powerline if NOT Apple Terminal
+  [[ -n "${TMUX:-}" ]] && [[ "${TERM_PROGRAM:-}" != "Apple_Terminal" ]] && _use_pl=1
   [[ "${BATIPANEL_ICONS:-0}" == "1" ]] && _use_pl=1
   if (( _use_pl )); then
     sep=$'\uE0B0'

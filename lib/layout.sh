@@ -45,6 +45,14 @@ init_layout() {
       return 1
     }
   }
+
+  # pass parent terminal info into tmux so prompts can detect Apple Terminal etc.
+  if [ -n "${TERM_PROGRAM:-}" ]; then
+    tmux set-environment -t "$session" TERM_PROGRAM "$TERM_PROGRAM"
+  fi
+  if [ -n "${TERM_PROGRAM_VERSION:-}" ]; then
+    tmux set-environment -t "$session" TERM_PROGRAM_VERSION "$TERM_PROGRAM_VERSION"
+  fi
 }
 
 # Wait for shell init after pane splits

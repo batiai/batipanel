@@ -143,7 +143,8 @@ __batipanel_prompt() {
   case "\${TERM_PROGRAM:-}" in
     iTerm.app|WezTerm|kitty|Hyper|Alacritty|vscode) _use_pl=1 ;;
   esac
-  [[ -n "\${TMUX:-}" ]] && _use_pl=1
+  # in tmux, only enable powerline if NOT Apple Terminal
+  [[ -n "\${TMUX:-}" ]] && [[ "\${TERM_PROGRAM:-}" != "Apple_Terminal" ]] && _use_pl=1
   [[ "\${BATIPANEL_ICONS:-0}" == "1" ]] && _use_pl=1
   if (( _use_pl )); then
     sep=\$'\\uE0B0'

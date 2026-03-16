@@ -17,18 +17,19 @@ _apply_apple_terminal_colors() {
     echo "$((r * 257)), $((g * 257)), $((b * 257))"
   }
 
-  local profile
-  profile=$(defaults read com.apple.Terminal "Default Window Settings" 2>/dev/null || echo "Basic")
   local bg_rgb fg_rgb cursor_rgb
   bg_rgb=$(_hex_to_as_rgb "$bg")
   fg_rgb=$(_hex_to_as_rgb "$fg")
   cursor_rgb=$(_hex_to_as_rgb "$cursor")
 
+  # change only the CURRENT window, not the profile (to avoid corrupting new windows)
   osascript <<APPLESCRIPT 2>/dev/null || true
 tell application "Terminal"
-  set background color of settings set "$profile" to {${bg_rgb}}
-  set normal text color of settings set "$profile" to {${fg_rgb}}
-  set cursor color of settings set "$profile" to {${cursor_rgb}}
+  -- apply to front window only (current tab)
+  set w to front window
+  set background color of current settings of w to {${bg_rgb}}
+  set normal text color of current settings of w to {${fg_rgb}}
+  set cursor color of current settings of w to {${cursor_rgb}}
 end tell
 APPLESCRIPT
 }
