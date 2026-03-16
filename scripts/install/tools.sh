@@ -224,6 +224,24 @@ install_optional_tools() {
               && sudo mkswap /swapfile 2>/dev/null \
               && sudo swapon /swapfile 2>/dev/null; then
             echo "  Swap enabled (1GB)"
+            # offer to persist swap across reboots
+            printf "  Make swap permanent (survives reboot)? [Y/n] "
+            local _perm_answer=""
+            if [ -t 0 ]; then
+              read -r _perm_answer
+            else
+              read -r _perm_answer < /dev/tty 2>/dev/null || _perm_answer="y"
+            fi
+            case "$_perm_answer" in
+              [nN]*) ;;
+              *)
+                if ! grep -qF '/swapfile' /etc/fstab 2>/dev/null; then
+                  echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab >/dev/null 2>/dev/null \
+                    && echo "  Swap registered in /etc/fstab (permanent)" \
+                    || echo "  Could not write to /etc/fstab (swap is temporary)"
+                fi
+                ;;
+            esac
           else
             echo "  Failed to create swap (may need root)"
           fi
@@ -235,9 +253,13 @@ install_optional_tools() {
     local _claude_installer
     _claude_installer=$(mktemp)
     if curl -fsSL https://claude.ai/install.sh -o "$_claude_installer" 2>/dev/null; then
-      local _claude_rc=0
-      bash "$_claude_installer" 2>/dev/null || _claude_rc=$?
-      if [ "$_claude_rc" -eq 137 ] || [ "$_claude_rc" -eq 9 ]; then
+      local _claude_rc=0 _claude_out=""
+      _claude_out=$(bash "$_claude_installer" 2>&1) || _claude_rc=$?
+      if echo "$_claude_out" | grep -qi "ENOSPC\|no space left"; then
+        echo "  Claude Code install failed: no disk space left"
+        echo "  Free up space: df -h / && sudo du -sh /tmp/* /var/cache/* 2>/dev/null | sort -rh | head"
+        echo "  Then retry: curl -fsSL https://claude.ai/install.sh | bash"
+      elif [ "$_claude_rc" -eq 137 ] || [ "$_claude_rc" -eq 9 ]; then
         echo "  Claude Code install killed (not enough memory)"
         echo "  Try: add swap and retry manually"
         echo "    sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile"
