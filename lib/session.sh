@@ -143,21 +143,29 @@ tmux_reset() {
     echo "  Removed $cleaned stale socket(s)"
   fi
 
-  # 3. remove registered projects
+  # 3. remove registered projects (with confirmation)
   local proj_count=0
   for f in "$BATIPANEL_HOME"/projects/*.sh; do
     [ -f "$f" ] || continue
     proj_count=$((proj_count + 1))
   done
   if (( proj_count > 0 )); then
-    rm -f "$BATIPANEL_HOME"/projects/*.sh
-    echo "  Removed $proj_count registered project(s)"
-  fi
-
-  # 4. remove config (wizard will re-run)
-  if [ -f "$BATIPANEL_HOME/config.sh" ]; then
-    rm -f "$BATIPANEL_HOME/config.sh"
-    echo "  Removed config.sh (wizard will re-run)"
+    echo ""
+    echo -e "  ${YELLOW}This will delete $proj_count registered project(s) and config.${NC}"
+    printf "  Continue? [y/N]: "
+    local _reset_answer=""
+    read -r _reset_answer
+    if [[ "${_reset_answer:-N}" == [yY] ]]; then
+      rm -f "$BATIPANEL_HOME"/projects/*.sh
+      echo "  Removed $proj_count registered project(s)"
+      # 4. remove config (wizard will re-run)
+      if [ -f "$BATIPANEL_HOME/config.sh" ]; then
+        rm -f "$BATIPANEL_HOME/config.sh"
+        echo "  Removed config.sh (wizard will re-run)"
+      fi
+    else
+      echo "  Skipped project/config cleanup"
+    fi
   fi
 
   # 5. test tmux

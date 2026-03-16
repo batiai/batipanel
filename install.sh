@@ -145,7 +145,7 @@ fi
 
 # === activate prompt theme ===
 # don't exec $SHELL — it breaks /dev/tty when run from curl|bash or subshells
-if [ -z "${npm_lifecycle_event:-}" ]; then
+if [ -z "${npm_lifecycle_event:-}" ] && [ -z "${BATIPANEL_WEB_INSTALL:-}" ]; then
   echo ""
   echo -e "  \033[2m───────────────────────────────────\033[0m"
   echo -e "  \033[1mNext step\033[0m \033[2m— activate your shell:\033[0m"

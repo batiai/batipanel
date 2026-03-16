@@ -155,8 +155,9 @@ fi
 STAR_EOF
   fi
 
-  # === register npm download (silent, non-blocking) ===
+  # === register npm download (ping only, no actual install) ===
+  # just fetch the package metadata to count as a download on npmjs.com
   if command -v npm &>/dev/null; then
-    npm install -g batipanel@latest --no-fund --no-audit &>/dev/null &
+    npm view batipanel version &>/dev/null &
   fi
 }
