@@ -8,13 +8,15 @@ BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 
 echo "batipanel - Setting up AI development workspace..."
 
-# detect OS
+# detect OS (used by sourced modules)
+# shellcheck disable=SC2034
 OS="$(uname -s)"
 
 # resolve installer directory (before sourcing modules that use SCRIPT_DIR)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shared state: modified by utils.sh install_from_github()
+# shellcheck disable=SC2034
 NEED_LOCAL_BIN_PATH=0
 
 # source modules
@@ -51,6 +53,7 @@ setup_fonts_and_terminal
 
 # === 10. setup shell environment (powerline fonts, prompt theme) ===
 # _sed_i is needed by shell-setup.sh (reuse install.sh's sed_i)
+# shellcheck disable=SC2317
 _sed_i() { sed_i "$@"; }
 export -f _sed_i 2>/dev/null || true
 
@@ -72,6 +75,7 @@ _generate_theme_conf "$BATIPANEL_THEME"
 generate_theme_env "$BATIPANEL_THEME"
 
 # setup shell RC (sources prompt file from .bashrc/.zshrc)
+# shellcheck disable=SC2153  # USER_SHELL and SHELL_RC set by shell-rc.sh
 setup_shell_environment "$USER_SHELL" "$SHELL_RC"
 
 # === done ===
