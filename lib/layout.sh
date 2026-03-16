@@ -111,7 +111,8 @@ run_remote() {
   local pane="$1"
   label_pane "$pane" "Remote"
   if has_cmd claude; then
-    tmux send-keys -t "$pane" "claude remote-control" Enter
+    # type command but don't execute — user starts it after claude main is ready
+    tmux send-keys -t "$pane" "claude remote-control"
   else
     tmux send-keys -t "$pane" "echo 'claude CLI not installed - run: curl -fsSL https://claude.ai/install.sh | bash'" Enter
   fi
