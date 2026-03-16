@@ -648,11 +648,11 @@ else
   fi
 fi
 
-# === 9b. install Nerd Font + recommend iTerm2 (macOS) ===
+# === 9b. install Nerd Font + configure terminal (macOS) ===
 if [ "$OS" = "Darwin" ]; then
   echo ""
 
-  # install Nerd Font
+  # install Nerd Font via Homebrew
   if command -v brew &>/dev/null; then
     if ! brew list --cask font-meslo-lg-nerd-font &>/dev/null 2>&1; then
       echo "Installing Nerd Font (MesloLGS NF) for powerline glyphs..."
@@ -660,19 +660,55 @@ if [ "$OS" = "Darwin" ]; then
     fi
   fi
 
-  # recommend iTerm2 if not installed and user is on Apple Terminal
+  # auto-configure Apple Terminal: font + theme colors via osascript
   if [ "${TERM_PROGRAM:-}" = "Apple_Terminal" ]; then
-    # check if iTerm2 is already installed
-    if [ ! -d "/Applications/iTerm.app" ]; then
-      echo "Recommended: install iTerm2 for full theme & color support."
-      if command -v brew &>/dev/null; then
-        echo "  brew install --cask iterm2"
+    # detect current profile name
+    _term_profile=$(defaults read com.apple.Terminal "Default Window Settings" 2>/dev/null || echo "Basic")
+
+    # set Nerd Font on the profile
+    echo "  Configuring Apple Terminal font (MesloLGS NF)..."
+    osascript -e "tell application \"Terminal\" to set font name of settings set \"${_term_profile}\" to \"MesloLGS-NF-Regular\"" 2>/dev/null || true
+    osascript -e "tell application \"Terminal\" to set font size of settings set \"${_term_profile}\" to 13" 2>/dev/null || true
+
+    # apply theme colors to Terminal.app profile
+    _apply_terminal_app_colors() {
+      local theme="${1:-default}"
+      local term_colors
+      if declare -f _get_theme_terminal_colors &>/dev/null; then
+        term_colors=$(_get_theme_terminal_colors "$theme")
       else
-        echo "  https://iterm2.com/downloads.html"
+        term_colors="#1e1e2e #cdd6f4 #f5e0dc blue cyan green magenta"
       fi
-    else
-      echo "iTerm2 is installed. Use iTerm2 for the best experience."
-    fi
+      local bg fg cursor
+      read -r bg fg cursor _ <<< "$term_colors"
+
+      # convert hex #RRGGBB to AppleScript RGB {R*257, G*257, B*257}
+      _hex_to_applescript_rgb() {
+        local hex="${1#\#}"
+        local r=$((16#${hex:0:2}))
+        local g=$((16#${hex:2:2}))
+        local b=$((16#${hex:4:2}))
+        echo "$((r * 257)), $((g * 257)), $((b * 257))"
+      }
+
+      if [[ "$bg" =~ ^# ]]; then
+        local bg_rgb fg_rgb cursor_rgb
+        bg_rgb=$(_hex_to_applescript_rgb "$bg")
+        fg_rgb=$(_hex_to_applescript_rgb "$fg")
+        cursor_rgb=$(_hex_to_applescript_rgb "$cursor")
+        local profile="$_term_profile"
+        osascript <<APPLESCRIPT 2>/dev/null || true
+tell application "Terminal"
+  set background color of settings set "$profile" to {${bg_rgb}}
+  set normal text color of settings set "$profile" to {${fg_rgb}}
+  set cursor color of settings set "$profile" to {${cursor_rgb}}
+end tell
+APPLESCRIPT
+      fi
+    }
+
+    _apply_terminal_app_colors "${BATIPANEL_THEME:-default}"
+    echo "  Applied theme colors to Apple Terminal profile (${_term_profile})"
   fi
 fi
 
@@ -745,24 +781,19 @@ echo "  b config layout 7panel       # Change default layout"
 echo "  b theme                      # List/change color themes"
 echo ""
 if [ "${TERM_PROGRAM:-}" = "Apple_Terminal" ]; then
-  echo "** Apple Terminal does not support background color themes. **"
+  echo "Apple Terminal: font and theme colors have been configured automatically."
   echo ""
-  if [ -d "/Applications/iTerm.app" ]; then
-    echo "Next steps:"
-    echo "  1. Open iTerm2"
-    echo "  2. Set font: iTerm2 > Settings > Profiles > Text > Font > MesloLGS NF"
-    echo "  3. Type: b"
-  else
-    echo "Next steps:"
-    echo "  1. Install iTerm2:"
+  echo "Type: b"
+  echo ""
+  echo "Tip: For the best experience (true color, native tabs), try iTerm2:"
+  if [ ! -d "/Applications/iTerm.app" ]; then
     if command -v brew &>/dev/null; then
-      echo "     brew install --cask iterm2"
+      echo "  brew install --cask iterm2"
     else
-      echo "     https://iterm2.com/downloads.html"
+      echo "  https://iterm2.com/downloads.html"
     fi
-    echo "  2. Open iTerm2"
-    echo "  3. Set font: iTerm2 > Settings > Profiles > Text > Font > MesloLGS NF"
-    echo "  4. Type: b"
+  else
+    echo "  iTerm2 is already installed — open it and type: b"
   fi
 else
   echo "Tip: Set your terminal font to a Nerd Font (e.g. MesloLGS NF)"

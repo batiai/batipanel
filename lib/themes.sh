@@ -2,6 +2,37 @@
 # batipanel themes - color theme system (orchestrator)
 # Sub-modules: themes-data.sh, themes-tmux.sh, themes-bash.sh
 
+# apply theme colors to Apple Terminal via osascript
+_apply_apple_terminal_colors() {
+  local bg="$1" fg="$2" cursor="$3"
+  [[ "$bg" =~ ^# ]] || return 0
+  command -v osascript &>/dev/null || return 0
+
+  # convert hex #RRGGBB to AppleScript RGB {R*257, G*257, B*257}
+  _hex_to_as_rgb() {
+    local hex="${1#\#}"
+    local r=$((16#${hex:0:2}))
+    local g=$((16#${hex:2:2}))
+    local b=$((16#${hex:4:2}))
+    echo "$((r * 257)), $((g * 257)), $((b * 257))"
+  }
+
+  local profile
+  profile=$(defaults read com.apple.Terminal "Default Window Settings" 2>/dev/null || echo "Basic")
+  local bg_rgb fg_rgb cursor_rgb
+  bg_rgb=$(_hex_to_as_rgb "$bg")
+  fg_rgb=$(_hex_to_as_rgb "$fg")
+  cursor_rgb=$(_hex_to_as_rgb "$cursor")
+
+  osascript <<APPLESCRIPT 2>/dev/null || true
+tell application "Terminal"
+  set background color of settings set "$profile" to {${bg_rgb}}
+  set normal text color of settings set "$profile" to {${fg_rgb}}
+  set cursor color of settings set "$profile" to {${cursor_rgb}}
+end tell
+APPLESCRIPT
+}
+
 # apply theme: generate files, persist config, live reload
 # shellcheck disable=SC2153  # BATIPANEL_HOME is set by core.sh
 _apply_theme() {
@@ -47,13 +78,17 @@ _apply_theme() {
     tmux source-file "$BATIPANEL_HOME/config/theme.conf" 2>/dev/null || true
   fi
 
-  # live reload: apply terminal colors immediately via OSC
-  # (skip Apple_Terminal — no OSC 10/11/12 support)
-  if [[ "${TERM_PROGRAM:-}" != "Apple_Terminal" ]]; then
-    local term_colors
-    term_colors=$(_get_theme_terminal_colors "$theme")
-    local bg fg cursor
-    read -r bg fg cursor _ <<< "$term_colors"
+  # live reload: apply terminal colors immediately
+  local term_colors
+  term_colors=$(_get_theme_terminal_colors "$theme")
+  local bg fg cursor
+  read -r bg fg cursor _ <<< "$term_colors"
+
+  if [[ "${TERM_PROGRAM:-}" == "Apple_Terminal" ]]; then
+    # Apple Terminal: use osascript instead of OSC sequences
+    _apply_apple_terminal_colors "$bg" "$fg" "$cursor"
+  else
+    # other terminals: OSC 10/11/12
     printf '\e]11;%s\a' "$bg"
     printf '\e]10;%s\a' "$fg"
     printf '\e]12;%s\a' "$cursor"

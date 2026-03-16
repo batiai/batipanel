@@ -445,9 +445,21 @@ All optional tools are auto-installed when possible. Missing tools gracefully fa
 
 | Platform | Supported Terminals |
 |----------|---------------------|
-| **macOS** | iTerm2, Terminal.app, Alacritty, Kitty, WezTerm, Warp |
+| **macOS** | Terminal.app, iTerm2, Alacritty, Kitty, WezTerm, Warp |
 | **Linux** | GNOME Terminal, Konsole, Alacritty, Kitty, WezTerm, xterm |
 | **Windows** | Windows Terminal + WSL2 |
+
+### macOS Terminal.app (built-in)
+
+batipanel works out of the box with macOS's built-in Terminal. The installer automatically:
+
+- Installs **Nerd Font** (MesloLGS NF) via Homebrew
+- Sets the font on your Terminal profile via `osascript`
+- Applies **theme colors** (background, text, cursor) to your profile
+
+All layouts, panels, keyboard shortcuts, 256-color themes, Powerline arrows, and session resume work fully.
+
+> **Want true color (24-bit)?** Use [iTerm2](https://iterm2.com) for the richest color experience. Terminal.app supports 256 colors which covers all themes well.
 
 <details>
 <summary><b>Troubleshooting</b></summary>
@@ -457,6 +469,8 @@ All optional tools are auto-installed when possible. Missing tools gracefully fa
 **"tmux is not installed"?** Run `brew install tmux` (macOS) or `sudo apt install tmux` (Ubuntu).
 
 **"claude CLI not installed"?** Run `curl -fsSL https://claude.ai/install.sh | bash`. Everything else still works without it.
+
+**Powerline arrows showing as ">"?** Make sure your terminal font is set to a Nerd Font (e.g., MesloLGS NF). On macOS, the installer sets this automatically.
 
 **WSL clipboard not working?** Run `sudo apt install xclip`.
 
