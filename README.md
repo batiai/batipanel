@@ -18,7 +18,7 @@
 
 ---
 
-**One command. Full dev environment.** Install Claude Code, Git UI, system monitor, file browser — and manage them all as tmux sessions with a single keystroke.
+**One command. Full dev environment.** Auto-installs Claude Code, lazygit, btop, yazi + configures your terminal. Manage everything as persistent tmux sessions with just `b`.
 
 ```bash
 curl -fsSL batipanel.com/install.sh | bash
