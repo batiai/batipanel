@@ -135,13 +135,13 @@ setup_shell_rc() {
     cat >> "$SHELL_RC" << 'STAR_EOF'
 # batipanel welcome (one-time, auto-removes)
 if [ ! -f "$HOME/.batipanel/.star-shown" ]; then
-  echo ""
-  echo "  batipanel is ready!"
-  echo "  Try it now:  b"
-  echo ""
-  echo "  Enjoying it? Star us on GitHub:"
-  echo "     https://github.com/batiai/batipanel"
-  echo ""
+  printf '\n'
+  printf '  \033[1;32m\342\234\223\033[0m \033[1mbatipanel is ready!\033[0m\n'
+  printf '  \033[2mTry it now:\033[0m  \033[36mb\033[0m\n'
+  printf '\n'
+  printf '  \342\255\220 \033[1mStar us on GitHub:\033[0m\n'
+  printf '    \033[4;36mhttps://github.com/batiai/batipanel\033[0m\n'
+  printf '\n'
   mkdir -p "$HOME/.batipanel" && touch "$HOME/.batipanel/.star-shown"
 fi
 STAR_EOF
