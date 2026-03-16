@@ -24,28 +24,32 @@
 curl -fsSL batipanel.com/install.sh | bash
 ```
 
-<!-- GIF: before/after demo on a fresh Linux server -->
-<!-- <p align="center"><img src="docs/demo.gif" width="720" alt="batipanel demo"/></p> -->
+<p align="center">
+  <img src="docs/images/demo.gif" width="720" alt="batipanel demo — install to workspace in 30 seconds"/>
+</p>
 
 ### What happens when you run this:
 
 1. **Auto-installs everything** — tmux, Claude Code, lazygit, btop, yazi, eza (+ Nerd Font on macOS)
 2. **Configures your terminal** — themed prompt, powerline glyphs, color scheme
-3. **One command to start** — `b myproject` launches a multi-panel workspace:
-
-```
-┌────────────────────────────────┬──────────────┐
-│                                │   monitor    │
-│     Claude Code (AI)           ├──────────────┤
-│                                │  file tree   │
-│                                ├──────────────┤
-│                                │ remote ctrl  │
-├───────────┬────────────────────┴──────────────┤
-│    git    │   terminal         │    logs      │
-└───────────┴────────────────────┴──────────────┘
-```
-
+3. **One command to start** — `b myproject` launches a multi-panel workspace
 4. **Session persistence** — SSH drops? Terminal closed? `b myproject` brings it all back.
+
+<p align="center">
+  <a href="docs/images/layout-7panel.png"><img src="docs/images/layout-7panel.png" width="32%" alt="7panel layout"/></a>
+  <a href="docs/images/layout-4panel.png"><img src="docs/images/layout-4panel.png" width="32%" alt="4panel layout"/></a>
+  <a href="docs/images/layout-dual-claude.png"><img src="docs/images/layout-dual-claude.png" width="32%" alt="dual-claude layout"/></a>
+</p>
+<p align="center">
+  <sub>7panel (default) · 4panel (laptop) · dual-claude (multi AI) — click to enlarge</sub>
+</p>
+
+<p align="center">
+  <a href="docs/images/themes-all.png"><img src="docs/images/themes-all.png" width="720" alt="8 color themes"/></a>
+</p>
+<p align="center">
+  <sub>8 built-in themes — <code>b theme dracula</code> to switch</sub>
+</p>
 
 ## Quick Start
 
