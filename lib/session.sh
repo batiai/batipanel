@@ -82,7 +82,8 @@ tmux_start() {
   # attach to session
   # use tmux directly (not exec) so we can detect attach failures
   set +e
-  if [ "${BATIPANEL_ITERM_CC:-0}" = "1" ]; then
+  # -CC mode only works in iTerm2 — ignore setting in other terminals
+  if [ "${BATIPANEL_ITERM_CC:-0}" = "1" ] && [ "${TERM_PROGRAM:-}" = "iTerm.app" ]; then
     tmux -CC attach -t "$SESSION"
   else
     tmux attach -t "$SESSION"
