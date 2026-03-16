@@ -18,11 +18,11 @@ init_layout "$SESSION" "$PROJECT"
 
 CLAUDE=$(tmux list-panes -t "$SESSION" -F '#{pane_id}' | head -1)
 
-# Top(75%) | Bottom(25%)
-LAZYGIT=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 25 -PF '#{pane_id}')
+# Top(70%) | Bottom(30%)
+LAZYGIT=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 30 -PF '#{pane_id}')
 
-# Top: left(65%) | right(35%)
-BTOP=$(_split -h -t "$CLAUDE" -c "$PROJECT" -p 35 -PF '#{pane_id}')
+# Top: left(60%) | right(40%)
+BTOP=$(_split -h -t "$CLAUDE" -c "$PROJECT" -p 40 -PF '#{pane_id}')
 
 # Right column: 3 rows
 EZA=$(_split -v -t "$BTOP" -c "$PROJECT" -p 67 -PF '#{pane_id}')
