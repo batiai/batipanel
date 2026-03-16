@@ -388,7 +388,9 @@ Your projects and settings are always preserved during upgrades.
 
 ---
 
-## AI Telegram Bot (OpenClaw)
+## AI Telegram Bot (OpenClaw) — Experimental
+
+> **Note:** This feature is experimental and under active development. API and configuration may change.
 
 Deploy a personal AI bot in an isolated Docker environment with one command.
 
@@ -441,25 +443,33 @@ All optional tools are auto-installed when possible. Missing tools gracefully fa
 
 ---
 
-## Terminal Compatibility
+## Platform Support
 
-| Platform | Supported Terminals |
-|----------|---------------------|
-| **macOS** | Terminal.app, iTerm2, Alacritty, Kitty, WezTerm, Warp |
-| **Linux** | GNOME Terminal, Konsole, Alacritty, Kitty, WezTerm, xterm |
-| **Windows** | Windows Terminal + WSL2 |
+| Platform | Status | Terminals Tested |
+|----------|--------|------------------|
+| **macOS** | Stable | Terminal.app, iTerm2 |
+| **Ubuntu/Debian** | Stable | GNOME Terminal, default terminal |
+| **Amazon Linux / CentOS** | Beta | default terminal (tmux 2.6+ required, auto-installed) |
+| **Windows** | Beta | Windows Terminal + WSL2 |
+| Other Linux | Community | Alacritty, Kitty, WezTerm, xterm |
 
 ### macOS Terminal.app (built-in)
 
 batipanel works out of the box with macOS's built-in Terminal. The installer automatically:
 
-- Installs **Nerd Font** (MesloLGS NF) via Homebrew
-- Sets the font on your Terminal profile via `osascript`
-- Applies **theme colors** (background, text, cursor) to your profile
+- Creates a dedicated **batipanel** Terminal profile (your original profile is untouched)
+- Installs **Nerd Font** (MesloLGS NF) via Homebrew and sets it on the profile
+- Applies **theme colors** (background, text, cursor)
 
 All layouts, panels, keyboard shortcuts, 256-color themes, Powerline arrows, and session resume work fully.
 
 > **Want true color (24-bit)?** Use [iTerm2](https://iterm2.com) for the richest color experience. Terminal.app supports 256 colors which covers all themes well.
+
+### Linux
+
+The installer auto-installs Nerd Font to `~/.local/share/fonts`. You may need to **select the font manually** in your terminal's preferences (look for "MesloLGS NF" or "MesloLGS Nerd Font").
+
+On distributions with old tmux (e.g. Amazon Linux 2 ships 1.8), the installer will attempt to install tmux 3.x automatically.
 
 <details>
 <summary><b>Troubleshooting</b></summary>
