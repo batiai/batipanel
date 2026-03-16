@@ -51,12 +51,16 @@ curl -fsSL batipanel.com/install.sh | bash
 
 ```bash
 # Install (pick one)
-curl -fsSL https://batipanel.com/install.sh | bash   # Recommended
-npm install -g batipanel                              # npm
-npx batipanel                                         # npx (no install)
+npx batipanel                                         # Node.js users (quickest)
+npm install -g batipanel                              # Node.js users (global)
+curl -fsSL https://batipanel.com/install.sh | bash    # Everyone else
 
 # Start your workspace
 b myproject
+
+# Done? Detach with:
+# Ctrl+b then d    ← session keeps running in the background
+# b myproject      ← come back anytime, everything restored
 ```
 
 ---
