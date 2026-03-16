@@ -923,9 +923,10 @@ fi
 # don't exec $SHELL — it breaks /dev/tty when run from curl|bash or subshells
 if [ -z "${npm_lifecycle_event:-}" ]; then
   echo ""
-  echo "To activate the prompt theme, run:"
+  echo -e "\033[1;33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+  echo -e "\033[1;33m  Activate batipanel (choose one):\033[0m"
   echo ""
-  echo "  exec \$SHELL -l"
-  echo ""
-  echo "Or open a new terminal window."
+  echo -e "  \033[1;32m▶ exec \$SHELL -l\033[0m        ← paste this"
+  echo -e "  \033[1;32m▶ restart terminal\033[0m       ← or just close & reopen"
+  echo -e "\033[1;33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 fi
