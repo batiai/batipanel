@@ -36,19 +36,15 @@ curl -fsSL batipanel.com/install.sh | bash
 4. **Session persistence** — SSH drops? Terminal closed? `b myproject` brings it all back.
 
 <p align="center">
-  <a href="docs/images/layout-7panel.png"><img src="docs/images/layout-7panel.png" width="32%" alt="7panel layout"/></a>
-  <a href="docs/images/layout-4panel.png"><img src="docs/images/layout-4panel.png" width="32%" alt="4panel layout"/></a>
-  <a href="docs/images/layout-dual-claude.png"><img src="docs/images/layout-dual-claude.png" width="32%" alt="dual-claude layout"/></a>
+  <a href="docs/images/layout-7panel.png"><img src="docs/images/layout-7panel.png" width="49%" alt="7panel layout"/></a>
+  <a href="docs/images/themes-all.png"><img src="docs/images/themes-all.png" width="49%" alt="8 color themes"/></a>
 </p>
 <p align="center">
-  <sub>7panel (default) · 4panel (laptop) · dual-claude (multi AI) — click to enlarge</sub>
-</p>
-
-<p align="center">
-  <a href="docs/images/themes-all.png"><img src="docs/images/themes-all.png" width="720" alt="8 color themes"/></a>
+  <a href="docs/images/layout-4panel.png"><img src="docs/images/layout-4panel.png" width="49%" alt="4panel layout"/></a>
+  <a href="docs/images/layout-dual-claude.png"><img src="docs/images/layout-dual-claude.png" width="49%" alt="dual-claude layout"/></a>
 </p>
 <p align="center">
-  <sub>8 built-in themes — <code>b theme dracula</code> to switch</sub>
+  <sub>click to enlarge — 7panel (default) · 8 themes · 4panel (laptop) · dual-claude (multi AI)</sub>
 </p>
 
 ## Quick Start
