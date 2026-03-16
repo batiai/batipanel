@@ -103,6 +103,9 @@ run_monitor() {
     ph=$(tmux display-message -t "$pane" -p '#{pane_height}' 2>/dev/null || echo 0)
     if (( pw >= 80 && ph >= 24 )); then
       tmux send-keys -t "$pane" "btop" Enter
+    elif (( pw >= 40 && ph >= 10 )); then
+      # compact mode: cpu+proc only (preset 1) fits small panes
+      tmux send-keys -t "$pane" "btop -p 1" Enter
     else
       # pane too small for btop — let user choose
       tmux send-keys -t "$pane" \

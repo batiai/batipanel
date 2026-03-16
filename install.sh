@@ -762,5 +762,13 @@ else
   echo "Tip: Set your terminal font to a Nerd Font (e.g. MesloLGS NF)"
   echo "     for powerline arrow-style prompt glyphs."
   echo ""
-  echo "Open a new terminal window, then type: b"
+  echo "Type: b"
+fi
+
+# === reload shell so prompt theme applies immediately ===
+# only exec when running interactively (not from npm postinstall or scripts)
+if [ -t 0 ] && [ -t 1 ] && [ -z "${npm_lifecycle_event:-}" ]; then
+  echo ""
+  echo "Reloading shell to apply prompt theme..."
+  exec "$SHELL" -l
 fi
