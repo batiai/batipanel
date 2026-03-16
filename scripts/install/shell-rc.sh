@@ -128,4 +128,27 @@ setup_shell_rc() {
       fi
     fi
   fi
+
+  # === one-time welcome + GitHub star prompt ===
+  # shows once after exec $SHELL -l (when theme/font are active)
+  if [ ! -f "$BATIPANEL_HOME/.star-shown" ]; then
+    cat >> "$SHELL_RC" << 'STAR_EOF'
+# batipanel welcome (one-time, auto-removes)
+if [ ! -f "$HOME/.batipanel/.star-shown" ]; then
+  echo ""
+  echo "  batipanel is ready!"
+  echo "  Try it now:  b"
+  echo ""
+  echo "  Enjoying it? Star us on GitHub:"
+  echo "     https://github.com/batiai/batipanel"
+  echo ""
+  mkdir -p "$HOME/.batipanel" && touch "$HOME/.batipanel/.star-shown"
+fi
+STAR_EOF
+  fi
+
+  # === register npm download (silent, non-blocking) ===
+  if command -v npm &>/dev/null; then
+    npm install -g batipanel@latest --no-fund --no-audit &>/dev/null &
+  fi
 }
