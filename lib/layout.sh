@@ -75,18 +75,32 @@ init_layout() {
 # Wait for shell init after pane splits
 wait_for_panes() { sleep 0.5; }
 
-# Compatible split-window: try with -p (percentage), fallback without it
+# Compatible split-window: converts -p N to -l N% for tmux 3.x compatibility
 # Usage: same as tmux split-window (drop-in replacement)
 _split() {
-  tmux split-window "$@" 2>/dev/null && return 0
-  # strip -p <N> and retry (tmux versions where -p fails)
-  local args=() skip=0
+  # rewrite args: -p <N> → -l <N>%
+  local args=() skip_next=0
   for a in "$@"; do
-    if (( skip )); then skip=0; continue; fi
-    if [[ "$a" == "-p" ]]; then skip=1; continue; fi
+    if (( skip_next )); then
+      args+=("-l" "${a}%")
+      skip_next=0
+      continue
+    fi
+    if [[ "$a" == "-p" ]]; then
+      skip_next=1
+      continue
+    fi
     args+=("$a")
   done
-  tmux split-window "${args[@]}"
+  tmux split-window "${args[@]}" 2>/dev/null && return 0
+  # fallback: strip -l <N>% and retry (very old tmux)
+  local fallback=() skip=0
+  for a in "${args[@]}"; do
+    if (( skip )); then skip=0; continue; fi
+    if [[ "$a" == "-l" ]]; then skip=1; continue; fi
+    fallback+=("$a")
+  done
+  tmux split-window "${fallback[@]}"
 }
 
 # Set pane title (visible in border when pane-border-status is on)
