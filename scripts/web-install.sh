@@ -80,9 +80,12 @@ cd "$HOME"
 # clean up temp dir explicitly (exec replaces the process, so trap won't fire)
 rm -rf "$TMPDIR_INSTALL"
 
-# reload shell so prompt theme applies immediately
-if [ -t 1 ] 2>/dev/null; then
-  echo ""
-  echo "Reloading shell to apply prompt theme..."
-  exec "$SHELL" -l </dev/tty
-fi
+# don't exec $SHELL here — curl|bash creates a child process, and exec
+# would spawn a second shell competing with the parent for the terminal,
+# breaking /dev/tty access for tmux.
+echo ""
+echo "To activate batipanel, run:"
+echo ""
+echo "  exec \$SHELL -l"
+echo ""
+echo "Or simply open a new terminal window, then type: b"
