@@ -22,10 +22,16 @@ _apply_apple_terminal_colors() {
   fg_rgb=$(_hex_to_as_rgb "$fg")
   cursor_rgb=$(_hex_to_as_rgb "$cursor")
 
-  # change only the CURRENT window, not the profile (to avoid corrupting new windows)
+  # update batipanel profile if it exists (so new windows also get the colors)
+  # then apply to current window for immediate feedback
   osascript <<APPLESCRIPT 2>/dev/null || true
 tell application "Terminal"
-  -- apply to front window only (current tab)
+  if exists settings set "batipanel" then
+    set background color of settings set "batipanel" to {${bg_rgb}}
+    set normal text color of settings set "batipanel" to {${fg_rgb}}
+    set cursor color of settings set "batipanel" to {${cursor_rgb}}
+  end if
+  -- also apply to current window immediately
   set w to front window
   set background color of current settings of w to {${bg_rgb}}
   set normal text color of current settings of w to {${fg_rgb}}
