@@ -306,6 +306,7 @@ install_optional_tools() {
             chmod +x "$_btop_bin"
             if install "$_btop_bin" "$HOME/.local/bin/" 2>/dev/null; then
               echo "  Installed btop to ~/.local/bin/"
+              # shellcheck disable=SC2034
               NEED_LOCAL_BIN_PATH=1
             elif sudo install "$_btop_bin" /usr/local/bin/ 2>/dev/null; then
               echo "  Installed btop to /usr/local/bin/"

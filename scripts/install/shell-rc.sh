@@ -66,6 +66,7 @@ setup_shell_rc() {
   fi
 
   # === 8. persist tool paths in shell RC ===
+  # shellcheck disable=SC2016  # single quotes intentional — $HOME must expand at shell load time
   # ~/.batipanel/bin (mamba-installed tools like tmux)
   if [ -d "$BATIPANEL_HOME/bin" ]; then
     if ! grep -qF '.batipanel/bin' "$SHELL_RC" 2>/dev/null; then
@@ -143,9 +144,10 @@ setup_shell_rc() {
 if [ ! -f "$HOME/.batipanel/.star-shown" ]; then
   printf '\n'
   printf '  \033[1;32m\342\234\223\033[0m \033[1mbatipanel is ready!\033[0m\n'
-  printf '  \033[2mTry it now:\033[0m  \033[36mb\033[0m\n'
+  printf '  \033[2mTry it now:\033[0m  \033[36mb\033[0m  \033[2mor\033[0m  \033[36mb myproject\033[0m\n'
   printf '\n'
-  printf '  \342\255\220 \033[1mLike it? Star us on GitHub\033[0m \033[2m— helps others discover batipanel\033[0m\n'
+  printf '  \342\255\220 \033[1mLike it? Star us on GitHub\033[0m\n'
+  printf '    \033[2mhelps others discover batipanel\033[0m\n'
   printf '    \033[4;36mhttps://github.com/batiai/batipanel\033[0m\n'
   printf '\n'
   mkdir -p "$HOME/.batipanel" && touch "$HOME/.batipanel/.star-shown"
