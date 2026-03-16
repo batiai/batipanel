@@ -123,9 +123,11 @@ run_monitor() {
   local pane="$1"
   label_pane "$pane" "Monitor"
   if has_cmd btop; then
-    # use batipanel config (cpu+proc only) via isolated XDG path
+    # check size at RUNTIME (after attach/resize), not creation time
+    # btop needs 80x24 minimum (hardcoded) — fallback to htop/top if too small
     local _btop_conf="$BATIPANEL_HOME/config"
-    tmux send-keys -t "$pane" "XDG_CONFIG_HOME='$_btop_conf' btop" Enter
+    tmux send-keys -t "$pane" \
+      "if [ \$(tput cols) -ge 80 ] && [ \$(tput lines) -ge 24 ]; then XDG_CONFIG_HOME='$_btop_conf' btop; elif command -v htop >/dev/null; then htop; else top; fi" Enter
   elif has_cmd htop; then
     tmux send-keys -t "$pane" "htop" Enter
   elif has_cmd top; then
