@@ -614,9 +614,13 @@ if [ "$NEED_LOCAL_BIN_PATH" = "1" ]; then
 fi
 
 # === 8b. enable powerline glyphs by default ===
+# only auto-enable on terminals known to support Nerd Fonts well
+# Apple Terminal: defer to batipanel profile setup (sets BATIPANEL_ICONS=1 after font confirmed)
 if ! grep -qF 'BATIPANEL_ICONS' "$SHELL_RC" 2>/dev/null; then
-  echo 'export BATIPANEL_ICONS="1"' >> "$SHELL_RC"
-  echo "  Enabled powerline glyphs (BATIPANEL_ICONS=1)"
+  if [ "${TERM_PROGRAM:-}" != "Apple_Terminal" ]; then
+    echo 'export BATIPANEL_ICONS="1"' >> "$SHELL_RC"
+    echo "  Enabled powerline glyphs (BATIPANEL_ICONS=1)"
+  fi
 fi
 
 # === 9. register tab completion ===
@@ -737,7 +741,12 @@ APPLESCRIPT
           break
         fi
       done
-      if [ "$_nf_applied" = false ]; then
+      if [ "$_nf_applied" = true ]; then
+        # font confirmed — enable powerline glyphs
+        if ! grep -qF 'BATIPANEL_ICONS' "$SHELL_RC" 2>/dev/null; then
+          echo 'export BATIPANEL_ICONS="1"' >> "$SHELL_RC"
+        fi
+      else
         echo "    Warning: Could not set Nerd Font. Powerline glyphs may not render."
         echo "    Install manually: brew install --cask font-meslo-lg-nerd-font"
       fi
@@ -897,9 +906,10 @@ else
 fi
 
 # === reload shell so prompt theme applies immediately ===
-# only exec when running interactively (not from npm postinstall or scripts)
-if [ -t 0 ] && [ -t 1 ] && [ -z "${npm_lifecycle_event:-}" ]; then
+# skip when: npm postinstall, web installer (handles its own reload), non-interactive
+if [ -t 0 ] && [ -t 1 ] && [ -z "${npm_lifecycle_event:-}" ] && [ -z "${BATIPANEL_WEB_INSTALL:-}" ]; then
   echo ""
   echo "Reloading shell to apply prompt theme..."
+  cd "$HOME"
   exec "$SHELL" -l
 fi

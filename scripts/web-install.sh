@@ -70,7 +70,19 @@ echo ""
 
 # run the real installer with /dev/tty as stdin
 # (curl | bash consumes stdin, so interactive prompts need /dev/tty)
+# set BATIPANEL_WEB_INSTALL so install.sh skips exec $SHELL -l (we handle it here)
 cd "$TMPDIR_INSTALL/batipanel"
-bash install.sh </dev/tty
+BATIPANEL_WEB_INSTALL=1 bash install.sh </dev/tty
 
-# cleanup happens via trap
+# return to home directory before reloading shell (installer was in temp dir)
+cd "$HOME"
+
+# clean up temp dir explicitly (exec replaces the process, so trap won't fire)
+rm -rf "$TMPDIR_INSTALL"
+
+# reload shell so prompt theme applies immediately
+if [ -t 1 ] 2>/dev/null; then
+  echo ""
+  echo "Reloading shell to apply prompt theme..."
+  exec "$SHELL" -l
+fi
