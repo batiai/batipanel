@@ -123,8 +123,9 @@ run_monitor() {
   local pane="$1"
   label_pane "$pane" "Monitor"
   if has_cmd btop; then
-    # compact mode (preset 1: cpu+proc only) — works best in multi-panel layouts
-    tmux send-keys -t "$pane" "btop -p 1" Enter
+    # use batipanel config (cpu+proc only) via isolated XDG path
+    local _btop_conf="$BATIPANEL_HOME/config"
+    tmux send-keys -t "$pane" "XDG_CONFIG_HOME='$_btop_conf' btop" Enter
   elif has_cmd htop; then
     tmux send-keys -t "$pane" "htop" Enter
   elif has_cmd top; then

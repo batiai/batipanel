@@ -61,6 +61,12 @@ copy_files() {
 
   chmod +x "$BATIPANEL_HOME"/bin/*.sh "$BATIPANEL_HOME"/lib/*.sh "$BATIPANEL_HOME"/layouts/*.sh
 
+  # copy btop compact config (cpu+proc only for multi-panel layouts)
+  if [ -d "$SCRIPT_DIR/config/btop" ]; then
+    mkdir -p "$BATIPANEL_HOME/config/btop"
+    cp "$SCRIPT_DIR/config/btop/btop.conf" "$BATIPANEL_HOME/config/btop/" 2>/dev/null || true
+  fi
+
   # copy docker templates
   if [ -d "$SCRIPT_DIR/docker" ]; then
     mkdir -p "$BATIPANEL_HOME/docker"/{templates,scripts}
