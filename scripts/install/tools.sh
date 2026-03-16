@@ -98,6 +98,38 @@ install_required_tools() {
     fi
   fi
 
+  # version check: tmux 2.6+ required for -p (percentage splits)
+  _tmux_ver=$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
+  _tmux_major="${_tmux_ver%%.*}"
+  _tmux_minor="${_tmux_ver#*.}"
+  _tmux_minor="${_tmux_minor%%[a-z]*}"  # strip suffix like "3.6a" → "6"
+  if [ -n "$_tmux_ver" ] && (( _tmux_major < 2 || (_tmux_major == 2 && _tmux_minor < 6) )); then
+    echo ""
+    echo "  tmux $_tmux_ver is too old (need 2.6+). Installing newer version..."
+    # try micromamba (provides tmux 3.x from conda-forge)
+    if install_via_mamba tmux 2>/dev/null; then
+      echo "  Upgraded tmux to $(tmux -V 2>/dev/null || echo 'unknown')"
+    else
+      echo ""
+      echo "WARNING: tmux $_tmux_ver is too old and auto-upgrade failed."
+      echo "  batipanel requires tmux 2.6+."
+      echo ""
+      echo "  Install manually:"
+      if [ "$OS" = "Darwin" ]; then
+        echo "    brew install tmux"
+      else
+        echo "    # Option 1: snap (easiest)"
+        echo "    sudo snap install tmux --classic"
+        echo ""
+        echo "    # Option 2: compile from source"
+        echo "    sudo yum install -y libevent-devel ncurses-devel gcc make"
+        echo "    curl -fsSL https://github.com/tmux/tmux/releases/download/3.4/tmux-3.4.tar.gz | tar xz"
+        echo "    cd tmux-3.4 && ./configure && make && sudo make install"
+      fi
+      exit 1
+    fi
+  fi
+
   # ensure git >= 2.32 (required by lazygit)
   if has_cmd git; then
     GIT_VER=$(git --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
