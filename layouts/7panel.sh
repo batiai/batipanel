@@ -24,8 +24,8 @@ LAZYGIT=$(_split -v -t "$CLAUDE" -c "$PROJECT" -p 30 -PF '#{pane_id}')
 # Top: left(55%) | right(45%)
 BTOP=$(_split -h -t "$CLAUDE" -c "$PROJECT" -p 45 -PF '#{pane_id}')
 
-# Right column: 3 rows
-EZA=$(_split -v -t "$BTOP" -c "$PROJECT" -p 67 -PF '#{pane_id}')
+# Right column: 3 rows (btop needs 24+ height, give it 40%)
+EZA=$(_split -v -t "$BTOP" -c "$PROJECT" -p 60 -PF '#{pane_id}')
 REMOTE=$(_split -v -t "$EZA" -c "$PROJECT" -p 50 -PF '#{pane_id}')
 
 # Bottom: 3 columns
