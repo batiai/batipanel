@@ -108,7 +108,7 @@ setup_zsh_theme() {
   local source_line="[[ -f \"$prompt_file\" ]] && source \"$prompt_file\""
 
   if [ -f "$shell_rc" ]; then
-    if ! grep -qF "zsh-prompt.zsh" "$shell_rc" 2>/dev/null; then
+    if ! grep -qF "# batipanel prompt theme" "$shell_rc" 2>/dev/null; then
       {
         echo ""
         echo "# batipanel prompt theme"
@@ -196,7 +196,7 @@ setup_bash_prompt() {
 
   local prompt_file="$BATIPANEL_HOME/config/bash-prompt.sh"
   local source_line="source \"$prompt_file\""
-  _add_line_if_missing "$shell_rc" "bash-prompt.sh" "$source_line"
+  _add_line_if_missing "$shell_rc" "# batipanel shell theme" "$source_line"
 
   echo "    Set prompt theme"
 }
