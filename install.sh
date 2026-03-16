@@ -613,6 +613,12 @@ if [ "$NEED_LOCAL_BIN_PATH" = "1" ]; then
   fi
 fi
 
+# === 8b. enable powerline glyphs by default ===
+if ! grep -qF 'BATIPANEL_ICONS' "$SHELL_RC" 2>/dev/null; then
+  echo 'export BATIPANEL_ICONS="1"' >> "$SHELL_RC"
+  echo "  Enabled powerline glyphs (BATIPANEL_ICONS=1)"
+fi
+
 # === 9. register tab completion ===
 if [ "$USER_SHELL" = "zsh" ]; then
   # zsh: install completion + ensure compinit runs
