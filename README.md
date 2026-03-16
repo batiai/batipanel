@@ -502,6 +502,23 @@ On distributions with old tmux (e.g. Amazon Linux 2 ships 1.8), the installer wi
 
 ---
 
+## Documentation
+
+| | |
+|---|---|
+| [Getting Started](docs/100-get.md) | Install, first run, activation |
+| [Usage Guide](docs/200-use.md) | Commands, sessions, project management |
+| [Layouts & Panels](docs/300-lay.md) | 8 presets, panel types, customization |
+| [Themes](docs/400-thm.md) | 8 color themes, fonts, prompt styling |
+| [Configuration](docs/500-cfg.md) | config.sh, tmux.conf, env variables |
+| [Supported Tools](docs/600-tools.md) | Claude Code, lazygit, btop, yazi, eza |
+| [Remote & SSH](docs/700-ssh.md) | Server sessions, detach/reattach |
+| [FAQ](docs/800-faq.md) | Troubleshooting, platform-specific fixes |
+| [Contributing](docs/900-con.md) | Dev setup, testing, PR guidelines |
+| [Roadmap](docs/999-road.md) | Planned features, what's next |
+
+---
+
 ## Contributing
 
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
