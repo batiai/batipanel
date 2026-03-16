@@ -128,9 +128,9 @@ To copy text from a remote batipanel session to your local clipboard:
 
 ## Next Steps
 
-- [Getting Started](100-get.md) — install on a new server
-- [Usage Guide](200-use.md) — session management commands
-- [FAQ](800-faq.md) — connection troubleshooting
+- [Getting Started](100-getting-started.md) — install on a new server
+- [Usage Guide](200-usage-guide.md) — session management commands
+- [FAQ](800-faq-troubleshooting.md) — connection troubleshooting
 
 ---
 

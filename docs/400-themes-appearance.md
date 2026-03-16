@@ -41,7 +41,7 @@ The status bar uses Powerline-style arrow separators. These require a Nerd Font.
 - **macOS**: Installs MesloLGS NF via Homebrew and configures Terminal.app
 - **Linux**: Installs to `~/.local/share/fonts` — you may need to select "MesloLGS NF" in your terminal preferences
 
-If arrows show as `>` or `?`, your terminal font isn't set to a Nerd Font. See [FAQ](800-faq.md) for fixes.
+If arrows show as `>` or `?`, your terminal font isn't set to a Nerd Font. See [FAQ](800-faq-troubleshooting.md) for fixes.
 
 ## Font Setup
 
@@ -82,9 +82,9 @@ NO_COLOR=1 b myproject
 
 ## Next Steps
 
-- [Configuration](500-cfg.md) — all config options
-- [Layouts](300-lay.md) — panel arrangements
-- [FAQ](800-faq.md) — troubleshooting display issues
+- [Configuration](500-configuration.md) — all config options
+- [Layouts](300-layouts-panels.md) — panel arrangements
+- [FAQ](800-faq-troubleshooting.md) — troubleshooting display issues
 
 ---
 

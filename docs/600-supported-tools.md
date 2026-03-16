@@ -114,9 +114,9 @@ sudo apt install btop
 
 ## Next Steps
 
-- [Layouts](300-lay.md) — see which tools appear in which layout
-- [Configuration](500-cfg.md) — tool-related settings
-- [FAQ](800-faq.md) — tool-specific troubleshooting
+- [Layouts](300-layouts-panels.md) — see which tools appear in which layout
+- [Configuration](500-configuration.md) — tool-related settings
+- [FAQ](800-faq-troubleshooting.md) — tool-specific troubleshooting
 
 ---
 

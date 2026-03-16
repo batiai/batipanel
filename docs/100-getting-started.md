@@ -102,9 +102,9 @@ bash uninstall.sh
 
 ## Next Steps
 
-- [Usage Guide](200-use.md) — learn the `b` command
-- [Layouts](300-lay.md) — pick the right panel arrangement
-- [Themes](400-thm.md) — customize colors
+- [Usage Guide](200-usage-guide.md) — learn the `b` command
+- [Layouts](300-layouts-panels.md) — pick the right panel arrangement
+- [Themes](400-themes-appearance.md) — customize colors
 
 ---
 

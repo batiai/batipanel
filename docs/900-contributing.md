@@ -77,7 +77,7 @@ chore: bump version to 0.5.0
 
 4. Test on a small terminal (4panel baseline) and a large one
 
-See [Layouts](300-lay.md) for diagrams of existing layouts.
+See [Layouts](300-layouts-panels.md) for diagrams of existing layouts.
 
 ## Adding a Theme
 
@@ -126,7 +126,7 @@ Open an issue at [github.com/batiai/batipanel/issues](https://github.com/batiai/
 - Always validate and escape user-provided paths
 - Config parsing uses a safe key-value reader (see `lib/core.sh`)
 
-See the [Configuration](500-cfg.md) docs for how config.sh is parsed safely.
+See the [Configuration](500-configuration.md) docs for how config.sh is parsed safely.
 
 ---
 

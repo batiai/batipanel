@@ -58,7 +58,7 @@ b theme                      # list all themes
 b config iterm-cc on         # enable iTerm2 native integration
 ```
 
-See [Configuration](500-cfg.md) for all options.
+See [Configuration](500-configuration.md) for all options.
 
 ## Keyboard Shortcuts
 
@@ -94,9 +94,9 @@ Kills all tmux sessions, removes registered projects and config, and re-tests tm
 
 ## Next Steps
 
-- [Layouts](300-lay.md) — choose your panel arrangement
-- [Themes](400-thm.md) — customize the look
-- [Remote & SSH](700-ssh.md) — use batipanel on servers
+- [Layouts](300-layouts-panels.md) — choose your panel arrangement
+- [Themes](400-themes-appearance.md) — customize the look
+- [Remote & SSH](700-remote-ssh.md) — use batipanel on servers
 
 ---
 

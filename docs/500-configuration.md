@@ -112,9 +112,9 @@ This removes config.sh, registered projects, and kills tmux sessions. The setup 
 
 ## Next Steps
 
-- [Themes](400-thm.md) — color customization
-- [Supported Tools](600-tools.md) — what each panel runs
-- [FAQ](800-faq.md) — common config issues
+- [Themes](400-themes-appearance.md) — color customization
+- [Supported Tools](600-supported-tools.md) — what each panel runs
+- [FAQ](800-faq-troubleshooting.md) — common config issues
 
 ---
 

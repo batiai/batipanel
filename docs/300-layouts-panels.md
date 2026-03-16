@@ -141,7 +141,7 @@ Each panel runs a specific tool:
 2. Edit the split commands and tool assignments
 3. Test on both small and large terminals
 
-See [Contributing](900-con.md) for details on submitting layouts upstream.
+See [Contributing](900-contributing.md) for details on submitting layouts upstream.
 
 ---
 
