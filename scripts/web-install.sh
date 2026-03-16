@@ -84,5 +84,5 @@ rm -rf "$TMPDIR_INSTALL"
 if [ -t 1 ] 2>/dev/null; then
   echo ""
   echo "Reloading shell to apply prompt theme..."
-  exec "$SHELL" -l
+  exec "$SHELL" -l </dev/tty
 fi
