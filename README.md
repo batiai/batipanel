@@ -1,7 +1,7 @@
 <p align="center">
   <strong>batipanel</strong> — AI-Powered Terminal Workspace Manager
   <br/>
-  <a href="https://batipanel.com">Website</a> · <a href="https://batipanel.com/download">Desktop App</a> · <a href="https://github.com/batiai/batipanel/issues">Issues</a>
+  <a href="https://batipanel.com">Website</a> · <a href="docs/999-roadmap.md">Roadmap</a> · <a href="https://github.com/batiai/batipanel/issues">Issues</a>
 </p>
 
 <p align="center">
