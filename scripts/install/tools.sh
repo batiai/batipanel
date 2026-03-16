@@ -191,7 +191,47 @@ install_optional_tools() {
   # claude code (official standalone installer — no Node.js required)
   if ! has_cmd claude; then
     echo "  Installing Claude Code..."
-    # download installer to temp file so we can run it properly
+
+    # check available memory (RAM + swap) — Claude installer needs ~2GB
+    local _mem_total_kb=0 _swap_total_kb=0
+    if [ -f /proc/meminfo ]; then
+      _mem_total_kb=$(grep -i 'MemTotal' /proc/meminfo | awk '{print $2}')
+      _swap_total_kb=$(grep -i 'SwapTotal' /proc/meminfo | awk '{print $2}')
+    elif command -v sysctl &>/dev/null; then
+      _mem_total_kb=$(( $(sysctl -n hw.memsize 2>/dev/null || echo 0) / 1024 ))
+    fi
+    local _total_kb=$(( _mem_total_kb + _swap_total_kb ))
+
+    # if total memory < 2GB and no swap, offer to create swap
+    if [ "$_total_kb" -gt 0 ] && [ "$_total_kb" -lt 2000000 ] && [ "$_swap_total_kb" -eq 0 ]; then
+      echo "  Low memory detected ($(( _mem_total_kb / 1024 ))MB RAM, no swap)"
+      echo "  Claude Code installer may fail without enough memory."
+      echo ""
+      printf "  Add 1GB swap to prevent OOM? [Y/n] "
+      local _swap_answer=""
+      if [ -t 0 ]; then
+        read -r _swap_answer
+      else
+        read -r _swap_answer < /dev/tty 2>/dev/null || _swap_answer="y"
+      fi
+      case "$_swap_answer" in
+        [nN]*)
+          echo "  Skipping swap setup"
+          ;;
+        *)
+          if sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 2>/dev/null \
+              && sudo chmod 600 /swapfile \
+              && sudo mkswap /swapfile 2>/dev/null \
+              && sudo swapon /swapfile 2>/dev/null; then
+            echo "  Swap enabled (1GB)"
+          else
+            echo "  Failed to create swap (may need root)"
+          fi
+          ;;
+      esac
+    fi
+
+    # download and run installer
     local _claude_installer
     _claude_installer=$(mktemp)
     if curl -fsSL https://claude.ai/install.sh -o "$_claude_installer" 2>/dev/null; then
@@ -199,8 +239,10 @@ install_optional_tools() {
       bash "$_claude_installer" 2>/dev/null || _claude_rc=$?
       if [ "$_claude_rc" -eq 137 ] || [ "$_claude_rc" -eq 9 ]; then
         echo "  Claude Code install killed (not enough memory)"
-        echo "  This instance may need more RAM, or install on a larger machine"
-        echo "  Install manually: curl -fsSL https://claude.ai/install.sh | bash"
+        echo "  Try: add swap and retry manually"
+        echo "    sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile"
+        echo "    sudo mkswap /swapfile && sudo swapon /swapfile"
+        echo "    curl -fsSL https://claude.ai/install.sh | bash"
       elif [ "$_claude_rc" -eq 0 ]; then
         export PATH="$HOME/.claude/bin:$PATH"
         if has_cmd claude; then
