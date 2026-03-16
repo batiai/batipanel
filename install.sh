@@ -749,7 +749,7 @@ APPLESCRIPT
 
       # set Nerd Font (try v3, v2, mono variants)
       local _nf_applied=false
-      for _nf_name in "MesloLGSNerdFont-Regular" "MesloLGS-NF-Regular" "MesloLGSNerdFontMono-Regular"; do
+      for _nf_name in "MesloLGSNF-Regular" "MesloLGSNerdFont-Regular" "MesloLGS-NF-Regular"; do
         if osascript -e "tell application \"Terminal\" to set font name of settings set \"${_bp_profile}\" to \"${_nf_name}\"" 2>/dev/null; then
           _nf_applied=true
           break
