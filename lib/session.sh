@@ -37,7 +37,7 @@ tmux_start() {
     # run project script (creates tmux session + panes)
     local script_err
     set +e
-    script_err=$(bash "$SCRIPT" "$SESSION" 2>&1)
+    script_err=$(LAYOUT="${LAYOUT:-}" bash "$SCRIPT" "$SESSION" 2>&1)
     set -e
 
     # verify session was actually created
