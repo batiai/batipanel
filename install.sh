@@ -919,11 +919,13 @@ else
   echo "Type: b"
 fi
 
-# === reload shell so prompt theme applies immediately ===
-# skip when: npm postinstall, web installer (handles its own reload), non-interactive
-if [ -t 0 ] && [ -t 1 ] && [ -z "${npm_lifecycle_event:-}" ] && [ -z "${BATIPANEL_WEB_INSTALL:-}" ]; then
+# === activate prompt theme ===
+# don't exec $SHELL — it breaks /dev/tty when run from curl|bash or subshells
+if [ -z "${npm_lifecycle_event:-}" ]; then
   echo ""
-  echo "Reloading shell to apply prompt theme..."
-  cd "$HOME"
-  exec "$SHELL" -l
+  echo "To activate the prompt theme, run:"
+  echo ""
+  echo "  exec \$SHELL -l"
+  echo ""
+  echo "Or open a new terminal window."
 fi

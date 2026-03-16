@@ -72,20 +72,13 @@ echo ""
 # (curl | bash consumes stdin, so interactive prompts need /dev/tty)
 # set BATIPANEL_WEB_INSTALL so install.sh skips exec $SHELL -l (we handle it here)
 cd "$TMPDIR_INSTALL/batipanel"
-BATIPANEL_WEB_INSTALL=1 bash install.sh </dev/tty
+export BATIPANEL_WEB_INSTALL=1
+bash install.sh </dev/tty
 
-# return to home directory before reloading shell (installer was in temp dir)
+# return to home directory
 cd "$HOME"
 
-# clean up temp dir explicitly (exec replaces the process, so trap won't fire)
+# clean up temp dir
 rm -rf "$TMPDIR_INSTALL"
 
-# don't exec $SHELL here — curl|bash creates a child process, and exec
-# would spawn a second shell competing with the parent for the terminal,
-# breaking /dev/tty access for tmux.
-echo ""
-echo "To activate batipanel, run:"
-echo ""
-echo "  exec \$SHELL -l"
-echo ""
-echo "Or simply open a new terminal window, then type: b"
+# install.sh already prints activation instructions — nothing more to do
