@@ -48,7 +48,7 @@ install_required_tools() {
         echo "  Skipped. Install Homebrew manually: https://brew.sh"
         ;;
       *)
-        echo "  Installing Homebrew..."
+        echo "  Installing Homebrew (this may take 1-2 minutes)..."
         NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         # add brew to PATH for this session
         if [ -f /opt/homebrew/bin/brew ]; then
