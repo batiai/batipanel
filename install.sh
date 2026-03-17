@@ -144,6 +144,10 @@ else
 fi
 
 # === activate prompt theme ===
+# npm/npx: create flag for cli.sh to show activation message
+if [ -n "${npm_lifecycle_event:-}" ]; then
+  touch "$BATIPANEL_HOME/.just-installed"
+fi
 # don't exec $SHELL — it breaks /dev/tty when run from curl|bash or subshells
 if [ -z "${npm_lifecycle_event:-}" ] && [ -z "${BATIPANEL_WEB_INSTALL:-}" ]; then
   echo ""

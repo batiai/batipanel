@@ -81,4 +81,12 @@ cd "$HOME"
 # clean up temp dir
 rm -rf "$TMPDIR_INSTALL"
 
-# install.sh already prints activation instructions — nothing more to do
+# show activation message (install.sh skips it when BATIPANEL_WEB_INSTALL is set)
+echo ""
+echo -e "  \033[2m───────────────────────────────────\033[0m"
+echo -e "  \033[1mNext step\033[0m \033[2m— activate your shell:\033[0m"
+echo ""
+echo -e "    \033[36mexec \$SHELL -l\033[0m"
+echo ""
+echo -e "  \033[2mor just open a new terminal window.\033[0m"
+echo -e "  \033[2m───────────────────────────────────\033[0m"

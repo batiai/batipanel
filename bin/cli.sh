@@ -4,12 +4,17 @@ set -euo pipefail
 
 BATIPANEL_HOME="${BATIPANEL_HOME:-$HOME/.batipanel}"
 
-if [ -f "$BATIPANEL_HOME/bin/start.sh" ]; then
-  exec bash "$BATIPANEL_HOME/bin/start.sh" "$@"
-else
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [ ! -f "$BATIPANEL_HOME/bin/start.sh" ]; then
+  # not installed yet (manual run without postinstall)
   echo "batipanel is not installed yet. Running installer..."
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
   bash "$SCRIPT_DIR/install.sh"
+fi
+
+# check if postinstall just ran (flag file created by install.sh under npm)
+if [ -f "$BATIPANEL_HOME/.just-installed" ]; then
+  rm -f "$BATIPANEL_HOME/.just-installed"
   echo ""
   echo -e "  \033[2m───────────────────────────────────\033[0m"
   echo -e "  \033[1mNext step\033[0m \033[2m— activate your shell:\033[0m"
@@ -18,4 +23,6 @@ else
   echo ""
   echo -e "  \033[2mor just open a new terminal window.\033[0m"
   echo -e "  \033[2m───────────────────────────────────\033[0m"
+else
+  exec bash "$BATIPANEL_HOME/bin/start.sh" "$@"
 fi
