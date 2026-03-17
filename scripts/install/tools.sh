@@ -34,11 +34,10 @@ install_required_tools() {
     echo ""
     echo "  Homebrew is required on macOS for installing tools (tmux, etc.)"
     if [ -n "${npm_lifecycle_event:-}" ]; then
-      # npm/npx: can't install brew (needs sudo password)
+      # npm/npx: can't install brew (needs sudo password interactively)
       echo ""
-      echo "  Run these two commands to install:"
+      echo "  Use this instead:"
       echo ""
-      echo "    /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
       echo "    curl -fsSL batipanel.com/install.sh | bash"
       echo ""
       exit 1

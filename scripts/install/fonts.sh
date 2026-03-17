@@ -32,6 +32,15 @@ _install_nerd_font_linux() {
 setup_fonts_and_terminal() {
   if [ "$OS" = "Linux" ]; then
     _install_nerd_font_linux
+    # WSL: fonts installed to Linux but Windows Terminal uses Windows fonts
+    if grep -qi microsoft /proc/version 2>/dev/null; then
+      echo ""
+      echo "  WSL detected — fonts are installed in Linux, but Windows Terminal"
+      echo "  uses Windows fonts. To see powerline glyphs correctly:"
+      echo "    1. Download MesloLGS NF from: https://github.com/ryanoasis/nerd-fonts/releases"
+      echo "    2. Install the .ttf files on Windows (right-click → Install)"
+      echo "    3. Set font in Windows Terminal: Settings → Profiles → Font face → MesloLGS Nerd Font"
+    fi
   fi
 
   if [ "$OS" = "Darwin" ]; then
