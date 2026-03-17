@@ -33,15 +33,19 @@ install_required_tools() {
   if [ "$OS" = "Darwin" ] && ! command -v brew &>/dev/null; then
     echo ""
     echo "  Homebrew is required on macOS for installing tools (tmux, etc.)"
-    local _brew_answer="y"
-    if [ -z "${npm_lifecycle_event:-}" ]; then
-      # interactive: ask user
-      printf "  Install Homebrew now? [Y/n] "
-      if [ -t 0 ]; then
-        read -r _brew_answer
-      else
-        read -r _brew_answer < /dev/tty 2>/dev/null || _brew_answer="y"
-      fi
+    if [ -n "${npm_lifecycle_event:-}" ]; then
+      # npm/npx: can't install brew (needs sudo password)
+      echo "  Install Homebrew first, then retry:"
+      echo "    /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+      echo "    npx batipanel"
+      exit 1
+    fi
+    printf "  Install Homebrew now? [Y/n] "
+    local _brew_answer=""
+    if [ -t 0 ]; then
+      read -r _brew_answer
+    else
+      read -r _brew_answer < /dev/tty 2>/dev/null || _brew_answer="y"
     fi
     case "$_brew_answer" in
       [nN]*)
@@ -49,7 +53,9 @@ install_required_tools() {
         ;;
       *)
         echo "  Installing Homebrew (this may take 1-2 minutes)..."
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo "  You may need to enter your macOS password below."
+        echo ""
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         # add brew to PATH for this session
         if [ -f /opt/homebrew/bin/brew ]; then
           eval "$(/opt/homebrew/bin/brew shellenv)"
