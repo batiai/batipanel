@@ -11,5 +11,11 @@ else
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
   bash "$SCRIPT_DIR/install.sh"
   echo ""
-  echo "Run 'batipanel' or 'b' to start."
+  echo -e "  \033[2m───────────────────────────────────\033[0m"
+  echo -e "  \033[1mNext step\033[0m \033[2m— activate your shell:\033[0m"
+  echo ""
+  echo -e "    \033[36mexec \$SHELL -l\033[0m"
+  echo ""
+  echo -e "  \033[2mor just open a new terminal window.\033[0m"
+  echo -e "  \033[2m───────────────────────────────────\033[0m"
 fi
