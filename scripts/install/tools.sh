@@ -29,6 +29,34 @@ install_required_tools() {
 
   _setup_brew_path
 
+  # macOS: install Homebrew if missing (needed for tmux and other tools)
+  if [ "$OS" = "Darwin" ] && ! command -v brew &>/dev/null; then
+    echo ""
+    echo "  Homebrew is required on macOS for installing tools (tmux, etc.)"
+    printf "  Install Homebrew now? [Y/n] "
+    local _brew_answer=""
+    if [ -t 0 ]; then
+      read -r _brew_answer
+    else
+      read -r _brew_answer < /dev/tty 2>/dev/null || _brew_answer="y"
+    fi
+    case "$_brew_answer" in
+      [nN]*)
+        echo "  Skipped. Install Homebrew manually: https://brew.sh"
+        ;;
+      *)
+        echo "  Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        # add brew to PATH for this session
+        if [ -f /opt/homebrew/bin/brew ]; then
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [ -f /usr/local/bin/brew ]; then
+          eval "$(/usr/local/bin/brew shellenv)"
+        fi
+        ;;
+    esac
+  fi
+
   # required: tmux
   if ! command -v tmux &>/dev/null; then
     echo "Installing tmux..."
@@ -44,7 +72,8 @@ install_required_tools() {
     echo ""
     echo "tmux is required but could not be installed."
     if [ "$OS" = "Darwin" ]; then
-      echo "Install via Homebrew:  brew install tmux"
+      echo "  Install Homebrew first: https://brew.sh"
+      echo "  Then: brew install tmux"
     else
       echo "Install via package manager:  sudo apt install tmux  (or equivalent)"
     fi
