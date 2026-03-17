@@ -40,9 +40,24 @@ setup_fonts_and_terminal() {
     # install Nerd Font via Homebrew
     if command -v brew &>/dev/null; then
       if ! brew list --cask font-meslo-lg-nerd-font &>/dev/null 2>&1; then
-        echo "Installing Nerd Font (MesloLGS NF) for powerline glyphs..."
-        brew install --cask font-meslo-lg-nerd-font 2>/dev/null || true
+        echo "  Installing Nerd Font (MesloLGS NF) for powerline glyphs..."
+        # ensure cask-fonts tap is available (older brew needs manual tap)
+        if ! brew tap | grep -q "homebrew/cask-fonts" 2>/dev/null; then
+          brew tap homebrew/cask-fonts 2>/dev/null || true
+        fi
+        if brew install --cask font-meslo-lg-nerd-font; then
+          echo "  Nerd Font installed"
+        else
+          echo "  Warning: Nerd Font install via brew failed."
+          echo "  Try manually: brew install --cask font-meslo-lg-nerd-font"
+        fi
+      else
+        echo "  Nerd Font already installed"
       fi
+    else
+      echo "  Warning: Homebrew not found — cannot install Nerd Font automatically."
+      echo "  Install manually: https://github.com/ryanoasis/nerd-fonts/releases"
+      echo "  Look for 'MesloLGS Nerd Font' and install the .ttf files."
     fi
 
     # auto-configure Apple Terminal: create/update "batipanel" profile
