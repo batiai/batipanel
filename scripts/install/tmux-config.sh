@@ -20,12 +20,13 @@ setup_tmux_config() {
         echo "bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'pbcopy'"
         ;;
       *)
-        if command -v xclip &>/dev/null; then
-          echo "# Linux clipboard (xclip)"
-          echo "bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'xclip -selection clipboard'"
-        elif grep -qi microsoft /proc/version 2>/dev/null; then
+        if grep -qi microsoft /proc/version 2>/dev/null; then
+          # WSL: always use clip.exe (xclip needs X server which WSL lacks)
           echo "# WSL clipboard"
           echo "bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'clip.exe'"
+        elif command -v xclip &>/dev/null; then
+          echo "# Linux clipboard (xclip)"
+          echo "bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'xclip -selection clipboard'"
         fi
         ;;
     esac
