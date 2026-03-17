@@ -140,28 +140,34 @@ APPLESCRIPT
         # already using batipanel profile — update it silently
         _setup_bp_profile
       else
-        # first install or different profile — ask user
-        echo ""
-        echo "  Apple Terminal detected (current profile: ${_current_profile})"
-        echo "  batipanel can create a dedicated '${_bp_profile}' profile with:"
-        echo "    - Nerd Font (MesloLGS) for powerline glyphs"
-        echo "    - Dark theme colors"
-        echo ""
-        printf "  Apply batipanel Terminal profile? [Y/n] "
-        _bp_answer=""
-        if [ -t 0 ]; then
-          read -r _bp_answer
+        # first install or different profile
+        if [ -n "${npm_lifecycle_event:-}" ]; then
+          # npm/npx: non-interactive, auto-apply
+          _setup_bp_profile
         else
-          read -r _bp_answer < /dev/tty 2>/dev/null || _bp_answer="y"
+          # interactive: ask user
+          echo ""
+          echo "  Apple Terminal detected (current profile: ${_current_profile})"
+          echo "  batipanel can create a dedicated '${_bp_profile}' profile with:"
+          echo "    - Nerd Font (MesloLGS) for powerline glyphs"
+          echo "    - Dark theme colors"
+          echo ""
+          printf "  Apply batipanel Terminal profile? [Y/n] "
+          _bp_answer=""
+          if [ -t 0 ]; then
+            read -r _bp_answer
+          else
+            read -r _bp_answer < /dev/tty 2>/dev/null || _bp_answer="y"
+          fi
+          case "$_bp_answer" in
+            [nN]*)
+              echo "  Skipped. You can set your font to a Nerd Font manually."
+              ;;
+            *)
+              _setup_bp_profile
+              ;;
+          esac
         fi
-        case "$_bp_answer" in
-          [nN]*)
-            echo "  Skipped. You can set your font to a Nerd Font manually."
-            ;;
-          *)
-            _setup_bp_profile
-            ;;
-        esac
       fi
     fi
   fi
