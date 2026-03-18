@@ -133,7 +133,7 @@ setup_shell_rc() {
   # === one-time welcome + GitHub star prompt ===
   # clean up old welcome blocks from previous installs
   if grep -qF "batipanel welcome" "$SHELL_RC" 2>/dev/null; then
-    sed_i '/# batipanel welcome/,/^fi$/d' "$SHELL_RC" 2>/dev/null || true
+    sed_i '/# batipanel welcome/,/# end batipanel welcome/d' "$SHELL_RC" 2>/dev/null || true
   fi
   # remove old .star-shown flag so new welcome shows
   rm -f "$BATIPANEL_HOME/.star-shown" 2>/dev/null || true
@@ -152,6 +152,7 @@ if [ ! -f "$HOME/.batipanel/.star-shown" ]; then
   printf '\n'
   mkdir -p "$HOME/.batipanel" && touch "$HOME/.batipanel/.star-shown"
 fi
+# end batipanel welcome
 STAR_EOF
   fi
 

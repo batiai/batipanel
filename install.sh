@@ -58,6 +58,11 @@ _sed_i() { sed_i "$@"; }
 export -f _sed_i 2>/dev/null || true
 
 # source theme modules so _generate_themed_prompt is available
+if [ ! -f "$BATIPANEL_HOME/lib/core.sh" ]; then
+  echo "ERROR: Installation incomplete — lib files not found in $BATIPANEL_HOME"
+  echo "  Try reinstalling: curl -fsSL batipanel.com/install.sh | bash"
+  exit 1
+fi
 # shellcheck source=lib/core.sh
 source "$BATIPANEL_HOME/lib/core.sh"
 # shellcheck source=lib/themes-data.sh

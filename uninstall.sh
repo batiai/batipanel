@@ -63,10 +63,10 @@ for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile";
     _sed_i '/# batipanel shell theme/d' "$rc"
     _sed_i '/# batipanel prompt theme/d' "$rc"
     # welcome/star block (heredoc inserted by installer)
-    _sed_i '/# batipanel welcome/,/^fi$/d' "$rc"
+    _sed_i '/# batipanel welcome/,/# end batipanel welcome/d' "$rc"
     # completion lines
     _sed_i '/completions\/batipanel/d' "$rc"
-    _sed_i '/_batipanel/d' "$rc"
+    _sed_i '/\/_batipanel$/d' "$rc"
     # PATH additions
     _sed_i '/\.batipanel\/bin/d' "$rc"
     # clean up blank lines left behind (collapse multiple empty lines to one)
